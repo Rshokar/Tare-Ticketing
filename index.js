@@ -48,4 +48,127 @@ app.get("/dashboard", (req, res) => {
     res.render("dashboard")
 })
 
+/**
+ * This route will return the HTML for the account page 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date May 18 2021
+ */
+app.get("/account", (req, res) => {
+    res.render("account")
+})
+
+/**
+ * This route will return the appropriate HTML for the login page. 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date May 18 2021
+ */
+app.get("/login", (req, res) => {
+    readFile("static/html/login.html", "utf-8", (err, html) => {
+        if (err) {
+            throw err;
+        }
+        res.send(html);
+    })
+})
+
+
+/**
+ * This route will return the appropriate HTML for the register page. 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date May 19 2021
+ */
+app.get("/register", (req, res) => {
+    readFile("static/html/register.html", "utf-8", (err, html) => {
+        if (err) {
+            throw err;
+        }
+        res.send(html);
+    })
+})
+
+/**
+ * This route will return the appropriate HTML for the tickets page. 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date May 22 2021
+ */
+app.get("/tickets", (req, res) => {
+    res.render("tickets");
+})
+
+/**
+ * This route will return the appropriate HTML for the dispatch page. 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date May 22 2021
+ */
+app.get("/dispatch", (req, res) => {
+    res.render("dispatch");
+})
+
+/**
+ * This route will return the appropriate HTML for the job page. 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date May 22 2021
+ */
+app.get("/job", (req, res) => {
+    res.render("job");
+})
+
+/**
+ * This route will return the appropriate HTML for the load ticket page. 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date May 22 2021
+ */
+app.get("/load", (req, res) => {
+    res.render("load");
+})
+
+/**
+ * This route will return the appropriate HTML for the creating a new dispatch. 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date May 22 2021
+ */
+app.get("/new_dispatch", (req, res) => {
+    res.render("new_dispatch");
+})
+
+/**
+ * This route will return the appropriate HTML for the employee page. 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date May 22 2021
+ */
+app.get("/employees", (req, res) => {
+    res.render("employees");
+})
+
+/**
+ * This route will return the appropriate HTML for adding a new employee. 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date May 22 2021
+ */
+app.get("/new_employee", (req, res) => {
+    res.render("new_employee");
+})
+
+/**
+ * This route will return the appropriate HTML for the operator page. 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date May 22 2021
+ */
+app.get("/operators", (req, res) => {
+    res.render("operators");
+})
+
+
+//App Listen.
 app.listen(8000, () => console.log("App available on http://localhost:8000"));

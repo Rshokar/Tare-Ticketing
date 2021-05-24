@@ -1,0 +1,41 @@
+#tabs {
+    margin-top: 2em;
+    width: 100%;
+    background-color: #EFEFEf;
+    display: grid;
+    grid-template-columns: 50% 50%;
+    text-align: center;
+}
+
+#dispatch, #job, #fuel {
+    line-height: 5vh;
+    height: 5vh;
+    display: inline-block;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+}
+
+#dispatch {
+    grid-column: 1 /span 1;
+    background-color: #CFCFCF;
+}
+
+#ticket {
+    grid-column: 2 / span 1;
+}
+
+#fuel {
+    grid-column: 3 / span 1;
+}
+
+#dispatch:hover, #job:hover, #fuel:hover{
+    background-color: #CFCFCF;
+} 
+
+#job_container {
+    display: none;
+}
+
+#fuel_container {
+    display: none;
+}

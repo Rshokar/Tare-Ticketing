@@ -1,0 +1,13 @@
+#details {
+    display: grid;
+    align-content: center;
+    height: 20vh
+}
+
+#details span {
+    display: block;
+}
+
+#number {
+    font-size: 35pt;
+}

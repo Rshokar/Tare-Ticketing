@@ -1,0 +1,34 @@
+#user-info {
+    text-align: center;
+    height: 20vh;
+    display: grid;
+    align-content: center;
+}
+
+#user-info h1 {
+    padding: 0;
+    margin-bottom: -.05em;
+}
+
+#user-info span {
+    font-size: 20pt;
+}
+
+#user-setting span {
+    line-height: 5vh;
+    font-weight: bold;
+    padding-left: 1em;
+}
+
+#user-setting div {
+    height: 5vh;
+    background-color: #C4C4C4;
+}
+
+#user-setting div:nth-child(2n) {
+    background-color: #E4E4E4;
+}
+
+#user-setting div:hover {
+    background-color: white;
+}

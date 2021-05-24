@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Some other value</title>
+
+    <!-- Custom CSS for -->
+    <link href="css/layout.css" rel="stylesheet">
+
+    <!-- Customer CSS for register/login html-->
+    <link href="css/login-register.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <!-- Header -->
+    <header id="head">
+        <h1>Dispatch</h1>
+    </header>
+
+
+
+    <div id="content_section">
+        <div id="register">
+            <form>
+                <legend>Register</legend>
+                <div id="email">
+                    <label>Email</label>
+                    <input type='text' required placeholder="Email">
+                </div>
+                <div id="fName">
+                    <label>First Name</label>
+                    <input type='text' required placeholder="First Name">
+                </div>
+                <div id="lName">
+                    <label>Last Name</label>
+                    <input type='text' required placeholder="Last Name">
+                </div>
+                <div id="company">
+                    <label>Company</label>
+                    <input type='text' required placeholder="Company">
+                </div>
+                <div id="type">
+                    <label>Account Type</label>
+                    <select name="Account Type" id="type">
+                        <option value="dispatcher">Dispatcher</option>
+                        <option value="operator">Operator</option>
+                    </select>
+                </div>
+                <div id="password">
+                    <label>Password</label>
+                    <input type='password' required placeholder="Password">
+                </div>
+                <input id="submit" type="submit">
+            </form>
+            <span id="switch">Do you have an account? <a href="/login">Login</a></span>
+
+
+        </div>
+    </div>
+
+
+    <!-- Font Awsome -->
+    <script src="https://kit.fontawesome.com/26da0e4274.js" crossorigin="anonymous"></script>
+</body>
+
+</html>

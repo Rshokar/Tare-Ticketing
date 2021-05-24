@@ -1,0 +1,96 @@
+<!-- Custom css for job html. -->
+<link rel="stylesheet" href="css/job_page.css">
+
+<!-- Custom css for load tickets -->
+<link rel="stylesheet" href="css/load.css">
+
+<div id="back">
+  <a href="/dispatch"><i class="fas fa-arrow-left"></i></a>
+</div>
+
+
+<!-- All job details will be rendered here -->
+<div id="job_details">
+  <div id="parties">
+    <h1 id="contractore">Winvan</h1>
+    <h3 id="dispatcher">A.K.S Trucking LTD</h3>
+  </div>
+
+  <div id="operator">
+    <span id="operator_name">Gurj Attwal</span>
+    <span id="truck_num">#600</span>
+
+  </div>
+
+  <div id="details">
+    <p id="date"></p>
+    <div id="equipment">
+      <span id="truck">2-axle</span>
+      <span id="trailer">4-axle Trasfer Trailer</span>
+    </div>
+    <div id="locations">
+      <span id="load">Load: Winvan Asphalt Plant</span>
+      <span id="dump">Dump: 6901 20 ave Surrey</span>
+    </div>
+  </div>
+</div>
+
+<button id="new_load_ticket">New Load Ticket</button>
+
+
+<!-- All load tickets will be rendered here-->
+<div id="load_ticket">
+
+
+  <div class="load done">
+    <div class='summary'>
+      <div class="times">
+        <div>
+          <span>Load: 7:30 AM</span>
+        </div>
+        <div>
+          <span>Dump: 10:30 AM</span>
+        </div>
+
+      </div>
+      <div class="weight">
+        <span>39.65</span>
+      </div>
+    </div>
+
+
+    <div class="load_details">
+      <div class="material">
+        <span>Asphalt</span>
+      </div>
+
+      <div class="reciever">
+        <span>Winvan</span>
+      </div>
+
+      <div class="load_location">
+        <span>Winvan Asphalt Plant</span>
+      </div>
+
+      <div class="dump_location">
+        <span>6901 20 ave Surrey</span>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="load active">
+    <div class="times">
+      <div>
+        <span>Load: 1:30 PM</span>
+      </div>
+      <div>
+        <button id="dump_load">Dump</button>
+      </div>
+
+    </div>
+    <div class="weight">
+      <span>38.95</span>
+    </div>
+  </div>
+</div>

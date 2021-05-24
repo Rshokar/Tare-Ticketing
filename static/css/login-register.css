@@ -1,0 +1,20 @@
+#login , #register{
+    border: 2px solid black;
+    border-radius: 5%;
+    width: 100%;
+}
+
+#email, #password, legend, #switch, #fName, #lName, #company, #type, .input{ 
+    margin-left: 10px;
+    padding-top: .5em;
+    padding-bottom: .5em;
+    display: block;
+}
+
+#submit {
+    margin: 10px;
+}
+
+legend {
+    font-size: 20pt;
+}

@@ -1,0 +1,12 @@
+.employee {
+    background-color: #CFCFCF;
+    height: 8vh;
+    display: grid;
+    align-content: center;
+    margin-top: 1em;
+}
+
+.employee  h3, .employee span {
+    margin: 0;
+    margin-left: 1em
+}

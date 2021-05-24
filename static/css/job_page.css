@@ -1,0 +1,15 @@
+#equipment {
+    margin-bottom: .5em;
+}
+
+#locations  span {
+    display: block;
+}
+
+#new_load_ticket {
+    margin-top: 1em;
+    font-size: 15pt;
+    height: 5vh;
+    width: 100%;
+    background-color: #E0E0E0;
+}

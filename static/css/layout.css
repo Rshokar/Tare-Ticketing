@@ -7,7 +7,7 @@ body {
 
 header {
     width: 100%;
-    background-color: slategray;
+    background-color: #C4C4C4;
     height: 7vh;
     text-align: center;
     position: fixed;
@@ -20,7 +20,7 @@ header h1 {
 }
 
 nav {
-    background-color: slategray;
+    background-color: #C4C4C4;
     display: grid;
     grid-template-columns: 25% 25% 25% 25%;
     position: fixed;
@@ -60,9 +60,7 @@ nav span {
 
 .icon {
     padding-top: .5em;
-    padding-bottom: .5em;
-    border: 1px solid black;
-    
+    padding-bottom: .5em;   
 }
 
 .icon:hover{
@@ -75,4 +73,9 @@ nav span {
     margin-bottom: 7.5vh;
     margin-left: 1em;
     margin-right: 1em;
+}
+
+
+#search input {
+    width: 100%;
 }

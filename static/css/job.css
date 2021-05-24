@@ -1,0 +1,53 @@
+.job {
+    margin-top: 1em;
+    padding: .5em .5em .5em .5em;
+    display: grid;
+    grid-template-columns: 75% 25%;
+    border-radius: 2%;
+}
+
+
+.job h2, .job .truck_num, .job .equipment {
+    grid-column: 1 / span 1;
+}
+
+.job h2 {
+    margin: 0;
+}
+
+.job .truck_num, .job .equipment{
+    padding-top: .5em;
+}
+
+.job .start_time {
+    line-height: 11vh;
+    grid-column: 2 / span 1;
+    grid-row: 1 / span 3;
+}
+
+.start_time {
+    font-size: 20pt;
+}
+
+.equipment div{
+ display: inline-block;
+}
+
+
+.done {
+  background-color: #FAF6D8;
+}
+
+.active {
+  background-color: #E2E8D8;
+}
+
+
+.confirmed {
+  background-color: #D8E0E8;
+}
+
+
+.sent {
+  background-color: #E8D8DC;
+}
