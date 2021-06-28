@@ -20,34 +20,14 @@
 }
 
 .job .start_time {
-    line-height: 11vh;
     grid-column: 2 / span 1;
     grid-row: 1 / span 3;
 }
 
 .start_time {
-    font-size: 20pt;
+    font-size: 15pt;
 }
 
 .equipment div{
  display: inline-block;
-}
-
-
-.done {
-  background-color: #FAF6D8;
-}
-
-.active {
-  background-color: #E2E8D8;
-}
-
-
-.confirmed {
-  background-color: #D8E0E8;
-}
-
-
-.sent {
-  background-color: #E8D8DC;
 }

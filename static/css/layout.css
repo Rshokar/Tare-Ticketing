@@ -5,7 +5,7 @@ body {
     margin: 0
 }
 
-header {
+/* header {
     width: 100%;
     background-color: #C4C4C4;
     height: 7vh;
@@ -17,60 +17,10 @@ header {
 header h1 {
     line-height: 7vh;
     margin: 0;
-}
+} */
 
-nav {
-    background-color: #C4C4C4;
-    display: grid;
-    grid-template-columns: 25% 25% 25% 25%;
-    position: fixed;
-    bottom: 0;
-    height: 7vh;
-    width: 100%;
-}
-
-nav a {
-    text-decoration: none;
-    color: black;
-}
-
-nav div {
-    text-align: center;
-}
-
-nav span {
-    display: block;
-}
-
-#dashboard {
-    grid-column: 1 / span 1;
-}
-
-#new {
-    grid-column: 2 / span 1;
-}
-
-#tickets {
-    grid-column: 3 / span 1;
-} 
-
-#account {
-    grid-column:  4 / span 1;
-}
-
-.icon {
-    padding-top: .5em;
-    padding-bottom: .5em;   
-}
-
-.icon:hover{
-    background-color: rgb(0, 0, 0);
-    color: rgb(255, 255, 255);
-}
 
 #content_section {
-    margin-top: 8vh;
-    margin-bottom: 7.5vh;
     margin-left: 1em;
     margin-right: 1em;
 }
@@ -79,3 +29,79 @@ nav span {
 #search input {
     width: 100%;
 }
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.error {
+    color: red;
+}
+
+
+#flash {
+    display: none;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+  
+  /* Modal Content */
+  .modal-content {
+      text-align: center;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+  }
+  
+  /* The Close Button */
+  .close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .done {
+    background-color: #FAF6D8;
+  }
+    
+  .active {
+    background-color: #E2E8D8;
+  }
+    
+    
+  .confirmed {
+    background-color: #D8E0E8;
+  }
+    
+    
+  .sent {
+    background-color: #f0e0c3;
+  }
+
+  .empty {
+    background-color: rgb(254, 130, 130);
+  }
+  

@@ -1,0 +1,162 @@
+.operator {
+    margin-top: 1em;
+    padding: .5em .5em .5em .5em;
+    display: grid;
+    grid-template-columns: 75% 25%;
+    border-radius: 2%;
+}
+
+
+.operator h2, .equipment , .error{
+    grid-column: 1 / span 2;
+}
+
+.equipment {
+    margin: 10px 10px 10px 0px;
+}
+
+.operator_container {
+    margin: .1em;
+    background-color: white;
+    
+}
+
+.operator_name {
+    font-size: 15pt;
+    padding: 5px;
+    text-decoration: underline;
+}
+
+
+.job .start_time {
+    grid-column: 2 / span 1;
+    grid-row: 1 / span 1;
+}
+
+.start_time {
+    font-size: 15pt;
+}
+
+.equipment div{
+ display: inline-block;
+}
+
+.done {
+  background-color: #FAF6D8;
+}
+
+.active {
+  background-color: #E2E8D8;
+}
+
+
+.confirmed, .filled {
+  background-color: #D8E0E8;
+}
+
+
+.sent, .empty {
+  background-color: #e1aaaa;
+}
+
+#operators_modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+
+#spot_index {
+    display: none;
+}
+
+.modal_content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+  }
+
+  
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+
+#modal_tabs {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+
+#modal_tabs div {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    border: 1px solid black;
+    padding: 2px;
+}
+
+#employee_tab {
+    background-color: rgb(196, 196, 196);
+}
+
+#operator_tab, #operators_tab:hover, #employee_tab:hover{
+    background-color: rgb(255, 255, 255);
+}
+
+#employees, #owner_operator {
+    background-color:  #888;
+    min-height: 50vh;
+}
+
+.user_id, #owner_operator {
+    display: none;
+}
+
+#empty_search {
+    background-color: #CFCFCF;
+    text-align: center;
+    height: 8vh;
+    line-height: 8vh;
+    font-size: 15pt;
+}
+
+#controls {
+    width: 100%;
+    display: grid;
+    grid-template-column: 50% 50%;
+    font-size: 20pt;
+}
+
+#exit {
+    grid-column: 1 / span 1;
+}
+
+#next {
+    text-align: right;
+    grid-column: 2 / span 1;
+}
+
+.error {
+    display: none;
+    color: red;
+}

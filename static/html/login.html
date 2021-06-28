@@ -25,15 +25,15 @@
 
   <div id="content_section">
     <div id="login">
-      <form>
+      <form action="/login_user" method="POST">
         <legend>Login</legend>
         <div id="email">
           <label>Email</label>
-          <input type='text' required placeholder="Email">
+          <input type='text' name="email" required placeholder="Email">
         </div>
         <div id="password">
           <label>Password</label>
-          <input type='password' required placeholder="Password">
+          <input type='password' name="password" required placeholder="Password">
         </div>
         <input id="submit" type="submit">
       </form>

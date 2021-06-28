@@ -18,3 +18,8 @@
 legend {
     font-size: 20pt;
 }
+
+#company .employees_form {
+    background-color: aqua;
+    display: hide;
+}

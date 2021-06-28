@@ -9,35 +9,248 @@
 </div>
 
 <div id="details">
-  <span id="number">Number</span>
-  <span id="number-def">Number Deffinition</span>
+  <% if (user.type=="dispatcher" ) { %>
+    <span class="number">
+      <%= dispatches.length %>
+        <span class="number-def">Active Dispatches</span>
+    </span>
+
+    <% } else { %>
+      <span id="num_active_jobs" class="number">
+        <%= ticketStatus.active %>
+          <span class="number-def">Active jobs.</span>
+      </span>
+      <span id="num_confirmed_jobs" class="number">
+        <%= ticketStatus.confirmed %>
+          <span class="number-def">Confirmed jobs.</span>
+      </span>
+      <span id="num_sent_jobs" class="number">
+        <%= ticketStatus.sent %>
+          <span class="number-def">New jobs.</span>
+      </span>
+
+      <% } %>
 </div>
 
-<div id="tickets">
-  <a href="/dispatch">
-    <div class="dispatch confirmed">
-      <h2>Winvan</h2>
-      <span class="address">16091 20 ave Surrey</span>
+<!-- Tabs to switch between ticket status -->
 
-      <div class="status">
-        <div>
-          <i class="far fa-paper-plane"></i>
-          <span>2</span>
-        </div>
-        <div>
-          <i class="fas fa-check"></i>
-          <span>2</span>
-        </div>
-        <div>
-          <i class="fas fa-vote-yea"></i>
-          <span>0</span>
-        </div>
-      </div>
-
-      <div class="num-trucks">
-        <i class="fas fa-truck"></i>
-        <span>4</span>
-      </div>
+<% if (user.type=="operator" ) { %>
+  <div id="tab_container">
+    <div id="active_tab" class="tab">
+      <span>
+        Active
+      </span>
     </div>
-  </a>
-</div>
+    <div id="confirmed_tab" class="tab">
+      <span>
+        Confirmed
+      </span>
+    </div>
+    <div id="sent_tab" class="tab">
+      <sapn>
+        New
+      </sapn>
+    </div>
+  </div>
+  <% } %>
+
+    <div id="tickets">
+      <% if (user.type=="dispatcher" ) { %>
+        <% for(let i=0; i < dispatches.length; i++) { %>
+          <a href="/dispatch?id=<%= dispatches[i].id %>">
+            <div class="dispatch confirmed">
+              <h2>
+                <%= dispatches[i].contractor %>
+              </h2>
+              <span class="address">
+                <%= dispatches[i].loadLocation %>
+              </span>
+
+              <div class="status">
+                <div>
+                  <i class="fas fa-circle-notch"></i>
+                  <%= dispatches[i].status.empty %>
+                </div>
+                <div>
+                  <i class="far fa-paper-plane"></i>
+                  <%= dispatches[i].status.sent %>
+                </div>
+                <div>
+                  <i class="fas fa-check"></i>
+                  <%= dispatches[i].status.confirmed %>
+                </div>
+                <div>
+                  <i class="fas fa-vote-yea"></i>
+                  <%= dispatches[i].status.active %>
+                </div>
+                <div>
+                  <i class="fas fa-check-square"></i>
+                  <%= dispatches[i].status.confirmed %>
+                </div>
+              </div>
+              <div class="num-trucks">
+                <i class="fas fa-truck"></i>
+                <%= dispatches[i].numTrucks %>
+              </div>
+            </div>
+          </a>
+          <% } %>
+            <% } else { %>
+              <div id="active">
+                <% for (let i=0; i < jobs.length; i++) { %>
+                  <% if (jobs[i].status=='active' ) { %>
+                    <a href="/job?id=<%=jobs[i]._id %>">
+                      <div class="job <%= jobs[i].status %>">
+                        <h2>
+                          <%= jobs[i].contractor %>
+                        </h2>
+                        <h5>
+                          <%= jobs[i].dispatcher.company %>
+                        </h5>
+                        <div class="equipment">
+                          <div id="truck">
+                            <span>
+                              <%= jobs[i].equipment.truck %>
+                            </span>
+                          </div>
+                          <div id="trailer">
+                            <% if (jobs[i].equipment.trailer !="default" ) { %>
+                              <span>
+                                <%= jobs[i].equipment.trailer %>
+                              </span>
+                              <% } %>
+                          </div>
+                        </div>
+                        <div class="start_time">
+                          <span>
+                            <%= jobs[i].startTime %>
+                          </span>
+                        </div>
+                      </div>
+                    </a>
+                    <% } %>
+                      <% } %>
+              </div>
+              <div id="confirmed">
+                <% for (let i=0; i < jobs.length; i++) { %>
+                  <% if (jobs[i].status=='confirmed' ) { %>
+                    <a href="/job?id=<%=jobs[i]._id %>">
+                      <div class="job <%= jobs[i].status %>">
+                        <h2>
+                          <%= jobs[i].contractor %>
+                        </h2>
+                        <h5>
+                          <%= jobs[i].dispatcher.company %>
+                        </h5>
+                        <div class="equipment">
+                          <div id="truck">
+                            <span>
+                              <%= jobs[i].equipment.truck %>
+                            </span>
+                          </div>
+                          <div id="trailer">
+                            <% if (jobs[i].equipment.trailer !="default" ) { %>
+                              <span>
+                                <%= jobs[i].equipment.trailer %>
+                              </span>
+                              <% } %>
+                          </div>
+                        </div>
+                        <div class="start_time">
+                          <span>
+                            <%= jobs[i].startTime %>
+                          </span>
+                        </div>
+                      </div>
+                    </a>
+                    <% } %>
+                      <% } %>
+              </div>
+              <div id="new">
+                <% for (let i=0; i < jobs.length; i++) { %>
+                  <% if (jobs[i].status=='sent' ) { %>
+                    <a href="/job?id=<%=jobs[i]._id %>">
+                      <div class="job <%= jobs[i].status %>">
+                        <h2>
+                          <%= jobs[i].contractor %>
+                        </h2>
+                        <h5>
+                          <%= jobs[i].dispatcher.company %>
+                        </h5>
+                        <div class="equipment">
+                          <div id="truck">
+                            <span>
+                              <%= jobs[i].equipment.truck %>
+                            </span>
+                          </div>
+                          <div id="trailer">
+                            <% if (jobs[i].equipment.trailer !="default" ) { %>
+                              <span>
+                                <%= jobs[i].equipment.trailer %>
+                              </span>
+                              <% } %>
+                          </div>
+                        </div>
+                        <div class="start_time">
+                          <span>
+                            <%= jobs[i].startTime %>
+                          </span>
+                        </div>
+                      </div>
+                    </a>
+                    <% } %>
+                      <% } %>
+              </div>
+
+              <% } %>
+    </div>
+
+    <% if (user.type=='operator' ) { %>
+      <script>
+        const activeTab = document.getElementById("active_tab");
+        const confirmedTab = document.getElementById("confirmed_tab");
+        const sentTab = document.getElementById("sent_tab");
+
+        const activeContainer = document.getElementById("active");
+        const confirmedContainer = document.getElementById("confirmed");
+        const sentContainer = document.getElementById("new");
+
+        const activeNumTickets = document.getElementById("num_active_jobs");
+        const confirmNumTickets = document.getElementById("")
+
+        activeTab.addEventListener("click", (e) => {
+          console.log(e);
+          activeTab.style.backgroundColor = "white";
+          confirmedTab.style.backgroundColor = "grey";
+          sentTab.style.backgroundColor = "grey"
+
+          confirmedContainer.style.display = "none";
+          sentContainer.style.display = "none";
+          activeContainer.style.display = "block";
+        })
+
+        confirmedTab.addEventListener('click', (e) => {
+          confirmedTab.style.backgroundColor = "white";
+          sentTab.style.backgroundColor = "grey";
+          activeTab.style.backgroundColor = "grey"
+
+
+          confirmedContainer.style.display = "block";
+          sentContainer.style.display = "none";
+          activeContainer.style.display = "none";
+        })
+
+        sentTab.addEventListener('click', (e) => {
+          sentTab.style.backgroundColor = "white";
+          confirmedTab.style.backgroundColor = "grey";
+          activeTab.style.backgroundColor = "grey"
+
+
+          confirmedContainer.style.display = "none";
+          sentContainer.style.display = "block";
+          activeContainer.style.display = "none";
+        })
+
+      </script>
+
+      <% } %>

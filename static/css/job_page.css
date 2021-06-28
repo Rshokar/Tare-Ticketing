@@ -6,7 +6,7 @@
     display: block;
 }
 
-#new_load_ticket {
+.new_load_ticket {
     margin-top: 1em;
     font-size: 15pt;
     height: 5vh;

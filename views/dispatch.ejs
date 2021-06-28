@@ -17,101 +17,96 @@
 <!-- All Dispatches will be rendered in here -->
 <div id="dispatch_continer">
   <div class="dispatch" style="background-color: white;">
-    <h2>Winvan</h2>
-    <span class="address">16091 20 ave Surrey</span>
-    <div class="status">
-      <div>
-        <i class="far fa-paper-plane"></i>
-        <span>0</span>
-      </div>
-      <div>
-        <i class="fas fa-check"></i>
-        <span>2</span>
-      </div>
-      <div>
-        <i class="fas fa-vote-yea"></i>
-        <span>2</span>
-      </div>
-    </div>
-    <div class="num-trucks">
-      <i class="fas fa-truck"></i>
-      <span>4</span>
-    </div>
+    <h2 class="cotractor">
+      <%= dispatch.contractor %>
+    </h2>
+    <span class="load_location">
+      Load: <%= dispatch.loadLocation %>
+    </span>
+    <span class="dump_location">
+      Dump: <%= dispatch.dumpLocation %>
+    </span>
+    <span class="date">
+      Date: <%= dispatch.date %>
+    </span>
+
+    <% if (dispatch.supplier !="" ) { %>
+      <span class="supplier">Supplier: <%= dispatch.supplier %></span>
+      <% } %>
+
+        <% if (dispatch.reciever !="" ) { %>
+          <span class="reciever">Reciever: <%= dispatch.reciever %></span>
+          <% } %>
+
+            <% if (dispatch.material !="" ) { %>
+              <span class="material">Material: <%= dispatch.material %></span>
+              <% } %>
+
+
+                <div class="status">
+                  <div>
+                    <i class="fas fa-circle-notch"></i>
+                    <%= dispatch.status.empty %>
+                  </div>
+                  <div>
+                    <i class="far fa-paper-plane"></i>
+                    <%= dispatch.status.sent %>
+                  </div>
+                  <div>
+                    <i class="fas fa-check"></i>
+                    <%= dispatch.status.confirmed %>
+                  </div>
+                  <div>
+                    <i class="fas fa-vote-yea"></i>
+                    <%= dispatch.status.active %>
+                  </div>
+                  <div>
+                    <i class="fas fa-check-square"></i>
+                    <%= dispatch.status.confirmed %>
+                  </div>
+                </div>
+                <div class="num-trucks">
+                  <i class="fas fa-truck"></i>
+                  <span>
+                    <%= dispatch.numTrucks %>
+                  </span>
+                </div>
+
+                <div class='notes'>
+                  Notes: <%= dispatch.notes %>
+                </div>
   </div>
 </div>
 
 
 <!-- All Job Tickets will be rendered in here -->
-<div id="tickets_continer">
-  <a href="/job">
-    <div class="job active">
-      <h2>Gurj Signh</h2>
-      <span class="truck_num">#600</span>
-
-      <div class="equipment">
-        <div id="truck">
-          <span>2-axle </span>
+<div id="tickets_container">
+  <% for (let i=0; i < dispatch.operators.length; i++) { %>
+    <a href="/job?id=<%=dispatch.operators[i].jobTicket %>">
+      <div class="job <%= dispatch.operators[i].status %>">
+        <h2>
+          <%= dispatch.operators[i].name %>
+        </h2>
+        <div class="equipment">
+          <div id="truck">
+            <span>
+              <%= dispatch.operators[i].equipment.truck %>
+            </span>
+          </div>
+          <div id="trailer">
+            <% if (dispatch.operators[i].equipment.trailer !="default" ) { %>
+              <span>
+                <%= dispatch.operators[i].equipment.trailer %>
+              </span>
+              <% } %>
+          </div>
         </div>
-        <div id="trailer">
-          <span>4-axle-transfer</span>
+        <div class="start_time">
+          <span>
+            <%= dispatch.operators[i].startTime %>
+          </span>
         </div>
       </div>
-      <div class="start_time">
-        <span>7:00</span>
-      </div>
-    </div>
-  </a>
-
-  <div class="job active">
-    <h2>Ravinder Shokar</h2>
-    <span class="truck_num">#600</span>
-
-    <div class="equipment">
-      <div id="truck">
-        <span>2-axle </span>
-      </div>
-      <div id="trailer">
-        <span>4-axle-transfer</span>
-      </div>
-    </div>
-    <div class="start_time">
-      <span>7:00</span>
-    </div>
-  </div>
-
-  <div class="job confirmed">
-    <h2>Gurj Signh</h2>
-    <span class="truck_num">#600</span>
-
-    <div class="equipment">
-      <div id="truck">
-        <span>2-axle </span>
-      </div>
-      <div id="trailer">
-        <span>4-axle-transfer</span>
-      </div>
-    </div>
-    <div class="start_time">
-      <span>7:15</span>
-    </div>
-  </div>
-
-  <div class="job confirmed">
-    <h2>Gurj Signh</h2>
-    <span class="truck_num">#600</span>
-
-    <div class="equipment">
-      <div id="truck">
-        <span>2-axle </span>
-      </div>
-      <div id="trailer">
-        <span>4-axle-transfer</span>
-      </div>
-    </div>
-    <div class="start_time">
-      <span>7:15</span>
-    </div>
-  </div>
-
-
+    </a>
+    <% } %>
 </div>

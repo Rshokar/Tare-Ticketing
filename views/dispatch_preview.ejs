@@ -1,0 +1,44 @@
+<!-- Custome CSS for Dispatch tickets -->
+<link rel="stylesheet" href="css/dispatch.css">
+
+<!-- Custome CSS for add operators page -->
+<link rel="stylesheet" href="css/add_operators.css">
+
+<!-- Custome CSS for Employees in operators modal -->
+<link rel="stylesheet" href="css/employee.css">
+
+
+<div id="controls">
+    <div id="exit">
+        <a href="/add_operators"><i class="fas fa-arrow-left"></i></a>
+    </div>
+
+    <div id="next" onclick="submitDispatch()">
+        <i class="fas fa-check"></i>
+    </div>
+</div>
+
+<!-- All Dispatches will be rendered in here -->
+<div class="dispatch" style="background-color: white;">
+    <h2 class="cotractor"></h2>
+    <span class="load_location"></span>
+    <span class="dump_location"></span>
+    <span class="date"></span>
+    <span class="supplier"></span>
+    <span class="reciever"></span>
+    <span class="material"></span>
+
+    <div class="num-trucks">
+        <i class="fas fa-truck"></i>
+        <span class="trucks"></span>
+    </div>
+
+    <div class='notes'></div>
+</div>
+
+<div id="operators">
+
+</div>
+
+
+<script src="js/dispatch_preview.js"></script>

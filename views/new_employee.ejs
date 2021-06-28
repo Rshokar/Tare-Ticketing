@@ -2,28 +2,48 @@
 <link href="css/login-register.css" rel="stylesheet">
 
 <div id="back">
-    <a href="/employees"><i class="fas fa-arrow-left"></i></a>
+  <a href="/employees"><i class="fas fa-arrow-left"></i></a>
 </div>
-<div id="login">
 
-    <form>
-        <legend>New Employee</legend>
-        <div id="email">
-            <label>Email</label>
-            <input type='text' required placeholder="Email">
-        </div>
-        <div id="fName">
-            <label>First Name</label>
-            <input type='text' required placeholder="First Name">
-        </div>
-        <div id="lName">
-            <label>Last Name</label>
-            <input type='text' required placeholder="Last Name">
-        </div>
-        <div id="password">
-            <label>Password</label>
-            <input type='password' required placeholder="Password">
-        </div>
-        <input id="submit" type="submit">
-    </form>
+<div id="login">
+  <legend>New Employee</legend>
+  <div class="input">
+    <label>First Name</label>
+    <input type='text' name="fName" id="fName" required placeholder="First Name">
+    <p id="fName-error" class="error"></p>
+  </div>
+  <div class="input">
+    <label>Last Name</label>
+    <input type='text' name="lName" id="lName" required placeholder="Last Name">
+    <p id="lName-error" class="error"></p>
+  </div>
+  <div class="input">
+    <label>Email</label>
+    <input type='email' name="email" id="email" required>
+    <p id="email-error" class="error"></p>
+  </div>
+  <div class="input">
+    <label>Phone</label>
+    <input type='phone' name="phone" id="phone" required>
+    <p id="phone-error" class="error"></p>
+  </div>
+  <div class="input employees_form">
+    <input type='hidden' name="company" id="company" required value="<%=user.company %>">
+    <p id="company-error" class="error"></p>
+  </div>
+  <div class="input">
+    <label>Password</label>
+    <input type='password' name="secretSauce" id="password" required placeholder="Password">
+    <p id="password-error" class="error"></p>
+    <p class="hint">
+      Password must include one special character, number, upper case letter and lower case letters.
+    </p>
+
+  </div>
+
+  <p id="error" class="error"></p>
+  <input id="submit" type="submit">
 </div>
+
+<!-- This script is responsible for creating an employee account and returning errors -->
+<script src="js/employee.js"></script>

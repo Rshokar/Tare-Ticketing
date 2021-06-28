@@ -4,41 +4,38 @@
 <!-- Custom CSS for employees -->
 <link rel="stylesheet" href="css/employee.css">
 
-<div id="back">
-    <a href="/account"><i class="fas fa-arrow-left"></i></a>
-</div>
+<a href="/account"><i class="fas fa-arrow-left"></i></a>
+
 
 <div id="user-info">
-    <h1>A.K.S Trucking Ltd</h1>
-    <span>Gavin Lalli</span>
+  <h1>
+    <%= user.company %>
+  </h1>
+  <span>
+    <%= user.fName %>
+      <%= user.lName %>
+  </span>
 </div>
 
 <span>Employees</span>
 <div id="search">
-    <input type="text" placeholder="Search...">
-    <a href="/new_employee"><button><i class="fas fa-plus"></i></button></a>
+  <input type="text" placeholder="Search...">
+  <a href="/new_employee"><button><i class="fas fa-plus"></i></button></a>
 </div>
 
 <div id="employees">
-    <div class="employee">
-        <h3>Ravinder Shokar</h3>
-        <span>604-935-4876</span>
-    </div>
-
-    <div class="employee">
-        <h3>Kelly James</h3>
-        <span>604-345-3453</span>
-    </div>
-
-    <div class="employee">
-        <h3>Fred Brown</h3>
-        <span>778-233-5555</span>
-    </div>
-
-
-    <div class="employee">
-        <h3>Dennis Russel</h3>
-        <span>604-543-1234</span>
-    </div>
+  <% for (let i=0 ; i < user.employees.length ; i++) { %>
+    <a href="/employee?id=<%= user.employees[i].id %>">
+      <div class="employee">
+        <h3>
+          <%= user.employees[i].fName %>
+            <%= user.employees[i].lName %>
+        </h3>
+        <span>
+          <%= user.employees[i].phone %>
+        </span>
+      </div>
+    </a>
+    <% } %>
 
 </div>

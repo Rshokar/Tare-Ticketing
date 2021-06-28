@@ -1,0 +1,62 @@
+#employee {
+  background-color: #EFEFEF;
+  height: auto;
+}
+
+#emp_details {
+  display: grid;
+  grid-template-columns: 75% 25%;
+} 
+
+#emp_name, #emp_phone, #emp_email {
+  padding-left: 1em;
+  grid-column: 1 / span 1;
+}
+
+#emp_email {
+  margin-bottom: .5em;
+}
+
+#edit {
+  grid-column: 2 / span 1;
+  grid-row:  1 / span 3;
+  text-align: center;
+  display: grid;
+  align-content: center;
+}
+
+#emp_name {
+  margin: .5em .5em .5em 0em;
+}
+
+#edit_form {
+  display: none;
+}
+
+
+.input, legend { 
+  margin-left: 10px;
+  padding-top: .5em;
+  padding-bottom: .5em;
+  display: block;
+}
+
+#submit, #cancel {
+  margin-left: 10px;
+  padding-top: .5em;
+  padding-bottom: .5em;
+}
+
+legend {
+  font-weight: bold;
+}
+
+#delete {
+  width: 100%;
+  text-align: center;
+  margin-top: 1em;
+}
+
+#delete button {
+  width: 100%;
+}

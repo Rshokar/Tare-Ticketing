@@ -1,18 +1,51 @@
 <link rel="stylesheet" href="css/account.css">
 
 <div id="user-info">
-    <h1>A.K.S Trucking Ltd</h1>
-    <span>Gavin Lalli</span>
+    <h1>
+        <%= user.company %>
+    </h1>
+    <span>
+        <%= user.name %>
+    </span>
 </div>
 
 <div id="user-setting">
-    <span>User Settings</span>
-    <div id="my-settings"><span>My Information</span></div>
-    <div id="company-settings"><span>Company Information</span></div>
-    <a href="/operators">
-        <div id="owner-operators"><span>Owner Operators</span></div>
+    <h2>User Settings</h2>
+    <a href="/my-settings">
+        <div id="my-settings"><span>My Information</span></div>
     </a>
-    <a href="/employees">
-        <div id="employees"><span>Employees</span></div>
-    </a>
+    <% if(user.type==="dispatcher" ) { %>
+        <a href="/company-settings">
+            <div id="company-settings"><span>Company Information</span></div>
+        </a>
+        <!-- <a href="/operators">
+            <div id="owner-operators"><span>Owner Operators</span></div>
+        </a> -->
+        <a href="/employees">
+            <div id="employees"><span>Employees</span></div>
+        </a>
+        <a href="/equipment">
+            <div id="equipment"><span>Equipment</span></div>
+        </a>
+        <% } %>
+            <% if(user.type==="operator" ) { %>
+                <a href="/company-settings">
+                    <div id="company-settings"><span>Company Information</span></div>
+                </a>
+                <!-- <a href="/dispatchers">
+                    <div id="dispatchers"><span>Dispatchers</span></div>
+                </a> -->
+                <a href="/equipment">
+                    <div id="equipment"><span>Equipment</span></div>
+                </a>
+                <% } %>
+                    <% if(user.type==="employee" ) { %>
+                        <a href="/company-settings">
+                            <div id="company-settings"><span>Company Information</span></div>
+                        </a>
+                        <% } %>
+
+                            <a href="/logout">
+                                <div id="employees"><span>Logout</span></div>
+                            </a>
 </div>

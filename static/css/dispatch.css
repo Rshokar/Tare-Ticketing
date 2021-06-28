@@ -3,13 +3,17 @@
     padding: .5em .5em .5em .5em;
     background-color: cadetblue;
     display: grid;
-    grid-template-columns: 75% 25%;
+    grid-template-columns: 70% 30%;
     border-radius: 2%;
 }
 
 
-.dispatch h2, .dispatch .address, .dispatch .status {
+.contractor, .load_location, .status, .dump_location, .date {
     grid-column: 1 / span 1;
+}
+
+.dispatch .notes, .supplier, .reciever, .material {
+    grid-column: 1 / span 2;
 }
 
 .dispatch h2 {
@@ -21,7 +25,6 @@
 }
 
 .dispatch .num-trucks {
-    line-height: 11vh;
     grid-column: 2 / span 1;
     grid-row: 1 / span 3;
 }
@@ -35,22 +38,3 @@
     padding-right: .5em;
     display: inline;
 }
-
-
-.done {
-    background-color: #FAF6D8;
-  }
-  
-  .active {
-    background-color: #E2E8D8;
-  }
-  
-  
-  .confirmed {
-    background-color: #D8E0E8;
-  }
-  
-  
-  .sent {
-    background-color: #E8D8DC;
-  }

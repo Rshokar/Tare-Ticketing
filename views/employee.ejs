@@ -1,0 +1,112 @@
+<!-- Custome CSS from account page borrowed for employees page-->
+<link rel="stylesheet" href="css/account.css">
+
+<!-- Custome CSS from edit employee page -->
+<link rel="stylesheet" href="css/edit_employee.css">
+
+<div id="back">
+  <a href="/employees"><i class="fas fa-arrow-left"></i></a>
+</div>
+
+<div id="user-info">
+  <h1>
+    <%= user.company %>
+  </h1>
+  <span>
+    <%= user.name %>
+  </span>
+</div>
+
+<div id="employee">
+  <div id="emp_details">
+    <h3 id="emp_name">
+      <%= employee.fName %>
+        <%= employee.lName %>
+    </h3>
+    <span id="emp_phone">
+      <%= employee.phone %>
+    </span>
+    <span id="emp_email">
+      <%= employee.email %>
+    </span>
+    <div id="edit">
+      <i class="fas fa-edit"></i>
+    </div>
+  </div>
+
+  <div id='edit_form'>
+    <legend>Edit <%= employee.fName %>
+        <%= employee.lName %>'s Profile</legend>
+    <div class="input">
+      <label>First Name</label>
+      <input type='text' name="fName" id="fName" required placeholder="First Name">
+      <p id="fName-error" class="error"></p>
+    </div>
+    <div class="input">
+      <label>Last Name</label>
+      <input type='text' name="lName" id="lName" required placeholder="Last Name">
+      <p id="lName-error" class="error"></p>
+    </div>
+    <div class="input">
+      <label>Email</label>
+      <input type='email' name="email" id="email" required>
+      <p id="email-error" class="error"></p>
+    </div>
+    <div class="input">
+      <label>Phone</label>
+      <input type='phone' name="phone" id="phone" required>
+      <p id="phone-error" class="error"></p>
+    </div>
+    <div class="input employees_form">
+      <input type='hidden' name="company" id="company" required value="<%=user.company %>">
+      <p id="company-error" class="error"></p>
+    </div>
+    <div class="input">
+      <label>Password</label>
+      <input type='password' name="secretSauce" id="password" required placeholder="Password">
+      <p id="password-error" class="error"></p>
+      <p class="hint">
+        Password must include one special character, number, upper case letter and lower case letters.
+      </p>
+    </div>
+    <p id="error" class="error"></p>
+    <button id="submit">Submit</button>
+    <button id='cancel'>Cancel</button>
+  </div>
+
+
+</div>
+
+<div id="delete">
+  <button id="delete_button">Delete</button>
+</div>
+
+<script>
+  /**
+   * This function will switch the employee div to a form when the edit button is clicked.
+   * The data will be autofilled by EJS
+   * @author Ravinder Shokar
+   * @version 1.0
+   * @date May 24 2021
+   */
+  const editButton = document.getElementById('edit');
+  const form = document.getElementById("edit_form");
+  const empDetails = document.getElementById("emp_details");
+  const cancel = document.getElementById("cancel")
+
+  editButton.addEventListener("click", (e) => {
+    editButton.style.display = "none";
+    empDetails.style.display = "none";
+    form.style.display = "block";
+  })
+
+  cancel.addEventListener("click", (e) => {
+    e.preventDefault();
+    empDetails.style.display = "grid";
+    editButton.style.display = "grid";
+    form.style.display = "none";
+  })
+
+</script>
+
+<script src="js/employee.js"></script>

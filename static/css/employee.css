@@ -6,7 +6,7 @@
     margin-top: 1em;
 }
 
-.employee  h3, .employee span {
+.employee  h3, .employee span, .employee h5 {
     margin: 0;
     margin-left: 1em
 }

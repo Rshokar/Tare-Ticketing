@@ -8,6 +8,37 @@
     display: block;
 }
 
-#number {
+.number {
     font-size: 35pt;
+}
+
+.number-def {
+    font-size: 15pt;
+}
+
+
+#tab_container {
+    display: grid;
+    grid-template-columns: 33% 33% 34%;
+}
+
+.tab {
+    width: 100%;
+    text-align: center;
+    height: 50px;
+    display: grid;
+    align-content: center;
+    background-color: grey;
+}
+
+.tab:hover {
+    background-color: white;
+}
+
+#active_tab {
+    background-color: white;
+}
+
+#confirmed, #new, #details #num_confirmed_jobs, #details #num_sent_jobs {
+    display: none;    
 }
