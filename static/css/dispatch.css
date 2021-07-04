@@ -1,7 +1,6 @@
 .dispatch {
     margin-top: 1em;
     padding: .5em .5em .5em .5em;
-    background-color: cadetblue;
     display: grid;
     grid-template-columns: 70% 30%;
     border-radius: 2%;

@@ -5,7 +5,11 @@
 <link rel="stylesheet" href="css/load.css">
 
 <div id="back">
-  <a href="/dispatch?id=<%= job.dispatchTicket %> "><i class="fas fa-arrow-left"></i></a>
+  <% if (user.type !="dispatcher" ) { %>
+    <a href="/dashboard"><i class="fas fa-arrow-left"></i></a>
+    <% } else { %>
+      <a href="/dispatch?id=<%= job.dispatchTicket %> "><i class="fas fa-arrow-left"></i></a>
+      <% } %>
 </div>
 
 
@@ -44,16 +48,35 @@
         <% } %>
     </div>
     <div id="locations">
-      <span id="load">Load: <%= job.loadLocation %></span>
-      <span id="dump">Dump: <%= job.dumpLocation %></span>
-      <span id="status">
-        Status: <%= job.status %>
+      <span id="load">
+        <%= job.loadLocation %>
       </span>
+      <span id="dump">
+        <%= job.dumpLocation %>
+      </span>
+    </div>
+    <span id="status">
+      Status: <%= job.status %>
+    </span>
+    <div id="additional_details">
+      <% if (job.supplier !="" ) { %>
+        <span id="supplier">
+          <%= job.supplier %>
+        </span>
+        <% } %>
+          <% if (job.reciever !="" ) { %>
+            <span id="reciever">
+              <%= job.reciever %>
+            </span>
+            <% } %>
+              <span id="material">
+                <%= job.material %>
+              </span>
     </div>
   </div>
 </div>
 
-<% if (user.type=="operator" ) { %>
+<% if (user.type!="dispatcher" ) { %>
   <% if (job.status=="sent" ) { %>
     <div id="positive_button_container">
       <button class="new_load_ticket" onclick="confirmJobTicket()">Confirm</button>
@@ -67,67 +90,59 @@
 
           <% if ( job.status=="active" ) { %>
             <div id="positive_button_container">
-              <button class="new_load_ticket">Add Load Ticket</button>
+              <% if (job.loadTickets[job.loadTickets.length - 1]!=undefined && job.loadTickets[job.loadTickets.length -
+                1].status=="active" ) { %>
+                <button class="new_load_ticket" onclick="openFinishLoadModal()">Finish Load Ticket</button>
+                <% } else { %>
+                  <button class="new_load_ticket" onclick="openNewLoadModal()">Add Load Ticket</button>
+                  <% } %>
             </div>
             <% } %>
               <% } %>
 
                 <!-- All load tickets will be rendered here-->
                 <div id="load_ticket">
-
-
-                  <div class="load done">
-                    <div class='summary'>
+                  <% for ( let i=0; i < job.loadTickets.length; i++) { %>
+                    <div id="<%= i %>" class="load <%= job.loadTickets[i].status %>">
                       <div class="times">
-                        <div>
-                          <span>Load: 7:30 AM</span>
+                        <div class="load_time">
+                          <span>Load: <%= job.loadTickets[i].loadTime %></span>
                         </div>
-                        <div>
-                          <span>Dump: 10:30 AM</span>
+                        <div class="dump_time">
+                          <% if (job.loadTickets[i].dumpTime==undefined && user.type!="dispatcher" ) { %>
+                            <button id="dump_load" onclick="quickDump()">Dump</button>
+                            <% } else { %>
+                              <span>Dump: <%= job.loadTickets[i].dumpTime %></span>
+                              <% } %>
                         </div>
 
                       </div>
                       <div class="weight">
-                        <span>39.65</span>
+                        <span>
+                          <%= job.loadTickets[i].material %>
+                        </span>
+                        <span>
+                          <%= job.loadTickets[i].tonnage %>
+                        </span>
                       </div>
+
+                      <div class="load_details">
+                        <div class="load_location">
+                          <span>Load: <%= job.loadTickets[i].loadLocation %></span>
+                        </div>
+                        <div class="dump_location">
+                          <span>Dump: <%= job.loadTickets[i].dumpLocation %></span>
+                        </div>
+                      </div>
+                      <% if (job.status !="complete" && user.type !="dispatcher" ) { %>
+                        <div class="edit_load"><a href="/edit_load?jobId=<%=job._id%>&loadId=<%= i %>"><i class=" fas
+                            fa-edit"></i></a></div>
+                        <% } %>
                     </div>
-
-
-                    <div class="load_details">
-                      <div class="material">
-                        <span>Asphalt</span>
-                      </div>
-
-                      <div class="reciever">
-                        <span>Winvan</span>
-                      </div>
-
-                      <div class="load_location">
-                        <span>Winvan Asphalt Plant</span>
-                      </div>
-
-                      <div class="dump_location">
-                        <span>6901 20 ave Surrey</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="load active">
-                    <div class="times">
-                      <div>
-                        <span>Load: 1:30 PM</span>
-                      </div>
-                      <div>
-                        <button id="dump_load">Dump</button>
-                      </div>
-
-                    </div>
-                    <div class="weight">
-                      <span>38.95</span>
-                    </div>
-                  </div>
+                    <% } %>
                 </div>
-                <% if (user.type=="operator" ) { %>
+
+                <% if (user.type!="dispatcher" ) { %>
                   <% if (job.status=="sent" ) { %>
                     <div id="negative_button_container">
                       <button class="new_load_ticket" onclick="declineJobTicket()">Decline</button>
@@ -135,16 +150,87 @@
                     <% } %>
                       <% if ( job.status=="confirmed" ) { %>
                         <div id="negative_button_container">
-                          <button class="new_load_ticket" onclick="cancelJobTicket()">Cancel Job</button>
+                          <button class="new_load_ticket" onclick="declineJobTicket()">Cancel Job</button>
                         </div>
                         <% } %>
 
                           <% if ( job.status=="active" ) { %>
                             <div id="negative_button_container">
-                              <button class="new_load_ticket" onclick="signOffJobTicket()">Sign Off</button>
+                              <button class="new_load_ticket" onclick="openSignOffModal()">Sign Off</button>
                             </div>
                             <% } %>
                               <% } %>
+
+                                <div id="new_load_ticket_modal" class="modal">
+                                  <div id='new_load_ticket' class="modal-content">
+                                    <h3>Add Load Ticket</h3>
+                                    <div class="mb-3">
+                                      <label for="exampleFormControlInput1" class="form-label">Load Location</label>
+                                      <input type="email" class="form-control" id="load_location">
+                                      <span class="error" id="load_location_error"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                      <label for="exampleFormControlTextarea1" class="form-label">Load Time</label>
+                                      <input type="time" class="form-control load_time" id="load_time">
+                                      <span class="error" id="load_time_error"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                      <label for="exampleFormControlTextarea1" class="form-label">Material</label>
+                                      <input class="form-control load_time" id="load_material">
+                                      <span class="error" id="load_material_error"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                      <label for="exampleFormControlTextarea1" class="form-label">Tonnage</label>
+                                      <input type="number" class="form-control load_time" id="tonnage">
+                                      <span class="error" id="tonnage_error"></span>
+                                    </div>
+                                    <span class="error" id="create_load_ticket_error"></span>
+                                    <button type="button" class="btn btn-secondary"
+                                      onclick="createLoadTicket()">Submit</button>
+                                    <button type="button" class="btn btn-warning"
+                                      onclick="closeModals()">Cancel</button>
+                                  </div>
+                                </div>
+
+                                <div id="finish_load_ticket_modal" class="modal">
+                                  <div id='finish_load_ticket' class="modal-content">
+                                    <h3>Finish Load Ticket</h3>
+                                    <div class="mb-3">
+                                      <label for="exampleFormControlInput1" class="form-label">Dump Location</label>
+                                      <input type="email" class="form-control load_location" id="dump_location"
+                                        value="<%= job.dumpLocation %>">
+                                      <span class="error" id="dump_location_error"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                      <label for="exampleFormControlTextarea1" class="form-label">Dump Time</label>
+                                      <input type="time" class="form-control load_time" id="dump_time">
+                                      <span class="error" id="dump_time_error"></span>
+                                    </div>
+
+                                    <span class="error" id="finish_load_ticket_error"></span>
+                                    <button type="button" class="btn btn-secondary"
+                                      onclick="finishLoadTicket()">Submit</button>
+                                    <button type="button" class="btn btn-warning"
+                                      onclick="closeModals()">Cancel</button>
+                                  </div>
+                                </div>
+
+                                <div id="sign_off_ticket_modal" class="modal">
+                                  <div id='finish_load_ticket' class="modal-content">
+                                    <h3>Sign Off</h3>
+                                    <div class="mb-3">
+                                      <label for="exampleFormControlTextarea1" class="form-label">Sign Off Time</label>
+                                      <input type="time" class="form-control load_time" id="sign_off_time">
+                                      <span class="error" id="sign_off_error"></span>
+                                    </div>
+                                    <button type="button" class="btn btn-secondary" onclick="signOff()">Submit</button>
+                                    <button type="button" class="btn btn-warning"
+                                      onclick="closeModals()">Cancel</button>
+                                  </div>
+                                </div>
+
+                                <!-- This JS file contains functions that will add new load tickets to job tickets. -->
+                                <script src="js/job.js"></script>
 
                                 <!-- This JS file contains functions that will change the status of tickets. -->
                                 <script src="js/ticket_status_controller.js"></script>

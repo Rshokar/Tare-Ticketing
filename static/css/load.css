@@ -2,7 +2,7 @@
     margin-top: 1em;
     padding: .5em .5em .5em .5em;
     display: grid;
-    grid-template-columns: 75% 25%;
+    grid-template-columns: 60% 40%;
     border-radius: 2%;
 }
 
@@ -17,13 +17,11 @@
 .times {
     grid-column: 1 / span 1;
     grid-row: 1 / span 1;
+    margin-top: .5em;
+  margin-bottom: .5em;
     font-size: 15pt;
 }
 
-.time div {
-  margin-top: .5em;
-  margin-bottom: .5em;
-}
 
 
 .weight {
@@ -42,51 +40,15 @@
 
 .load_details {
   font-size: 10pt;
-  grid-column: 1 / span 2;
-  width: 100%;
-  display: none;
-  grid-template-columns: 50% 50%;
-  grid-template-rows: 50% 50%;
-  margin-top: 1em;
-}
-
-.material{
   grid-column: 1 / span 1;
-  grid-row: 1 / span 1;
+  width: 100%;
+  display: block;
 }
 
-.reciever {
-  grid-column: 1 /span 1;
-  grid-row: 2 / span 1;
-}
 
-.load_location {
+.edit_load {
   grid-column: 2 / span 1;
-  grid-row: 1 / span 1;
-}
-
-.dump_location {
-  grid-column: 2 /span 1;
-  grid-row: 2 / span 1;
-}
-
-
-
-
-.done {
-  background-color: #FAF6D8;
-}
-
-.active {
-  background-color: #E2E8D8;
-}
-
-
-.confirmed {
-  background-color: #D8E0E8;
-}
-
-
-.sent {
-  background-color: #E8D8DC;
+  display: grid;
+  align-content: center;
+  text-align: center;
 }

@@ -7,105 +7,148 @@
 <!-- Custome CSS for Dispatch tickets -->
 <link rel="stylesheet" href="css/job.css">
 
-<!-- Custome CSS for Dispatch tickets -->
-<link rel="stylesheet" href="css/fuel.css">
-
 
 <div id="search">
     <input type="text" placeholder="Search...">
 </div>
 
 <div id="tabs">
-    <div id="dispatch">
-        <span>Dispatches</span>
-    </div>
-    <div id="job">
-        <span>Jobs</span>
-    </div>
-</div>
-
-<!-- All Dispatches will be rendered in here -->
-<div id="dispatch_container">
-    <a href="/dispatch">
-        <div class="dispatch confirmed">
-            <h2>Winvan</h2>
-            <span class="address">16091 20 ave Surrey</span>
-
-            <div class="status">
-                <div>
-                    <i class="far fa-paper-plane"></i>
-                    <span>2</span>
-                </div>
-                <div>
-                    <i class="fas fa-check"></i>
-                    <span>2</span>
-                </div>
-                <div>
-                    <i class="fas fa-vote-yea"></i>
-                    <span>0</span>
-                </div>
-            </div>
-
-            <div class="num-trucks">
-                <i class="fas fa-truck"></i>
-                <span>4</span>
-            </div>
+    <% if (user.type=="dispatcher" ) { %>
+        <div id="dispatch">
+            <span>Dispatches</span>
         </div>
-    </a>
-</div>
-
-<!-- All job tickets will be rendered here -->
-<div id="job_container">
-    <a href="/job">
-        <div class="job active">
-            <h2>Gurj Signh</h2>
-            <span class="truck_num">#600</span>
-
-            <div class="equipment">
-                <div id="truck">
-                    <span>2-axle </span>
-                </div>
-                <div id="trailer">
-                    <span>4-axle-transfer</span>
-                </div>
-            </div>
-            <div class="start_time">
-                <span>7:00</span>
-            </div>
+        <div id="job">
+            <span>Jobs</span>
         </div>
-    </a>
+        <% } else { %>
+            <div id="job">
+                <span>Jobs</span>
+            </div>
+            <% } %>
 </div>
+<% if (user.type=="dispatcher" ) { %>
+    <!-- All Dispatches will be rendered in here -->
+    <div id="dispatch_container">
+        <% if (dispatches.length==0) { %>
+            <h3>No Dispatches Found</h3>
+            <% } else { %>
+                <% for(let i=0; i < dispatches.length; i++) { %>
+                    <a href="/dispatch?id=<%= dispatches[i].id %>">
+                        <div class="dispatch confirmed">
+                            <h2>
+                                <%= dispatches[i].contractor %>
+                            </h2>
+                            <span class="address">
+                                <%= dispatches[i].loadLocation %>
+                            </span>
+
+                            <div class="status">
+                                <div>
+                                    <i class="fas fa-circle-notch"></i>
+                                    <%= dispatches[i].status.empty %>
+                                </div>
+                                <div>
+                                    <i class="far fa-paper-plane"></i>
+                                    <%= dispatches[i].status.sent %>
+                                </div>
+                                <div>
+                                    <i class="fas fa-check"></i>
+                                    <%= dispatches[i].status.confirmed %>
+                                </div>
+                                <div>
+                                    <i class="fas fa-vote-yea"></i>
+                                    <%= dispatches[i].status.active %>
+                                </div>
+                                <div>
+                                    <i class="fas fa-check-square"></i>
+                                    <%= dispatches[i].status.complete %>
+                                </div>
+                            </div>
+                            <div class="num-trucks">
+                                <i class="fas fa-truck"></i>
+                                <%= dispatches[i].numTrucks %>
+                            </div>
+                        </div>
+                    </a>
+                    <% } %>
+                        <% } %>
+    </div>
+    <% } %>
+
+        <!-- All job tickets will be rendered here -->
+        <div id="job_container">
+            <% if (jobs.length==0) { %>
+                <h3>No jobs found</h3>
+                <% } else { %>
+                    <% for (let i=0; i < jobs.length; i++) { %>
+                        <a href="/job?id=<%=jobs[i]._id %>">
+                            <div class="job <%= jobs[i].status %>">
+                                <h2>
+                                    <%= jobs[i].contractor %>
+                                </h2>
+                                <h5>
+                                    <%= jobs[i].dispatcher.company %>
+                                </h5>
+                                <div class="equipment">
+                                    <div id="truck">
+                                        <span>
+                                            <%= jobs[i].equipment.truck %>
+                                        </span>
+                                    </div>
+                                    <div id="trailer">
+                                        <% if (jobs[i].equipment.trailer !="default" ) { %>
+                                            <span>
+                                                <%= jobs[i].equipment.trailer %>
+                                            </span>
+                                            <% } %>
+                                    </div>
+                                </div>
+                                <div class="start_time">
+                                    <span>
+                                        <%= jobs[i].startTime %>
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                        <% } %>
+                            <% } %>
+        </div>
+
+        <% if(user.type=="dispatcher" ) { %>
+            <script>
+                const dispatch = document.getElementById("dispatch");
+                const job = document.getElementById("job");
 
 
-<script>
-    const dispatch = document.getElementById("dispatch");
-    const job = document.getElementById("job");
+                const dispatch_container = document.getElementById("dispatch_container");
+                const job_container = document.getElementById("job_container");
 
+                dispatch.addEventListener("click", (e) => {
+                    //Change tab colors
+                    job.style.backgroundColor = "#EFEFEF";
+                    dispatch.style.backgroundColor = "CFCFCF";
 
-    const dispatch_container = document.getElementById("dispatch_container");
-    const job_container = document.getElementById("job_container");
+                    //Change visible cards with CSS
+                    job_container.style.display = "none";
+                    dispatch_container.style.display = "block";
+                })
 
-    dispatch.addEventListener("click", (e) => {
-        console.log("Dispatch")
-        //Change tab colors
-        job.style.backgroundColor = "#EFEFEF";
-        dispatch.style.backgroundColor = "CFCFCF";
+                job.addEventListener("click", (e) => {
+                    //Change tab colors
+                    dispatch.style.backgroundColor = "#EFEFEF";
+                    job.style.backgroundColor = "CFCFCF";
 
-        //Change visible cards with CSS
-        job_container.style.display = "none";
-        dispatch_container.style.display = "block";
-    })
+                    //Change visible cards with CSS
+                    job_container.style.display = "block";
+                    dispatch_container.style.display = "none";
+                })
+            </script>
+            <% } else { %>
+                <script>
+                    const job = document.getElementById("job");
 
-    job.addEventListener("click", (e) => {
-        console.log("Job")
-        //Change tab colors
-        dispatch.style.backgroundColor = "#EFEFEF";
-        job.style.backgroundColor = "CFCFCF";
-
-        //Change visible cards with CSS
-        job_container.style.display = "block";
-        dispatch_container.style.display = "none";
-    })
-
-
-</script>
+                    const job_container = document.getElementById("job_container");
+                    job_container.style.display = "block";
+                    job.style.gridColumn = "1 / span 2";
+                </script>
+                <% } %>

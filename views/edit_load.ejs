@@ -1,0 +1,132 @@
+<!-- Custom css for job html. -->
+<link rel="stylesheet" href="css/job_page.css">
+
+<!-- Custom css for load tickets -->
+<link rel="stylesheet" href="css/load.css">
+
+<div id="back">
+    <a href="/job?id=<%= job._id %> "><i class="fas fa-arrow-left"></i></a>
+</div>
+
+
+<!-- All job details will be rendered here -->
+<div id="job_details">
+    <div id="parties">
+        <h1 id="contractor">
+            <%= job.contractor %>
+        </h1>
+        <h3 id="dispatcher">
+            <%= job.dispatcher.company %>
+        </h3>
+    </div>
+
+    <div id="operator">
+        <span id="operator_name">
+            <%= job.operator.name %>
+        </span>
+    </div>
+
+    <div id="details">
+        <span id="date">
+            <%= job.date %>
+        </span>
+        <span id="time">
+            <%= job.startTime %>
+        </span>
+        <div id="equipment">
+            <span id="truck">
+                <%= job.equipment.truck %>
+            </span>
+            <% if (job.equipment.trailer !="default" ) { %>
+                <span id="trailer">
+                    <%= job.equipment.trailer %>
+                </span>
+                <% } %>
+        </div>
+        <div id="locations">
+            <span id="load">
+                <%= job.loadLocation %>
+            </span>
+            <span id="dump">
+                <%= job.dumpLocation %>
+            </span>
+        </div>
+        <span id="status">
+            Status: <%= job.status %>
+        </span>
+        <div id="additional_details">
+            <% if (job.supplier !="" ) { %>
+                <span id="supplier">
+                    <%= job.supplier %>
+                </span>
+                <% } %>
+                    <% if (job.reciever !="" ) { %>
+                        <span id="reciever">
+                            <%= job.reciever %>
+                        </span>
+                        <% } %>
+                            <span id="material">
+                                <%= job.material %>
+                            </span>
+        </div>
+    </div>
+</div>
+
+<h3>Edit Load Ticket</h3>
+<div class="mb-3">
+    <label for="exampleInputEmail1" class="form-label">Load Location</label>
+    <input type="text" class="form-control" id="load_location" aria-describedby="emailHelp"
+        value="<%=job.loadTickets[loadId].loadLocation %>">
+    <div id="load_location_error" class="form-text error"></div>
+</div>
+<% if (job.loadTickets[loadId].status=="complete" ) { %>
+    <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">Dump Location</label>
+        <input type="text" class="form-control" id="dump_location" aria-describedby="emailHelp"
+            value="<%=job.loadTickets[loadId].dumpLocation %>">
+        <div id="dump_location_error" class="form-text error"></div>
+    </div>
+    <% } %>
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Load Time</label>
+            <input type="time" class="form-control" id="load_time" aria-describedby="emailHelp"
+                value="<%=job.loadTickets[loadId].loadTime %>">
+            <div id="load_time_error" class="form-text error">
+            </div>
+        </div>
+        <% if (job.loadTickets[loadId].status=="complete" ) { %>
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Dump Time</label>
+                <input type="time" class="form-control" id="dump_time" aria-describedby="emailHelp"
+                    value="<%=job.loadTickets[loadId].dumpTime %>">
+                <div id="dump_time_error" class="form-text error"></div>
+            </div>
+            <% } %>
+                <div class="mb-3">
+                    <label for="exampleInputEmail1" class="form-label">Material</label>
+                    <input type="text" class="form-control" id="material_input" aria-describedby="emailHelp"
+                        value="<%=job.loadTickets[loadId].material %>">
+                    <div id="material_error" class="form-text error"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInputEmail1" class="form-label">Tonnage</label>
+                    <input type="number" class="form-control" id="tonnage" aria-describedby="emailHelp"
+                        value="<%=job.loadTickets[loadId].tonnage %>">
+                    <div id="tonnage_error" class="form-text error"></div>
+                </div>
+                <div id="form_error" class="form-text error"></div>
+
+
+                <div id="positive_button_container">
+                    <button class="new_load_ticket"
+                        onclick="editLoadTicket(<%= loadId %>, '<%= job.loadTickets[loadId].status %>')">Edit
+                        Ticket</button>
+                </div>
+
+
+                <div id="negative_button_container">
+                    <button class="new_load_ticket" onclick="deleteLoadModal()">Delete Ticket</button>
+                </div>
+
+                <!-- This script is responsible for handling load tickets -->
+                <script src="js/load.js"></script>

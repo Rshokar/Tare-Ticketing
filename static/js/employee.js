@@ -35,70 +35,75 @@ const submit = document.getElementById("submit");
 //Delete button
 const delete_button = document.getElementById("delete_button");
 
-//Confirmation Modal
-const conf = document.getElementById("confirmation");
-const confText = document.getElementById('confirmation_text');
-const confYes = document.getElementById("confirmation_yes")
-const confNo = document.getElementById("confirmation_no")
+
 
 //Get all form errors
 const errors = document.querySelectorAll(".error");
 
 console.log(errors);
 
-/**
- * THis function is responsible for making the ajax a call and calling the correct function
- * @author Ravinder Shokar 
- * @version 1.0 
- * @date June 1 2021 
- */
-submit.addEventListener("click", () => {
+$(document).ready(() => {
 
-	//Reset Errors
-	resetErr();
+	//Confirmation Modal
+	const conf = document.getElementById("confirmation_modal");
+	const confText = document.getElementById("confirmation_text");
+	const confYes = document.getElementById("confirmation_yes")
+	const confNo = document.getElementById("confirmation_no")
 
-	let data = getFormData();
+	/**
+	 * THis function is responsible for making the ajax a call and calling the correct function
+	 * @author Ravinder Shokar 
+	 * @version 1.0 
+	 * @date June 1 2021 
+	 */
+	submit.addEventListener("click", () => {
 
-	console.log(data);
+		//Reset Errors
+		resetErr();
 
-	if (validateForm(data)) {
-		registerEmployee(data);
-	}
-})
+		let data = getFormData();
 
-/**
- * This event listner opens the cofrimation dialog box. 
- */
-if (delete_button != null) {
-	confText.innerHTML =
-		`
+		console.log(data);
+
+		if (validateForm(data)) {
+			registerEmployee(data);
+		}
+	})
+
+	/**
+	 * This event listner opens the cofrimation dialog box. 
+	 */
+	if (delete_button != null) {
+		confText.innerHTML =
+			`
 		Are you sure you want to delete ${empFname.innerText}
 		`
-	delete_button.addEventListener('click', (e) => {
-		console.log("I have been clicked")
-		e.preventDefault();
-		conf.style.display = "block"
-	})
-}
+		delete_button.addEventListener('click', (e) => {
+			console.log("I have been clicked")
+			e.preventDefault();
+			conf.style.display = "block"
+		})
+	}
 
-/**
- * This event listner opens the cofrimation dialog box. 
- */
-if (confYes != null) {
-	confYes.addEventListener('click', (e) => {
-		let url = new URL(window.location.href);
-		deleteEmp(url.searchParams.get("id"));
-	})
-}
+	/**
+	 * This event listner opens the cofrimation dialog box. 
+	 */
+	if (confYes != null) {
+		confYes.addEventListener('click', (e) => {
+			let url = new URL(window.location.href);
+			deleteEmp(url.searchParams.get("id"));
+		})
+	}
 
-/**
- * This event listner opens the cofrimation dialog box. 
- */
-if (confNo != null) {
-	confNo.addEventListener('click', (e) => {
-		conf.style.display = "none";
-	})
-}
+	/**
+	 * This event listner closes the cofrimation dialog box. 
+	 */
+	if (confNo != null) {
+		confNo.addEventListener('click', (e) => {
+			conf.style.display = "none";
+		})
+	}
+})
 
 /**
  * This function resets errors on the add employee form
@@ -130,12 +135,6 @@ function getFormData() {
 	}
 	return obj;
 }
-
-
-
-
-
-
 
 /**
  * This function is responsible for validating the form data

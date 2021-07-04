@@ -43,6 +43,9 @@ const jobSchema = new Schema({
     },
     status: {
         type: String
+    },
+    loadTickets: {
+        type: Array
     }
 }, { timestamps: true })
 

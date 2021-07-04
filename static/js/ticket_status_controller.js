@@ -131,8 +131,8 @@ function activateJobTicket() {
                 confNo.style.display = "none";
                 confModal.style.display = "block";
 
-                positiveButton.innerHTML = '<button class="new_load_ticket">Add Load Ticket</button>';
-                negativeButton.innerHTML = '<button class="new_load_ticket" onclick="signOffJobTicket()">Sign Off</button>';
+                positiveButton.innerHTML = '<button class="new_load_ticket" onclick=openNewLoadModal()>Add Load Ticket</button>';
+                negativeButton.innerHTML = '<button class="new_load_ticket" onclick="openSignOffModal()">Sign Off</button>';
 
                 status.innerHTML = 'Status: active';
 
@@ -155,4 +155,88 @@ function activateJobTicket() {
             console.log(err);
         }
     })
+}
+
+/**
+ * This function opens a confirmation modal before and attaches an
+ * eventListner to both the yes and no buttons
+ * 
+ * yes button = signOff();
+ * no button = closeModals();
+ * @author Ravinder Shokar
+ * @version 1.0
+ * @date July 3 2021
+ */
+function openSignOffModal() {
+    const modal = document.getElementById('sign_off_ticket_modal');
+    modal.style.display = "block";
+}
+
+
+/**
+ * This function is responsible for finishing a job ticket. This means 
+ * sending a post request that will change the status to complete. 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date July 3 2021 
+ */
+const signOff = () => {
+
+    const signOffTime = document.getElementById("sign_off_time").value.trim();
+    const startTime = document.getElementById("time").innerHTML.trim();
+
+    console.log(startTime);
+    console.log(signOffTime);
+
+    const confModal = document.getElementById("confirmation_modal");
+    const confYes = document.getElementById("confirmation_yes");
+    const confText = document.getElementById("confirmation_text");
+    const confNo = document.getElementById("confirmation_no");
+
+    const url = window.location.href;
+    const query = new URL(url);
+    const jobId = query.searchParams.get('id');
+
+    if (verifySignOff(startTime, signOffTime)) {
+        $.ajax({
+            url: "/complete_job_ticket",
+            type: "POST",
+            dataType: "JSON",
+            data: { jobId, signOffTime },
+            success: (data) => {
+                console.log(data);
+                if (data.status == "success") {
+                    const editButton = document.querySelectorAll(".edit_load");
+
+                    editButton.forEach((edit) => {
+                        edit.remove();
+                    })
+                    document.getElementById("positive_button_container").remove();
+                    document.getElementById("negative_button_container").remove();
+                    document.getElementById("status").innerHTML = "Staus: complete";
+
+                    confModal.style.display = "block";
+                    confYes.style.display = "none";
+                    confNo.innerHTML = "Okay";
+                    confText.innerHTML = "Status updated";
+
+                    confNo.addEventListener("click", closeModals);
+
+                } else {
+                    confModal.style.display = "block";
+                    confYes.style.display = "none";
+                    confNo.innerHTML = "Okay";
+                    confText.innerHTML = data.message;
+
+                    confNo.addEventListener("click", closeModals);
+
+                }
+            },
+            error: (err) => {
+                console.log(err);
+            }
+
+        })
+    }
+
 }

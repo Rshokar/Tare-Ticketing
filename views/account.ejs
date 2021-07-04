@@ -11,11 +11,11 @@
 
 <div id="user-setting">
     <h2>User Settings</h2>
-    <a href="/my-settings">
+    <a href="/my_settings">
         <div id="my-settings"><span>My Information</span></div>
     </a>
     <% if(user.type==="dispatcher" ) { %>
-        <a href="/company-settings">
+        <a href="/company_settings">
             <div id="company-settings"><span>Company Information</span></div>
         </a>
         <!-- <a href="/operators">
@@ -29,7 +29,7 @@
         </a>
         <% } %>
             <% if(user.type==="operator" ) { %>
-                <a href="/company-settings">
+                <a href="/company_settings">
                     <div id="company-settings"><span>Company Information</span></div>
                 </a>
                 <!-- <a href="/dispatchers">
@@ -40,7 +40,7 @@
                 </a>
                 <% } %>
                     <% if(user.type==="employee" ) { %>
-                        <a href="/company-settings">
+                        <a href="/company_settings">
                             <div id="company-settings"><span>Company Information</span></div>
                         </a>
                         <% } %>

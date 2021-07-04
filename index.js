@@ -10,6 +10,7 @@ const cookieParser = require("cookie-parser");
 const { readFile } = require('fs');
 const mongoose = require('mongoose').set('debug', true);;
 const ObjectId = require('mongodb').ObjectId;
+const ejsLint = require('ejs-lint');
 
 
 
@@ -69,34 +70,27 @@ app.get("/dashboard", authenticate, (req, res) => {
 
     if (decodedToken.type == 'dispatcher') {
       Dispatch.find({
-        dispatcher: { id: decodedToken.id, company: decodedToken.company }
+        $and: [
+          { "dispatcher.id": decodedToken.id },
+          {
+            $or: [{ "status.sent": { $gt: 0 } }, { "status.active": { $gt: 0 } }, { "status.confirmed": { $gt: 0 } }]
+          }
+        ]
       }).then((result) => {
         console.log(result)
         res.render("dashboard", { page: pageName, dispatches: result, user: decodedToken })
       })
     } else {
       Job.find({
-        "operator.id": decodedToken.id
+        $and: [
+          { "operator.id": decodedToken.id },
+          { $or: [{ status: "sent" }, { status: "confirmed" }, { status: "active" }] }
+        ]
+
       }).then((jobs) => {
+        ejsLint("dashboard")
 
-        let ticketStatus = {
-          sent: 0,
-          confirmed: 0,
-          active: 0,
-        }
-
-        jobs.forEach((job) => {
-          if (job.status == "sent") {
-            ticketStatus.sent++;
-          } else if (job.status == "confirmed") {
-            ticketStatus.confirmed++;
-          } else if (job.status == "active") {
-            ticketStatus.active++;
-          }
-        })
-
-        console.log("Ticket Status", ticketStatus);
-        res.render("dashboard", { page: pageName, jobs: jobs, ticketStatus: ticketStatus, user: decodedToken })
+        res.render("dashboard", { page: pageName, jobs: jobs, user: decodedToken })
       })
     }
   })
@@ -125,6 +119,32 @@ app.get("/account", authenticate, (req, res) => {
       })
   })
 })
+
+
+/**
+ * This route is responsible for rendering the HTML page for my account info. On this page 
+ * the user will be able to edit and view accound info 
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date June 28 2021
+ */
+app.get("/my_settings", authenticate, (req, res) => {
+  const token = req.cookies.jwt;
+  const pageName = "My Settings"
+
+  jwt.verify(token, "butternut", (err, decodedToken) => {
+    User.findOne({
+      _id: decodedToken.id
+    }).then((user) => {
+      if (user == null) {
+        res.render('layout')
+      } else {
+        res.render("my_settings", { user: decodedToken, page: pageName, userAccount: user })
+      }
+    })
+  })
+})
+
 
 /**
  * This route will return the appropriate HTML for the login page. 
@@ -197,8 +217,44 @@ app.post("/register_user", AuthController.register, (req, res) => {
  * @date May 22 2021
  */
 app.get("/tickets", authenticate, (req, res) => {
-  let pageName = "Tickets";
-  res.render("tickets", { page: pageName });
+  const token = req.cookies.jwt;
+
+  jwt.verify(token, "butternut", (err, decodedToken) => {
+    if (err) {
+      console.log(err);
+      res.send({
+        status: "error",
+        message: "error decoding JWT"
+      })
+    }
+
+    if (decodedToken.type == "dispatcher") {
+      Dispatch.find({
+        $and: [{ "dispatcher.id": decodedToken.id }, { "status.complete": { $gt: 0 } }, { "status.sent": 0 }, { "status.active": 0 }]
+      })
+        .then((dispatches) => {
+          Job.find({
+            "dispatcher.id": decodedToken.id
+          })
+            .then((jobs) => {
+              const pageName = "Tickets";
+              res.render("tickets", { page: pageName, dispatches, jobs, user: decodedToken });
+            })
+        })
+    } else {
+      Job.find({
+        $and: [{ "operator.id": decodedToken.id }, { status: "complete" }]
+      })
+        .then((jobs) => {
+          const pageName = "Tickets";
+          res.render("tickets", { page: pageName, jobs, user: decodedToken });
+        })
+
+
+    }
+
+
+  })
 })
 
 /**
@@ -236,6 +292,7 @@ app.get("/job", authenticate, (req, res) => {
       _id: jobTicket
     })
       .then((result) => {
+        console.log(result);
         res.render("job", { page: pageName, job: result, user: decodedToken });
       })
   })
@@ -257,7 +314,7 @@ app.post("/confirm_job_ticket", TicketController.confirmJobTicket, (req, res) =>
 
 /**
  * This route is responsible for changing the status of a job to active and updating 
- * the dispatch ticket if it exist
+ * the parent dispatch ticket.
  * @author Ravinder Shokar 
  * @version 1.0 
  * @date June 26 2021
@@ -265,19 +322,86 @@ app.post("/confirm_job_ticket", TicketController.confirmJobTicket, (req, res) =>
 app.post("/activate_job_ticket", TicketController.activateJobTicket, (req, res) => {
   res.send({
     status: "success",
-    message: "Nice ajax call"
+    message: "Job status updated"
   });
 })
 
 /**
- * This route will return the appropriate HTML for the load ticket page. 
+ * This route is responsible for changing the status of a job ticket to complete and 
+ * updating it parent dispatch ticket.
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 3 2021
+ */
+app.post("/complete_job_ticket", TicketController.completeJobTicket, (req, res) => {
+  res.send({
+    status: "success",
+    message: "Job status updated"
+  })
+})
+
+/**
+ * This route is responsible for adding a created load ticket to a job ticket
  * @author Ravinder Shokar 
  * @version 1.0
- * @date May 22 2021
+ * @date June 30 2021
  */
-app.get("/load", authenticate, (req, res) => {
-  let pageName = "Load Ticket";
-  res.render("load", { page: pageName });
+app.post("/add_load_ticket", TicketController.addLoadTicket, (req, res) => { })
+
+/**
+ * This route is responsible for finishing a load ticket. 
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 1 2021
+ */
+app.post("/finish_load_ticket", TicketController.finishLoadTicket, (req, res) => {
+})
+
+
+/**
+ * This route is responsible for rendering the correct HTML for the purpose of editing 
+ * a load ticket
+ * @author Ravinder Shokar 
+ * @vesrion 1.0 
+ * @date July 2 2021
+ */
+app.get("/edit_load", authenticate, (req, res) => {
+  console.log(req.query);
+  const pageName = "Edit Load Ticket"
+
+  Job.findOne({
+    _id: req.query.jobId
+  })
+    .then((job) => {
+      res.render("edit_load", { job: job, loadId: req.query.loadId, page: pageName });
+    })
+})
+
+
+/**
+ * This route is responsible for editing a load ticket. 
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 2 2021
+ */
+app.post("/edit_load", TicketController.updateLoadTicket, (req, res) => {
+  res.send({
+    status: "success",
+    message: "Successfully update load ticket."
+  })
+})
+
+/**
+ * This route is responsible for deleting a load ticket 
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 2 2021 
+ */
+app.post("/delete_load_ticket", TicketController.deleteLoadTicket, (req, res) => {
+  res.send({
+    status: "success",
+    message: "Successfully deleted load ticket."
+  })
 })
 
 /**
@@ -287,8 +411,13 @@ app.get("/load", authenticate, (req, res) => {
  * @date May 22 2021
  */
 app.get("/new_dispatch", authenticate, (req, res) => {
-  let pageName = "New Dispatch";
-  res.render("new_dispatch", { page: pageName });
+  const token = req.cookies.jwt;
+
+  jwt.verify(token, "butternut", (err, decodedToken) => {
+    let pageName = "New Dispatch";
+    res.render("new_dispatch", { page: pageName, user: decodedToken });
+  })
+
 })
 
 /**
