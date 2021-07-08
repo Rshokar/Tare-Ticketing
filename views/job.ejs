@@ -4,6 +4,9 @@
 <!-- Custom css for load tickets -->
 <link rel="stylesheet" href="css/load.css">
 
+<!-- Custome CSS for Job details -->
+<link rel="stylesheet" href="css/dispatch.css">
+
 <div id="back">
   <% if (user.type !="dispatcher" ) { %>
     <a href="/dashboard"><i class="fas fa-arrow-left"></i></a>
@@ -13,65 +16,52 @@
 </div>
 
 
-<!-- All job details will be rendered here -->
-<div id="job_details">
-  <div id="parties">
-    <h1 id="contractore">
+<!-- All Dispatches will be rendered in here -->
+<div id="dispatch_continer">
+  <div class="dispatch <%= job.status %>">
+    <h2 class="contractor">
       <%= job.contractor %>
-    </h1>
-    <h3 id="dispatcher">
+    </h2>
+    <h5 class="dispatcher">
       <%= job.dispatcher.company %>
-    </h3>
-  </div>
-
-  <div id="operator">
-    <span id="operator_name">
-      <%= job.operator.name %>
+    </h5>
+    <span class="load_location">
+      <%= job.loadLocation %>
     </span>
-  </div>
-
-  <div id="details">
-    <span id="date">
-      <%= job.date %>
+    <span class="dump_location">
+      <%= job.dumpLocation %>
     </span>
-    <span id="time">
+
+    <div id="details">
+      <span class="date">
+        <%= new Date(job.date).toDateString(); %>
+      </span>
+
+      <div>
+        <span class="supplier">Supplier: <%= job.supplier %></span>
+      </div>
+      <div>
+        Reciever: <span class="reciever">
+          <%= job.reciever %>
+        </span>
+      </div>
+      <div>
+        Material: <span class="material">
+          <%= job.material %>
+        </span>
+      </div>
+      <div class='notes'>
+        Notes: <%= job.notes %>
+      </div>
+
+    </div>
+
+    <div class="num-trucks">
       <%= job.startTime %>
-    </span>
-    <div id="equipment">
-      <span id="truck">
-        <%= job.equipment.truck %>
-      </span>
-      <% if (job.equipment.trailer !="default" ) { %>
-        <span id="trailer">
-          <%= job.equipment.trailer %>
-        </span>
-        <% } %>
     </div>
-    <div id="locations">
-      <span id="load">
-        <%= job.loadLocation %>
-      </span>
-      <span id="dump">
-        <%= job.dumpLocation %>
-      </span>
-    </div>
-    <span id="status">
-      Status: <%= job.status %>
-    </span>
-    <div id="additional_details">
-      <% if (job.supplier !="" ) { %>
-        <span id="supplier">
-          <%= job.supplier %>
-        </span>
-        <% } %>
-          <% if (job.reciever !="" ) { %>
-            <span id="reciever">
-              <%= job.reciever %>
-            </span>
-            <% } %>
-              <span id="material">
-                <%= job.material %>
-              </span>
+    <div id="toggles">
+      <i class="down fas fa-angle-down" onclick="toggleDown()"></i>
+      <i class="up fas fa-angle-up" style="display:none" onclick="toggleUp()"></i>
     </div>
   </div>
 </div>
@@ -92,9 +82,11 @@
             <div id="positive_button_container">
               <% if (job.loadTickets[job.loadTickets.length - 1]!=undefined && job.loadTickets[job.loadTickets.length -
                 1].status=="active" ) { %>
-                <button class="new_load_ticket" onclick="openFinishLoadModal()">Finish Load Ticket</button>
+                <button class="new_load_ticket" onclick="openFinishLoadModal()">Finish Load
+                  Ticket</button>
                 <% } else { %>
-                  <button class="new_load_ticket" onclick="openNewLoadModal()">Add Load Ticket</button>
+                  <button class="new_load_ticket" onclick="openNewLoadModal()">Add Load
+                    Ticket</button>
                   <% } %>
             </div>
             <% } %>
@@ -150,13 +142,15 @@
                     <% } %>
                       <% if ( job.status=="confirmed" ) { %>
                         <div id="negative_button_container">
-                          <button class="new_load_ticket" onclick="declineJobTicket()">Cancel Job</button>
+                          <button class="new_load_ticket" onclick="declineJobTicket()">Cancel
+                            Job</button>
                         </div>
                         <% } %>
 
                           <% if ( job.status=="active" ) { %>
                             <div id="negative_button_container">
-                              <button class="new_load_ticket" onclick="openSignOffModal()">Sign Off</button>
+                              <button class="new_load_ticket" onclick="openSignOffModal()">Sign
+                                Off</button>
                             </div>
                             <% } %>
                               <% } %>
@@ -165,12 +159,14 @@
                                   <div id='new_load_ticket' class="modal-content">
                                     <h3>Add Load Ticket</h3>
                                     <div class="mb-3">
-                                      <label for="exampleFormControlInput1" class="form-label">Load Location</label>
+                                      <label for="exampleFormControlInput1" class="form-label">Load
+                                        Location</label>
                                       <input type="email" class="form-control" id="load_location">
                                       <span class="error" id="load_location_error"></span>
                                     </div>
                                     <div class="mb-3">
-                                      <label for="exampleFormControlTextarea1" class="form-label">Load Time</label>
+                                      <label for="exampleFormControlTextarea1" class="form-label">Load
+                                        Time</label>
                                       <input type="time" class="form-control load_time" id="load_time">
                                       <span class="error" id="load_time_error"></span>
                                     </div>
@@ -196,13 +192,15 @@
                                   <div id='finish_load_ticket' class="modal-content">
                                     <h3>Finish Load Ticket</h3>
                                     <div class="mb-3">
-                                      <label for="exampleFormControlInput1" class="form-label">Dump Location</label>
+                                      <label for="exampleFormControlInput1" class="form-label">Dump
+                                        Location</label>
                                       <input type="email" class="form-control load_location" id="dump_location"
                                         value="<%= job.dumpLocation %>">
                                       <span class="error" id="dump_location_error"></span>
                                     </div>
                                     <div class="mb-3">
-                                      <label for="exampleFormControlTextarea1" class="form-label">Dump Time</label>
+                                      <label for="exampleFormControlTextarea1" class="form-label">Dump
+                                        Time</label>
                                       <input type="time" class="form-control load_time" id="dump_time">
                                       <span class="error" id="dump_time_error"></span>
                                     </div>
@@ -219,7 +217,8 @@
                                   <div id='finish_load_ticket' class="modal-content">
                                     <h3>Sign Off</h3>
                                     <div class="mb-3">
-                                      <label for="exampleFormControlTextarea1" class="form-label">Sign Off Time</label>
+                                      <label for="exampleFormControlTextarea1" class="form-label">Sign
+                                        Off Time</label>
                                       <input type="time" class="form-control load_time" id="sign_off_time">
                                       <span class="error" id="sign_off_error"></span>
                                     </div>
@@ -234,3 +233,34 @@
 
                                 <!-- This JS file contains functions that will change the status of tickets. -->
                                 <script src="js/ticket_status_controller.js"></script>
+
+                                <script>
+
+                                  /**
+                                   * This function shows the dispatch details in the DOM. 
+                                   */
+                                  function toggleDown() {
+                                    // Get details container and toggle
+                                    const details = document.getElementById("details");
+                                    const toggleUp = document.querySelector("#toggles .up");
+                                    const toggleDown = document.querySelector("#toggles .down");
+
+                                    details.style.display = "block";
+                                    toggleDown.style.display = "none";
+                                    toggleUp.style.display = "block";
+                                  }
+
+                                  /**
+                                   * This function shows the dispatch details in the DOM. 
+                                   */
+                                  function toggleUp() {
+                                    // Get details container and toggle
+                                    const details = document.getElementById("details");
+                                    const toggleUp = document.querySelector("#toggles .up");
+                                    const toggleDown = document.querySelector("#toggles .down");
+
+                                    details.style.display = "none";
+                                    toggleDown.style.display = "block";
+                                    toggleUp.style.display = "none";
+                                  }
+                                </script>

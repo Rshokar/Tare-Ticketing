@@ -49,7 +49,7 @@ const { update } = require("./models/user");
  * @version 1.0 
  * @date MAy 16 2021
  */
-app.get("/", (req, res) => {
+app.get("/", authenticate, (req, res) => {
   res.render("index", {
     page: "Index"
   });
@@ -264,14 +264,18 @@ app.get("/tickets", authenticate, (req, res) => {
  * @date May 22 2021
  */
 app.get("/dispatch", authenticate, (req, res) => {
+  const token = req.cookies.jwt;
   const dispatchId = req.query.id;
   const pageName = "Dispatch Ticket";
 
-  Dispatch.findOne({ _id: dispatchId })
-    .then((result) => {
-      console.log(result);
-      res.render("dispatch", { page: pageName, dispatch: result });
-    })
+  jwt.verify(token, "butternut", (err, decodedToken) => {
+    Dispatch.findOne({ _id: dispatchId })
+      .then((result) => {
+        console.log(result);
+        res.render("dispatch", { page: pageName, dispatch: result, user: decodedToken });
+      })
+  })
+
 
 })
 
@@ -367,14 +371,19 @@ app.post("/finish_load_ticket", TicketController.finishLoadTicket, (req, res) =>
  */
 app.get("/edit_load", authenticate, (req, res) => {
   console.log(req.query);
-  const pageName = "Edit Load Ticket"
+  const pageName = "Edit Load Ticket";
+  const token = req.cookies.jwt;
 
-  Job.findOne({
-    _id: req.query.jobId
-  })
-    .then((job) => {
-      res.render("edit_load", { job: job, loadId: req.query.loadId, page: pageName });
+  jwt.verify(token, "butternut", (err, decodedToken) => {
+    Job.findOne({
+      _id: req.query.jobId
     })
+      .then((job) => {
+        res.render("edit_load", { job: job, loadId: req.query.loadId, page: pageName, user: decodedToken });
+      })
+  })
+
+
 })
 
 
@@ -427,8 +436,13 @@ app.get("/new_dispatch", authenticate, (req, res) => {
  * @date Jun 16 2021 
  */
 app.get("/add_operators", authenticate, (req, res) => {
+  const token = req.cookies.jwt;
   let pageName = "Add Operators";
-  res.render("add_operators", { page: pageName });
+
+  jwt.verify(token, "butternut", (err, decodedToken) => {
+    res.render("add_operators", { page: pageName, user: decodedToken });
+  })
+
 })
 
 /**
@@ -439,8 +453,13 @@ app.get("/add_operators", authenticate, (req, res) => {
  * @date June 21 2021
  */
 app.get("/dispatch_preview", authenticate, (req, res) => {
-  let pageName = "Dispatch Preview";
-  res.render("dispatch_preview", { page: pageName });
+  const token = req.cookies.jwt;
+
+  jwt.verify(token, "butternut", (err, decodedToken) => {
+    let pageName = "Dispatch Preview";
+    res.render("dispatch_preview", { page: pageName, user: decodedToken });
+  })
+
 })
 
 /**

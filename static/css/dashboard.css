@@ -4,6 +4,10 @@
     height: 20vh
 }
 
+#tickets_empty {
+    text-align: center;
+}
+
 #details span {
     display: block;
 }

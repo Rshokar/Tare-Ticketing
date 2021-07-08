@@ -1,6 +1,3 @@
-<!-- Customer CSS for register/login html-->
-<link href="css/login-register.css" rel="stylesheet">
-
 <!-- Custome CSS for new dispatch form -->
 <link href="css/new_dispatch_form.css" rel="stylesheet">
 
@@ -9,82 +6,80 @@
     <a href="/dashboard"><i class="far fa-window-close"></i></a>
 </div>
 
-<div id="login">
-    <legend>New Dispatch</legend>
+<h1>New Dispatch</h1>
 
-    <div id="contractor" class="input">
-        <label>Contractor *</label>
-        <input type='text' required placeholder="Contractor">
-        <p id="contractor-error" class="error"></p>
-    </div>
-
-    <div id="date" class="input">
-        <label>Date *</label>
-        <input type='date' required placeholder="Date">
-        <p id="date-error" class="error"></p>
-    </div>
-
-    <div id="load_location" class="input">
-        <label>Load Location *</label>
-        <input type='text' required placeholder="load_location">
-        <p id="load-location-error" class="error"></p>
-    </div>
-
-    <div id="dump_location" class="input">
-        <label>Dump Location *</label>
-        <input type='text' required placeholder="Dump Location">
-        <p id="dump-location-error" class="error"></p>
-    </div>
-
-    <div id="num_trucks" class="input">
-        <label>Number Of Trucks</label>
-        <input type='number' required placeholder="0"></input>
-        <p id="num-trucks-error" class="error"></p>
-    </div>
-
-    <div id="notes" class="input">
-        <label>Notes</label>
-        <textarea type='text' required placeholder="Notes"></textarea>
-        <p id="notes-error" class="error"></p>
-    </div>
-
-    <div id="non_required_inputs">
-        <input type="checkbox" id="reciever_check" value="Reciever" onclick="showReciever()">
-        <label>Reciever</label>
-
-        <input type="checkbox" id="supplier_check" value="Supplier" onclick="showSupplier()">
-        <label>Supplier</label>
-
-        <input type="checkbox" id="material_check" value="Material" onclick="showMaterial()">
-        <label>Material</label>
-    </div>
-
-    <div id="reciever" class="input">
-        <label>Reciever</label>
-        <input type='text' required placeholder="Reciever">
-        <p id="reciever-error" class="error"></p>
-    </div>
-
-    <div id="supplier" class="input">
-        <label>Supplier</label>
-        <input type='text' required placeholder="Supplier">
-        <p id="supplier-error" class="error"></p>
-    </div>
-
-    <div id="material" class="input">
-        <label>Material</label>
-        <input type='text' required placeholder="Material">
-        <p id="material-error" class="error"></p>
-    </div>
-
-    <input id="submit" type="submit" onclick="createDispatch()">
-    <p id="form-error" class="error"></p>
+<div class="mb-3">
+    <label for="contractor" class="form-label">Contractor *</label>
+    <input type="text" class="form-control" id="contractor" placeholder="Contractor">
+    <div id="contractor-error" class="form-text error"></div>
 </div>
+<div class="mb-3">
+    <label for="date" class="form-label">Date *</label>
+    <input type="date" class="form-control" id="date">
+    <div id="date-error" class="form-text error"></div>
+</div>
+<div class="mb-3">
+    <label for="load_location" class="form-label">Load Location *</label>
+    <input type="text" class="form-control" id="load_location" placeholder="Load Location">
+    <div id="load-location-error" class="form-text error"></div>
+</div>
+<div class="mb-3">
+    <label for="dump_location" class="form-label">Dump Location *</label>
+    <input type="text" class="form-control" id="dump_location" placeholder="Dump Location">
+    <div id="dump-location-error" class="form-text error"></div>
+</div>
+<div class="mb-3">
+    <label for="num_trucks" class="form-label">Num Trucks</label>
+    <input type="number" class="form-control" id="num_trucks" placeholder="0" step="1">
+    <div id="num_trucks_error" class="form-text error"></div>
+</div>
+
+<div class="mb-3" id="supplier">
+    <label for="supplier" class="form-label">Supplier</label>
+    <input type="text" class="form-control" placeholder="Supplier">
+    <div id="supplier-error" class="form-text error"></div>
+</div>
+
+<div class="mb-3" id="reciever">
+    <label for="reciever" class="form-label">Reciever</label>
+    <input type="text" class="form-control" placeholder="Reciever">
+    <div id="reciever-error" class="form-text error"></div>
+</div>
+
+<div class="mb-3" id="material">
+    <label for="material" class="form-label">Material</label>
+    <input type="text" class="form-control" placeholder="Material">
+    <div id="material-error" class="form-text error"></div>
+</div>
+
+<div class="mb-3">
+    <input type="checkbox" id="reciever_check" value="Reciever" onclick="showReciever()">
+    <label class="form-check-label">Reciever</label>
+
+    <input type="checkbox" id="supplier_check" value="Supplier" onclick="showSupplier()">
+    <label class="form-check-label">Supplier</label>
+
+    <input type="checkbox" id="material_check" value="Material" onclick="showMaterial()">
+    <label class="form-check-label">Material</label>
+</div>
+
+<div class="mb-3">
+    <label for="notes" class="form-label">Notes</label>
+    <textarea type="text" class="form-control" id="notes" placeholder="Notes"></textarea>
+    <div id="notes_error" class="form-text error"></div>
+</div>
+
+<div class="mb-3">
+    <div id="form-error" class="form-text error"></div>
+</div>
+
+<button id="submit" class="btn btn-primary" onclick="createDispatch()">Submit</button>
+
 
 <script>
     //Set date minmum 
     var today = new Date().toISOString().split('T')[0];
-    document.querySelector("#date input").setAttribute('min', today);
+    document.querySelector("#date").setAttribute('min', today);
 
     function showReciever() {
         let checkReciever = document.getElementById("reciever_check");

@@ -21,8 +21,8 @@ function openNewLoadModal() {
   const modalTonnage = document.getElementById("tonnage")
 
 
-  const loadLocation = document.getElementById("load").innerHTML;
-  const material = document.getElementById("material").innerHTML;
+  const loadLocation = document.querySelector(".load_location").innerHTML;
+  const material = document.querySelector(".material").innerHTML;
 
   const date = new Date()
 
@@ -56,7 +56,7 @@ function openFinishLoadModal() {
   const modalDumpTime = document.getElementById("dump_time");
   const modalDumpLocation = document.getElementById("dump_location");
 
-  const dumpLocation = document.getElementById("dump").innerText;
+  const dumpLocation = document.querySelector(".dump_location").innerHTML;
 
   const date = new Date();
   const now = date.getHours() + ":" + ((date.getMinutes() < 10 ? "0" : "") + date.getMinutes());
@@ -345,7 +345,7 @@ function verifySignOff(startTime, signOffTime) {
  * @date July 1 2021 
  */
 function quickDump() {
-  const dumpLocation = document.getElementById("dump").innerText;
+  const dumpLocation = document.querySelector(".dump_location").innerHTML;
 
   const date = new Date();
   const now = date.getHours() + ":" + ((date.getMinutes() < 10 ? "0" : "") + date.getMinutes());

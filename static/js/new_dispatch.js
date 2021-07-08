@@ -14,7 +14,7 @@
  * @date June 16 2021
  */
 function createDispatch() {
-    let dispatch = sessionStorage.getItem('dispatch')
+    const dispatch = sessionStorage.getItem('dispatch')
     let data = getDispatchFormData();
 
     if (dispatch == null || dispatch == "") {
@@ -43,12 +43,12 @@ function createDispatch() {
  * @return and {} obj with dispatch details
  */
 function getDispatchFormData() {
-    let contractor = document.querySelector("#contractor input");
-    let date = document.querySelector("#date input");
-    let loadLocation = document.querySelector("#load_location input");
-    let dumpLocation = document.querySelector("#dump_location input");
-    let numTrucks = document.querySelector("#num_trucks input");
-    let notes = document.querySelector("#notes textarea");
+    let contractor = document.getElementById("contractor");
+    let date = document.getElementById("date");
+    let loadLocation = document.getElementById("load_location");
+    let dumpLocation = document.getElementById("dump_location");
+    let numTrucks = document.getElementById("num_trucks");
+    let notes = document.getElementById("notes");
     let reciever = document.querySelector("#reciever input");
     let supplier = document.querySelector("#supplier input");
     let material = document.querySelector("#material input");
@@ -158,12 +158,12 @@ function resetErrors() {
 $(document).ready(() => {
     let dispatch = sessionStorage.getItem('dispatch')
 
-    let contractor = document.querySelector("#contractor input");
-    let date = document.querySelector("#date input");
-    let loadLocation = document.querySelector("#load_location input");
-    let dumpLocation = document.querySelector("#dump_location input");
-    let numTrucks = document.querySelector("#num_trucks input");
-    let notes = document.querySelector("#notes textarea");
+    let contractor = document.getElementById("contractor");
+    let date = document.getElementById("date");
+    let loadLocation = document.getElementById("load_location");
+    let dumpLocation = document.getElementById("dump_location");
+    let numTrucks = document.getElementById("num_trucks");
+    let notes = document.getElementById("notes");
     let reciever = document.querySelector("#reciever input");
     let supplier = document.querySelector("#supplier input");
     let material = document.querySelector("#material input");
