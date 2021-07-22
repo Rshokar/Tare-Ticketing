@@ -4,8 +4,8 @@
 <!-- Custom css for load tickets -->
 <link rel="stylesheet" href="css/load.css">
 
-<!-- Custome CSS for Job details -->
-<link rel="stylesheet" href="css/dispatch.css">
+<!-- Custome CSS for Dispatch tickets -->
+<link rel="stylesheet" href="css/ticket_preview.css">
 
 <div id="back">
   <% if (user.type !="dispatcher" ) { %>
@@ -15,48 +15,49 @@
       <% } %>
 </div>
 
-
 <!-- All Dispatches will be rendered in here -->
-<div id="dispatch_continer">
-  <div class="dispatch <%= job.status %>">
-    <h2 class="contractor">
+<div id="ticket_preview_container">
+  <div id="ticket_preview" class="<%= job.status %>">
+    <h2>
       <%= job.contractor %>
     </h2>
-    <h5 class="dispatcher">
-      <%= job.dispatcher.company %>
-    </h5>
-    <span class="load_location">
+    <span id="date">
+      <%= job.date %>
+    </span>
+    <div id="load">
       <%= job.loadLocation %>
-    </span>
-    <span class="dump_location">
+        <p class="ticket_text">Load</p>
+    </div>
+    <div id="dump">
       <%= job.dumpLocation %>
-    </span>
-
-    <div id="details">
-      <span class="date">
-        <%= new Date(job.date).toDateString(); %>
-      </span>
-
-      <div>
-        <span class="supplier">Supplier: <%= job.supplier %></span>
-      </div>
-      <div>
-        Reciever: <span class="reciever">
-          <%= job.reciever %>
-        </span>
-      </div>
-      <div>
-        Material: <span class="material">
-          <%= job.material %>
-        </span>
-      </div>
-      <div class='notes'>
-        Notes: <%= job.notes %>
-      </div>
-
+        <p class="ticket_text">Dump</p>
     </div>
 
-    <div class="num-trucks">
+    <div id="details">
+      <% if (job.supplier !="" ) { %>
+        <div>
+          <span id="supplier">Supplier: <%= job.supplier %></span>
+        </div>
+        <% } %>
+
+          <% if (job.reciever !="" ) { %>
+            <div>
+              <span id="reciever">Reciever: <%= job.reciever %></span>
+            </div>
+            <% } %>
+
+              <% if (job.material !="" ) { %>
+                <div>
+                  <span id="material">Material: <%= job.material %></span>
+                </div>
+                <% } %>
+                  <div id='notes'>
+                    Notes: <%= job.notes %>
+                  </div>
+    </div>
+
+
+    <div id="num-trucks">
       <%= job.startTime %>
     </div>
     <div id="toggles">
@@ -65,6 +66,8 @@
     </div>
   </div>
 </div>
+
+
 
 <% if (user.type!="dispatcher" ) { %>
   <% if (job.status=="sent" ) { %>
@@ -242,12 +245,16 @@
                                   function toggleDown() {
                                     // Get details container and toggle
                                     const details = document.getElementById("details");
+                                    const ticketPreview = document.getElementById("ticket_preview");
                                     const toggleUp = document.querySelector("#toggles .up");
                                     const toggleDown = document.querySelector("#toggles .down");
+                                    const toggle = document.getElementById("toggles");
 
+                                    ticketPreview.style.gridTemplateRows = "30px 25px 50px 50px 150px 30px"
                                     details.style.display = "block";
                                     toggleDown.style.display = "none";
                                     toggleUp.style.display = "block";
+                                    toggle.style.gridRow = "6 / span 1";
                                   }
 
                                   /**
@@ -255,10 +262,14 @@
                                    */
                                   function toggleUp() {
                                     // Get details container and toggle
+                                    const toggle = document.getElementById("toggles");
                                     const details = document.getElementById("details");
                                     const toggleUp = document.querySelector("#toggles .up");
                                     const toggleDown = document.querySelector("#toggles .down");
+                                    const ticketPreview = document.getElementById("ticket_preview");
 
+                                    toggle.style.gridRow = "5 / span 1;"
+                                    ticketPreview.style.gridTemplateRows = "30px 25px 50px 50px 30px"
                                     details.style.display = "none";
                                     toggleDown.style.display = "block";
                                     toggleUp.style.display = "none";

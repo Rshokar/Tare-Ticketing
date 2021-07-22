@@ -13,14 +13,16 @@
  * @version 1.0 
  * @date June 16 2021
  */
-function createDispatch() {
-    const dispatch = sessionStorage.getItem('dispatch')
+function next(url) {
+    let dispatch = sessionStorage.getItem('dispatch');
     let data = getDispatchFormData();
+    console.log(data);
+    console.log(url + "?contractor=" + data.contractor)
 
     if (dispatch == null || dispatch == "") {
         if (validateDispatch(data)) {
             sessionStorage.setItem('dispatch', JSON.stringify(data));
-            window.location.href = "/add_operators";
+            window.location.href = url + "?contractor=" + data.contractor;
         }
     } else {
         dispatch = JSON.parse(dispatch);
@@ -28,8 +30,11 @@ function createDispatch() {
             if (dispatch.opreators != undefined) {
                 data['operators'] = dispatch.operators;
             }
+            if (dispatch.rates != undefined) {
+                data["rates"] = dispatch.rates;
+            }
             sessionStorage.setItem('dispatch', JSON.stringify(data));
-            window.location.href = "/add_operators";
+            window.location.href = url + "?contractor=" + data.contractor;
         }
     }
 
@@ -90,49 +95,49 @@ function validateDispatch(data) {
         || data.dumpLocation == ""
         || data.loadLocation == ""
     ) {
-        let formError = document.getElementById('form-error');
+        const formError = document.getElementById('form-error');
         formError.innerHTML = "Rerquired Fields must not be left empty"
         return false;
     }
 
+    if (data.contractor == "Select A Contractor") {
+        const contractorError = document.getElementById('contractor-error');
+        contractorError.innerHTML = "Must select a valid contractor";
+        isValid = false;
+    }
+
     if (data.numTrucks < 0) {
-        numTrucksError = document.getElementById('num-trucks-error');
+        const numTrucksError = document.getElementById('num-trucks-error');
         numTrucksError.innerHTML = "Number of trucks must be greater or equal than zero";
         isValid = false;
     }
 
-    if (data.contractor.length < 2) {
-        contractorError = document.getElementById('num-trucks-error');
-        contractorError.innerHTML = "Contractor must be longer than two characters";
-        isValid = false;
-    }
-
     if (data.loadLocation.length < 2) {
-        loadLocationError = document.getElementById('load-location-error');
+        const loadLocationError = document.getElementById('load-location-error');
         loadLocationError.innerHTML = "Load Location must be longer than two characters";
         isValid = false;
     }
 
     if (data.dumpLocation.length < 2) {
-        dumpLocationError = document.getElementById('dump-location-error');
+        const dumpLocationError = document.getElementById('dump-location-error');
         dumpLocationError.innerHTML = "Dump Location must be longer than two characters";
         isValid = false;
     }
 
     if (data.reciever.length > 0 && data.reciever.length < 2) {
-        recieverError = document.getElementById('reciever-error');
+        const recieverError = document.getElementById('reciever-error');
         recieverError.innerHTML = "Reciever must be longer than two characters";
         isValid = false;
     }
 
     if (data.supplier.length > 0 && data.supplier.length < 2) {
-        supplierError = document.getElementById('supplier-error');
+        const supplierError = document.getElementById('supplier-error');
         supplierError.innerHTML = "Supplier must be longer than two characters";
         isValid = false;
     }
 
     if (data.material.length > 0 && data.material.length < 2) {
-        materialError = document.getElementById('material-error');
+        const materialError = document.getElementById('material-error');
         materialError.innerHTML = "Material must be longer than two characters";
         isValid = false;
     }
@@ -155,8 +160,21 @@ function resetErrors() {
 
 }
 
+/**
+ * This function deletes the saved dispatch from sesssion storage and 
+ * redirects the user to the dashboard 
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 16 2021
+ */
+function exit() {
+    sessionStorage.removeItem("dispatch");
+    window.location.href = "/dashboard";
+}
+
 $(document).ready(() => {
-    let dispatch = sessionStorage.getItem('dispatch')
+    let dispatch = sessionStorage.getItem('dispatch');
+
 
     let contractor = document.getElementById("contractor");
     let date = document.getElementById("date");

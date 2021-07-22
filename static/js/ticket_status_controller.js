@@ -12,6 +12,7 @@
  * @version 1.0 
  * @date June 26 2021
  */
+"use_strict";
 
 
 /**
@@ -35,7 +36,7 @@ function confirmJobTicket() {
     const confNo = document.getElementById("confirmation_no");
     const confText = document.getElementById("confirmation_text")
 
-    const dispatchContainer = document.querySelector(".dispatch");
+    const dispatchContainer = document.getElementById("ticket_preview")
 
     confYes.addEventListener("click", () => {
         confModal.style.display = "none";
@@ -93,7 +94,7 @@ function confirmJobTicket() {
  */
 function activateJobTicket() {
 
-    const startTime = document.querySelector(".num-trucks").innerHTML.trim();
+    const startTime = document.getElementById("num-trucks").innerHTML.trim();
 
     const timeDiff = Math.abs(new Date() - new Date(startTime))
 
@@ -109,7 +110,7 @@ function activateJobTicket() {
     const confNo = document.getElementById("confirmation_no");
     const confText = document.getElementById("confirmation_text");
 
-    const dispatchContainer = document.querySelector(".dispatch");
+    const dispatchContainer = document.getElementById("ticket_preview")
 
     confYes.addEventListener("click", () => {
         confModal.style.display = "none";
@@ -182,7 +183,7 @@ function openSignOffModal() {
 const signOff = () => {
 
     const signOffTime = document.getElementById("sign_off_time").value.trim();
-    const startTime = document.querySelector(".num-trucks").innerHTML.trim();
+    const startTime = document.getElementById("num-trucks").innerHTML.trim();
 
     console.log(startTime);
     console.log(signOffTime);
@@ -196,7 +197,7 @@ const signOff = () => {
     const query = new URL(url);
     const jobId = query.searchParams.get('id');
 
-    const dispatchContainer = document.querySelector(".dispatch");
+    const dispatchContainer = document.getElementById("ticket_preview")
 
     if (verifySignOff(startTime, signOffTime)) {
         $.ajax({

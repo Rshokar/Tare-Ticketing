@@ -1,0 +1,201 @@
+<!-- Custome CSS for add operators page -->
+<link rel="stylesheet" href="css/add_operators.css">
+
+<!-- Custome CSS for Employees in operators modal -->
+<link rel="stylesheet" href="css/employee.css">
+
+<!-- Custome CSS for Ticket preview -->
+<link rel="stylesheet" href="css/ticket_preview.css">
+
+
+<!-- CSS for contractors tabs -->
+<link rel="stylesheet" href="css/contractor_rates.css">
+
+<div id="controls">
+    <div id="exit" onclick="next('/new_dispatch')">
+        <i class="fas fa-arrow-left"></i>
+    </div>
+
+    <div id="next" onclick="next('/add_operators')">
+        <i class="fas fa-arrow-right"></i>
+    </div>
+</div>
+
+<div id="ticket_preview_container">
+    <div id="ticket_preview" style="background-color: white;">
+        <h2 id="contractor"></h2>
+        <span id="date"></span>
+        <div id="load">
+        </div>
+        <div id="dump">
+        </div>
+        <div id="details">
+            <div>
+                <span id="supplier"></span>
+            </div>
+            <div>
+                <span id="reciever"></span>
+            </div>
+            <div>
+                <span id="material"></span>
+            </div>
+            <div id='notes'>
+            </div>
+        </div>
+        <div id="num-trucks" style="font-size: 15pt">
+        </div>
+        <div id="toggles">
+            <i class="down fas fa-angle-down" onclick="toggleDown()"></i>
+            <i class="up fas fa-angle-up" style="display:none" onclick="toggleUp()"></i>
+        </div>
+    </div>
+</div>
+
+<div id="hourly">
+    <div class="contractor">
+        <h3>
+            <input type="checkbox" id="hourly_check" onclick="toggleHourlyRates()">
+            <label class="form-check-label">Hourly</label>
+        </h3>
+    </div>
+    <div id="hourly_rates">
+        <div class="hourly_rate tandem">
+            <span>Tandem</span>
+            <input type="number" value="<%= contRates.t %>" class="rate">
+        </div>
+
+        <div class="hourly_rate tandem_2_pup">
+            <span>Tandem 2-axle Pony</span>
+            <input type="number" value="<%= contRates.t2p %>" class="rate">
+        </div>
+
+        <div class="hourly_rate tandem_3_pup">
+            <span>Tandem 3-axle Pony</span>
+            <input type="number" value="<%= contRates.t3p %>" class="rate">
+        </div>
+
+        <div class="hourly_rate tandem_3_transfer">
+            <span>Tandem 3-axle Transfer</span>
+            <input type="number" value="<%= contRates.t3tf %>" class="rate">
+        </div>
+
+        <div class="hourly_rate tandem_4_transfer">
+            <label>Tandem 4-axle Transfer</label>
+            <input type="number" value="<%= contRates.t4tf %>" class="rate" />
+        </div>
+
+        <div class="hourly_rate tandem_4_end_dump">
+            <label>Tandem 4-axle End Dump</label>
+            <input type="number" value="<%= contRates.t4ed %>" class="rate" />
+        </div>
+
+        <div class="hourly_rate tri">
+            <label>3-axle</label>
+            <input type="number" value="<%= contRates.tri %>" class="rate" />
+        </div>
+
+        <div class="hourly_rate tri_2_pony">
+            <label>3-axle 2-axle Pony</label>
+            <input type="number" value="<%= contRates.tri2p %>" class="rate" />
+        </div>
+
+        <div class="hourly_rate tri_3_pony">
+            <label>3-axle 3-axle Pony</label>
+            <input type="number" value="<%= contRates.tri3p %>" class="rate" />
+        </div>
+
+        <div class="hourly_rate tri_3_transfer">
+            <label>3-axle 4-axle Transfer</label>
+            <input type="number" value="<%= contRates.t3tf %>" class="rate" />
+        </div>
+
+        <div class="hourly_rate tri_4_transfer">
+            <label>3-axle 4-axle Transfer</label>
+            <input type="number" value="<%= contRates.t4tf %>" class="rate" />
+        </div>
+
+        <div class="hourly_rate tri_4_end_dumo">
+            <label>3-axle 4-axle End Dump</label>
+            <input type="number" value="<%= contRates.t4ed %>" class="rate" />
+        </div>
+    </div>
+</div>
+
+<div id="per_load">
+    <div class="contractor">
+        <h3>
+            <input type="checkbox" id="per_load_check" onclick="togglePerLoadRates()">
+            <label class="form-check-label">Per Load</label>
+        </h3>
+    </div>
+    <div id="per_load_rates">
+        <div class="per_load_rate operator_rate">
+            <span>Dispatch Fee (Percentage)</span>
+            <input type="number" value="<%= opRates.perLoad %>" class="rate">
+        </div>
+
+        <button type="button" class="btn btn-dark add_rate" onclick="addRate('per_load')">Add Rate</button>
+    </div>
+</div>
+
+<div id="tonnage">
+    <div class="contractor">
+        <h3>
+            <input type="checkbox" id="tonnage_check" onclick="toggleTonnageRates()">
+            <label class="form-check-label">Tonnage</label>
+        </h3>
+    </div>
+    <div id="tonnage_rates">
+        <div class="tonnage_rate operator_rate">
+            <span>Dispatch Fee (Percentage)</span>
+            <input type="number" value="<%= opRates.tonnage %>" class="rate">
+        </div>
+
+        <button type="button" class="btn btn-dark add_rate" onclick="addRate('ton')">Add Rate</button>
+    </div>
+</div>
+
+<!-- Temporary -->
+<script src="js/contractor.js"></script>
+
+<script src="js/add_rates.js"></script>
+
+
+<script>
+
+    /**
+     * This function shows the dispatch details in the DOM. 
+     */
+    function toggleDown() {
+        // Get details container and toggle
+        const details = document.getElementById("details");
+        const ticketPreview = document.getElementById("ticket_preview");
+        const toggleUp = document.querySelector("#toggles .up");
+        const toggleDown = document.querySelector("#toggles .down");
+        const toggle = document.getElementById("toggles");
+
+        ticketPreview.style.gridTemplateRows = "30px 25px 50px 50px 150px 30px"
+        details.style.display = "block";
+        toggleDown.style.display = "none";
+        toggleUp.style.display = "block";
+        toggle.style.gridRow = "6 / span 1";
+    }
+
+    /**
+     * This function shows the dispatch details in the DOM. 
+     */
+    function toggleUp() {
+        // Get details container and toggle
+        const toggle = document.getElementById("toggles");
+        const details = document.getElementById("details");
+        const toggleUp = document.querySelector("#toggles .up");
+        const toggleDown = document.querySelector("#toggles .down");
+        const ticketPreview = document.getElementById("ticket_preview");
+
+        toggle.style.gridRow = "5 / span 1;"
+        ticketPreview.style.gridTemplateRows = "30px 25px 50px 50px 30px"
+        details.style.display = "none";
+        toggleDown.style.display = "block";
+        toggleUp.style.display = "none";
+    }
+</script>

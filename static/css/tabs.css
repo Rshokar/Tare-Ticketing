@@ -1,5 +1,6 @@
 #tabs {
     margin-top: 2em;
+    margin-bottom: 1em;
     width: 100%;
     background-color: #EFEFEf;
     display: grid;
@@ -7,7 +8,7 @@
     text-align: center;
 }
 
-#dispatch, #job, #fuel {
+#dispatch, #job, #fuel, #operators_tab, #rates_tab {
     line-height: 5vh;
     height: 5vh;
     display: inline-block;
@@ -27,10 +28,6 @@
 #fuel {
     grid-column: 3 / span 1;
 }
-
-#dispatch:hover, #job:hover, #fuel:hover{
-    background-color: #CFCFCF;
-} 
 
 #job_container {
     display: none;

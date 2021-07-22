@@ -35,6 +35,7 @@ app.use(cookieParser());
 
 const AuthController = require("./controllers/AuthController");
 const TicketController = require("./controllers/TicketController");
+const UserController = require("./controllers/UserController");
 const authenticate = require("./middleware/authenticate");
 const User = require("./models/user");
 const Dispatch = require("./models/dispatch");
@@ -111,12 +112,154 @@ app.get("/account", authenticate, (req, res) => {
     res.render("account",
       {
         page: pageName,
-        user: {
-          name: decodedToken.name,
-          company: decodedToken.company,
-          type: decodedToken.type
-        },
+        user: decodedToken,
       })
+  })
+})
+
+
+/**
+ * This route is responsible for returning the HTML appropriate 
+ * for the contractors page
+ * @author Ravidner Shokar 
+ * @vesrion 1.0 
+ * @date July 11 2021
+ */
+app.get("/contractors", authenticate, (req, res) => {
+  let pageName = "Contractors";
+  let token = req.cookies.jwt;
+
+  jwt.verify(token, "butternut", (err, decodedToken) => {
+    if (err) {
+      res.sendStatus(404);
+    } else {
+      User.findOne({
+        _id: decodedToken.id
+      }).then((user) => {
+        res.render("contractors",
+          {
+            page: pageName,
+            user: decodedToken,
+            contractors: user.contractors,
+          })
+      })
+
+    }
+
+  })
+})
+
+/**
+ * This function is responsible for adding a contractor to an dispatcher or 
+ * operator account. The contractors rate will be set to 0
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 17 2021  
+ */
+app.post("/add_contractor", UserController.addRates, (req, res) => {
+})
+
+/**
+ * This route gets the contractor data and renders the appropriate HTML 
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 12 2021
+ */
+app.get("/contractor", authenticate, (req, res) => {
+  const pageName = "Contractor";
+  const token = req.cookies.jwt;
+  let contractor;
+
+  console.log("Inputed Contractor", req.query.contractor);
+  jwt.verify(token, "butternut", (err, decodedToken) => {
+    if (err) {
+      res.sendStatus(404);
+    }
+    User.findOne({ _id: decodedToken.id })
+      .then((user) => {
+        for (let cont in user.contractors) {
+          if (cont == req.query.contractor) {
+            console.log(user.contractors[cont])
+            res.render("contractor", {
+              page: pageName,
+              user: decodedToken,
+              contRates: user.contractors[cont].contractorRates,
+              opRates: user.contractors[cont].operatorRates,
+            })
+          }
+        }
+
+
+      })
+
+  })
+})
+
+/**
+ * This route is responsible for updating a contractors operator rates
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 17 2021
+ */
+app.post("/update_operator_rates", (req, res) => {
+  const token = req.cookies.jwt;
+  const contractor = req.body.contractor;
+  const rates = req.body.rates;
+
+  jwt.verify(token, "butternut", (err, decodedToken) => {
+    if (err) {
+      res.send({
+        status: "error",
+        message: "Error verifying JWT token"
+      })
+    } else {
+      User.findOne({ _id: decodedToken.id })
+        .then((user) => {
+          user.contractors[contractor].operatorRates = rates;
+          console.log(user.contractors[contractor])
+          user.markModified("contractors");
+          user.save();
+          res.send({
+            status: "success",
+            message: "Updated Operators Rates."
+          })
+        })
+
+    }
+  })
+})
+
+/**
+ * This route is responsible for updating a contractors 
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 17 2021
+ */
+app.post("/update_contractor_rates", (req, res) => {
+  const token = req.cookies.jwt;
+  const contractor = req.body.contractor;
+  const rates = req.body.rates;
+
+  jwt.verify(token, "butternut", (err, decodedToken) => {
+    if (err) {
+      res.send({
+        status: "error",
+        message: "Error verifying JWT token"
+      })
+    } else {
+      User.findOne({ _id: decodedToken.id })
+        .then((user) => {
+          user.contractors[contractor].contractorRates = rates;
+          console.log(user.contractors[contractor])
+          user.markModified("contractors");
+          user.save();
+          res.send({
+            status: "success",
+            message: "Updated Contractor Rates."
+          })
+        })
+
+    }
   })
 })
 
@@ -421,10 +564,14 @@ app.post("/delete_load_ticket", TicketController.deleteLoadTicket, (req, res) =>
  */
 app.get("/new_dispatch", authenticate, (req, res) => {
   const token = req.cookies.jwt;
+  let pageName = "New Dispatch";
 
   jwt.verify(token, "butternut", (err, decodedToken) => {
-    let pageName = "New Dispatch";
-    res.render("new_dispatch", { page: pageName, user: decodedToken });
+    User.findOne({ _id: decodedToken.id })
+      .then((user) => {
+        res.render("new_dispatch", { page: pageName, user: decodedToken, contractors: user.contractors });
+      })
+
   })
 
 })
@@ -442,7 +589,31 @@ app.get("/add_operators", authenticate, (req, res) => {
   jwt.verify(token, "butternut", (err, decodedToken) => {
     res.render("add_operators", { page: pageName, user: decodedToken });
   })
+})
 
+/**
+ * This route will return the appropraite HTML for adding rates to a dispatch ticket
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 13 2021
+ */
+app.get("/add_rates", authenticate, (req, res) => {
+  const token = req.cookies.jwt;
+  const pageName = "Add Rates";
+
+  jwt.verify(token, "butternut", (err, decodedToken) => {
+    if (err) {
+      res.send("Error decoding JWT");
+    } else {
+      User.findOne({ _id: decodedToken.id })
+        .then((user) => {
+          const opRates = user.contractors[req.query.contractor].operatorRates;
+          const contRates = user.contractors[req.query.contractor].contractorRates;
+          res.render("add_rates", { page: pageName, user: decodedToken, opRates, contRates });
+        })
+    }
+
+  })
 })
 
 /**
@@ -456,6 +627,9 @@ app.get("/dispatch_preview", authenticate, (req, res) => {
   const token = req.cookies.jwt;
 
   jwt.verify(token, "butternut", (err, decodedToken) => {
+    if (err) {
+      res
+    }
     let pageName = "Dispatch Preview";
     res.render("dispatch_preview", { page: pageName, user: decodedToken });
   })

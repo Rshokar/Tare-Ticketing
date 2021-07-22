@@ -1,11 +1,17 @@
-<!-- Custome CSS for Dispatch tickets -->
-<link rel="stylesheet" href="css/dispatch.css">
-
 <!-- Custome CSS for add operators page -->
 <link rel="stylesheet" href="css/add_operators.css">
 
 <!-- Custome CSS for Employees in operators modal -->
 <link rel="stylesheet" href="css/employee.css">
+
+<!-- Custome CSS for Ticket preview -->
+<link rel="stylesheet" href="css/ticket_preview.css">
+
+<!-- Custome CSS for tabs -->
+<link rel="stylesheet" href="css/tabs.css">
+
+<!-- CSS for contractors tabs -->
+<link rel="stylesheet" href="css/contractor_rates.css">
 
 
 <div id="controls">
@@ -18,22 +24,152 @@
     </div>
 </div>
 
-<!-- All Dispatches will be rendered in here -->
-<div class="dispatch" style="background-color: white;">
-    <h2 class="cotractor"></h2>
-    <span class="load_location"></span>
-    <span class="dump_location"></span>
-    <span class="date"></span>
-    <span class="supplier"></span>
-    <span class="reciever"></span>
-    <span class="material"></span>
+<div id="ticket_preview_container">
+    <div id="ticket_preview" style="background-color: white;">
+        <h2 id="contractor"></h2>
+        <span id="date"></span>
+        <div id="load">
+        </div>
+        <div id="dump">
+        </div>
+        <div id="details">
+            <div>
+                <span id="supplier"></span>
+            </div>
+            <div>
+                <span id="reciever"></span>
+            </div>
+            <div>
+                <span id="material"></span>
+            </div>
+            <div id='notes'>
+            </div>
+        </div>
+        <div id="num-trucks" style="font-size: 15pt">
+        </div>
+        <div id="toggles">
+            <i class="down fas fa-angle-down" onclick="toggleDown()"></i>
+            <i class="up fas fa-angle-up" style="display:none" onclick="toggleUp()"></i>
+        </div>
+    </div>
+</div>
 
-    <div class="num-trucks">
-        <i class="fas fa-truck"></i>
-        <span class="trucks"></span>
+<div id="tabs">
+    <div id="operators_tab" onclick="showOperators()">
+        Operators
+    </div>
+    <div id="rates_tab" onclick="showRates()">
+        Rates
+    </div>
+</div>
+
+<div id="rates" style="display: none;">
+    <div id="hourly" style="display: none;">
+        <div class=" contractor">
+            <h3>
+                Hourly
+            </h3>
+        </div>
+        <div id="hourly_rates">
+            <div class="hourly_rate tandem">
+                <span>Tandem</span>
+                <span class="rate"></span>
+            </div>
+
+            <div class="hourly_rate tandem_2_pup">
+                <span>Tandem 2-axle Pony</span>
+                <span class="rate"></span>
+            </div>
+
+            <div class="hourly_rate tandem_3_pup">
+                <span>Tandem 3-axle Pony</span>
+                <span class="rate"></span>
+            </div>
+
+            <div class="hourly_rate tandem_3_transfer">
+                <span>Tandem 3-axle Transfer</span>
+                <span class="rate"></span>
+            </div>
+
+            <div class="hourly_rate tandem_4_transfer">
+                <label>Tandem 4-axle Transfer</label>
+                <span class="rate"></span>
+            </div>
+
+            <div class="hourly_rate tandem_4_end_dump">
+                <label>Tandem 4-axle End Dump</label>
+                <span class="rate"></span>
+            </div>
+
+            <div class="hourly_rate tri">
+                <label>3-axle</label>
+                <span class="rate"></span>
+            </div>
+
+            <div class="hourly_rate tri_2_pony">
+                <label>3-axle 2-axle Pony</label>
+                <span class="rate"></span>
+            </div>
+
+            <div class="hourly_rate tri_3_pony">
+                <label>3-axle 3-axle Pony</label>
+                <span class="rate"></span>
+            </div>
+
+            <div class="hourly_rate tri_3_transfer">
+                <label>3-axle 4-axle Transfer</label>
+                <span class="rate"></span>
+            </div>
+
+            <div class="hourly_rate tri_4_transfer">
+                <label>3-axle 4-axle Transfer</label>
+                <span class="rate"></span>
+            </div>
+
+            <div class="hourly_rate tri_4_end_dumo">
+                <label>3-axle 4-axle End Dump</label>
+                <span class="rate"></span>
+            </div>
+        </div>
     </div>
 
-    <div class='notes'></div>
+    <div id="per_load" style="display: none;">
+        <div class="contractor">
+            <h3>
+                Per Load
+            </h3>
+        </div>
+        <div id="per_load_rates">
+            <div class="per_load_rate operator_rate">
+                <span>Operators (Percentage)</span>
+                <span class="rate"></span>
+            </div>
+
+            <div class="per_load_rate contractor_rate">
+                <span>Contractor</span>
+                <span class="rate"></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="tonnage" style="display: none;">
+        <div class="contractor">
+            <h3>
+                Tonnage
+            </h3>
+        </div>
+        <div id="tonnage_rates">
+            <div class="tonnage_rate operator_rate">
+                <span>Operators (Percentage)</span>
+                <span class="rate"></span>
+            </div>
+
+            <div class="tonnage_rate contractor_rate">
+                <span>Contractor</span>
+                <span class="rate"></span>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="operators">
@@ -41,4 +177,44 @@
 </div>
 
 
+
 <script src="js/dispatch_preview.js"></script>
+
+<script>
+
+    /**
+     * This function shows the dispatch details in the DOM. 
+     */
+    function toggleDown() {
+        // Get details container and toggle
+        const details = document.getElementById("details");
+        const ticketPreview = document.getElementById("ticket_preview");
+        const toggleUp = document.querySelector("#toggles .up");
+        const toggleDown = document.querySelector("#toggles .down");
+        const toggle = document.getElementById("toggles");
+
+        ticketPreview.style.gridTemplateRows = "30px 25px 50px 50px 150px 30px"
+        details.style.display = "block";
+        toggleDown.style.display = "none";
+        toggleUp.style.display = "block";
+        toggle.style.gridRow = "6 / span 1";
+    }
+
+    /**
+     * This function shows the dispatch details in the DOM. 
+     */
+    function toggleUp() {
+        // Get details container and toggle
+        const toggle = document.getElementById("toggles");
+        const details = document.getElementById("details");
+        const toggleUp = document.querySelector("#toggles .up");
+        const toggleDown = document.querySelector("#toggles .down");
+        const ticketPreview = document.getElementById("ticket_preview");
+
+        toggle.style.gridRow = "5 / span 1;"
+        ticketPreview.style.gridTemplateRows = "30px 25px 50px 50px 30px"
+        details.style.display = "none";
+        toggleDown.style.display = "block";
+        toggleUp.style.display = "none";
+    }
+</script>

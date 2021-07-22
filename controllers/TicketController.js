@@ -22,7 +22,7 @@ const createDispatch = (req, res, next) => {
       })
     }
 
-    console.log(operators);
+    console.log("operators", operators);
 
     let dispatch = new Dispatch({
       dispatcher: {
@@ -44,13 +44,23 @@ const createDispatch = (req, res, next) => {
 
     createJobTickets(dispatch)
       .then((dispatch) => {
-        dispatch.save();
-        console.log("Successfully created job tickes", dispatch);
-        next()
+        dispatch.save((err) => {
+          if (err) {
+            res.send({
+              status: "error",
+              message: "Error Creating Dispatch"
+            })
+          } else {
+            console.log("Successfully created job tickes", dispatch);
+            next()
+          }
+        });
       })
       .catch(() => {
         console.log("Failed to create job tickets.")
       })
+
+
 
 
   })

@@ -1,0 +1,50 @@
+<link rel="stylesheet" href="css/account.css">
+
+<!-- CSS for contractors -->
+<link rel="stylesheet" href="css/employee.css">
+
+<div id="controls">
+    <a id="exit" href="/account">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+</div>
+
+<div id="user-info">
+    <h1>
+        <%= user.company %>
+    </h1>
+    <span>
+        <%= user.name %>
+    </span>
+</div>
+
+<div id="search">
+    <input type="text" placeholder="Search...">
+</div>
+
+<button onclick="addContractor()"><i class="fas fa-plus"></i></button>
+
+<div id="contractors">
+    <% for (let contractor in contractors) { %>
+        <div class="employee">
+            <a href="/contractor?contractor=<%= contractor %>">
+                <h3>
+                    <%= contractor %>
+                </h3>
+            </a>
+        </div>
+        <% } %>
+</div>
+
+<div id="new_contractor_modal" class="modal">
+    <div id="new_contractor" class="modal-content">
+        <div id="text">Add Contractor</div>
+        <input type="text" placeholder="Contractor Name">
+        <button id="submit" onclick="submitContractor()">Submit</button>
+        <button id="cancel" onclick="closeAddContractorModal()">Cancel</button>
+
+    </div>
+
+</div>
+
+<script src="js/contractors.js"></script>

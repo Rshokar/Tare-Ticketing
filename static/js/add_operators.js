@@ -1,34 +1,11 @@
 
 
-let dispatch = JSON.parse(sessionStorage.getItem('dispatch'))
-
-console.log(dispatch)
-
-const contractor = document.querySelector(".dispatch h2");
-const loadLocation = document.querySelector(".dispatch .load_location");
-const dumpLocation = document.querySelector(".dispatch .dump_location");
-const date = document.querySelector(".dispatch .date");
-const supplier = document.querySelector(".dispatch .supplier");
-const reciever = document.querySelector(".dispatch .reciever");
-const material = document.querySelector(".dispatch .material");
-const numTrucks = document.querySelector(".dispatch .num-trucks .trucks");
-const notes = document.querySelector(".dispatch .notes");
-
-contractor.innerHTML = dispatch.contractor;
-loadLocation.innerHTML = dispatch.loadLocation;
-dumpLocation.innerHTML = dispatch.dumpLocation;
-date.innerHTML = dispatch.date;
-supplier.innerHTML = "Supplier: " + dispatch.supplier;
-reciever.innerHTML = "Reciever: " + dispatch.reciever;
-material.innerHTML = "Material: " + dispatch.material;
-numTrucks.innerHTML = dispatch.numTrucks;
-notes.innerHTML = dispatch.notes;
+const dispatch = JSON.parse(sessionStorage.getItem('dispatch'))
 
 /**
- * This function is resposible for adding spots to a dispatch.
+ * This function is resposible for displaying saved operators to the html.
  */
 function addOperatorCards() {
-
     let numTrucks = dispatch.numTrucks;
     let operators = dispatch.operators;
     const operatorsContainer = document.getElementById("operators")
@@ -63,8 +40,7 @@ function addOperatorCards() {
                             <div class="truck">
                                 <label></label>
                                 <select class="truck" >
-                                    <option value="default">Truck</option>
-                                    <option value="2-axle">2-axle</option>
+                                    <option value="tandem">tandem</option>
                                     <option value="3-axle">3-axle</option>
                                 </select>
                             </div>
@@ -100,8 +76,7 @@ function addOperatorCards() {
                             <div class="truck">
                                 <label></label>
                                 <select class="truck" >
-                                    <option value="default">Truck</option>
-                                    <option value="2-axle">2-axle</option>
+                                    <option value="tandem">tandem</option>
                                     <option value="3-axle">3-axle</option>
                                 </select>
                             </div>
@@ -139,6 +114,7 @@ addOperatorCards();
  * @date June 20 2021
  */
 function addOperator() {
+    const numberOfTrucks = document.getElementById("number_of_trucks");
     const operatorsContainer = document.getElementById("operators")
     const operatorCardHTML =
         `
@@ -175,7 +151,7 @@ function addOperator() {
         `
     operatorsContainer.insertAdjacentHTML('beforeend', operatorCardHTML);
     dispatch.numTrucks++;
-    if (dispatch.numTrucks >= 0) { numTrucks.innerHTML = dispatch.numTrucks }
+    if (dispatch.numTrucks >= 0) { numberOfTrucks.innerHTML = dispatch.numTrucks }
 
 }
 
@@ -187,15 +163,20 @@ function addOperator() {
  * @date June 20 2021
  */
 function removeOperator() {
-    if (dispatch.numTrucks > 0) { dispatch.numTrucks-- }
-    const operatorsContainer = document.getElementById("" + dispatch.numTrucks)
-    operatorsContainer.remove();
-    if (dispatch.numTrucks >= 0) { numTrucks.innerHTML = dispatch.numTrucks }
+
+    const numberOfTrucks = document.getElementById("number_of_trucks");
+    const operator = document.getElementById(dispatch.numTrucks - 1)
+
+    if (dispatch.numTrucks > 0) {
+        dispatch.numTrucks--
+        numberOfTrucks.innerHTML = dispatch.numTrucks;
+        operator.remove();
+    } else { numberOfTrucks.innerHTML = 0 }
 }
 
 
 /**
- * This function is responsible for adding an operator to a spot. 
+ * This function is responsible for adding an operator to a spot in the HTML. 
  * @author Ravinder Shokar 
  * @version 1.0 
  * @date June 21 2021
@@ -220,7 +201,7 @@ function closeModal() {
 }
 
 /**
- * This function is responsible for sending a et request to the server. 
+ * This function is responsible for sending a get request to the server. 
  * The server will return an obj containing current users employees
  * @author Ravinder Shokar 
  * @version 1.0 
@@ -413,9 +394,8 @@ ownerOpSearch.addEventListener('keyup', (event) => {
  * @version 1.0 
  * @date June 21 2021
  */
-function saveDispatch(url) {
+function back(url) {
     let dispatch = getDispatch();
-    console.log(dispatch);
     sessionStorage.setItem('dispatch', JSON.stringify(dispatch));
     window.location.href = url;
 }
@@ -428,21 +408,8 @@ function saveDispatch(url) {
  * @date June 21 2021
  */
 function getDispatch() {
-    const operators = getOperators();
-
-    let obj = {
-        contractor: contractor.innerHTML,
-        loadLocation: loadLocation.innerHTML,
-        dumpLocation: dumpLocation.innerHTML,
-        date: date.innerHTML,
-        supplier: dispatch.supplier,
-        reciever: dispatch.reciever,
-        material: dispatch.material,
-        numTrucks: numTrucks.innerHTML,
-        notes: notes.innerHTML,
-        operators: operators
-    }
-    return obj;
+    dispatch["operators"] = getOperators();
+    return dispatch
 }
 
 
@@ -455,7 +422,7 @@ function getDispatch() {
  */
 function getOperators() {
     const obj = {}
-    for (let i = 0; i < numTrucks.innerHTML; i++) {
+    for (let i = 0; i < dispatch.numTrucks; i++) {
         const spot = document.getElementById(i);
         const userId = spot.querySelector('.user_id').innerHTML;
         var status = "sent";
@@ -488,7 +455,7 @@ function getOperators() {
  * @date June 21 2021 
  */
 function next(url) {
-    const dispatch = getDispatch();
+    let dispatch = getDispatch();
     console.log(dispatch)
     if (verifyOperators(dispatch.operators)) {
         sessionStorage.setItem('dispatch', JSON.stringify(dispatch))
@@ -511,7 +478,7 @@ function verifyOperators(operators) {
 
     console.log(operators);
 
-    for (let i = 0; i < numTrucks.innerHTML; i++) {
+    for (let i = 0; i < dispatch.numTrucks; i++) {
         const spot = document.getElementById(i);
         error = spot.querySelector(".error");
         error.innerHTML = ""
@@ -530,7 +497,7 @@ function verifyOperators(operators) {
             }
         }
 
-        for (let j = 0; j < numTrucks.innerHTML; j++) {
+        for (let j = 0; j < dispatch.numTrucks; j++) {
             if (operators[i].id == operators[j].id && i != j && operators[i].id != "") {
                 error.innerHTML = "Operator has already been selected."
                 isValid = false;
@@ -540,3 +507,28 @@ function verifyOperators(operators) {
     }
     return isValid;
 }
+
+$(document).ready(() => {
+    const contractor = document.getElementById("contractor");
+    const loadLocation = document.getElementById("load");
+    const dumpLocation = document.getElementById("dump");
+    const date = document.getElementById("date");
+    const supplier = document.getElementById("supplier");
+    const reciever = document.getElementById("reciever");
+    const material = document.getElementById("material");
+    const numTrucks = document.getElementById("num-trucks");
+    const notes = document.getElementById("notes");
+
+    document.getElementById("exit").setAttribute("onclick", `back('/add_rates?contractor=${dispatch.contractor}')`);
+
+
+    contractor.innerHTML = dispatch.contractor;
+    loadLocation.innerHTML = dispatch.loadLocation + "<p class='ticket_text'>Load</p>";
+    dumpLocation.innerHTML = dispatch.dumpLocation + "<p class='ticket_text'>Dump</p>";
+    date.innerHTML = dispatch.date;
+    supplier.innerHTML = "Supplier: " + dispatch.supplier;
+    reciever.innerHTML = "Reciever: " + dispatch.reciever;
+    material.innerHTML = "Material: " + dispatch.material;
+    numTrucks.innerHTML = "<i class='fas fa-truck'></i><span id='number_of_trucks'>" + dispatch.numTrucks + "</span><span id='plus' onclick='addOperator()'> + </span>/<span id='minus' onclick='removeOperator()'> - </span>";
+    notes.innerHTML = dispatch.notes;
+})

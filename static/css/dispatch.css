@@ -7,7 +7,7 @@
 }
 
 
-.contractor, .dispatcher, .load_location, .status, .dump_location, #details{
+.contractor, .dispatcher, .load_location, .status, .dump_location, #details {
     grid-column: 1 / span 1;
 }
 

@@ -27,6 +27,9 @@ const userSchema = new Schema({
     },
     employees: {
         type: Array
+    },
+    contractors: {
+        type: Object
     }
 }, { timestamps: true })
 

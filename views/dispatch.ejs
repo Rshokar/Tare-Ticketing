@@ -1,5 +1,5 @@
 <!-- Custome CSS for Dispatch tickets -->
-<link rel="stylesheet" href="css/dispatch.css">
+<link rel="stylesheet" href="css/ticket_preview.css">
 
 <!-- Custome CSS for Dispatch tickets -->
 <link rel="stylesheet" href="css/job.css">
@@ -15,79 +15,80 @@
 
 
 <!-- All Dispatches will be rendered in here -->
-<div id="dispatch_continer">
+<div id="ticket_preview_container">
   <% if (dispatch.status.sent==0 && dispatch.status.confirmed==0 && dispatch.status.active==0 &&
     dispatch.status.complete> 0) { %>
-    <div class="dispatch complete">
+    <div id="ticket_preview" class="complete">
       <% } else if (dispatch.status.sent> 0 && dispatch.status.confirmed == 0 && dispatch.status.active == 0)
         { %>
-        <div class="dispatch sent">
+        <div id="ticket_preview" class="sent">
           <% } else if (dispatch.status.confirmed> 0 && dispatch.status.active == 0) { %>
-            <div class="dispatch confirmed">
+            <div id="ticket_preview" class="confirmed">
               <% } else { %>
-                <div class="dispatch active">
+                <div id="ticket_preview" class="active">
                   <% } %>
                     <h2>
                       <%= dispatch.contractor %>
                     </h2>
-                    <span class="load_location">
+                    <span id="date">
+                      <%= dispatch.date %>
+                    </span>
+                    <div id="load">
                       <%= dispatch.loadLocation %>
-                    </span>
-                    <span class="dump_location">
+                        <p class="ticket_text">Load</p>
+                    </div>
+                    <div id="dump">
                       <%= dispatch.dumpLocation %>
-                    </span>
+                        <p class="ticket_text">Dump</p>
+                    </div>
 
                     <div id="details">
-                      <span class="date">
-                        <%= new Date(dispatch.date).toDateString(); %>
-                      </span>
-
                       <% if (dispatch.supplier !="" ) { %>
                         <div>
-                          <span class="supplier">Supplier: <%= dispatch.supplier %></span>
+                          <span id="supplier">Supplier: <%= dispatch.supplier %></span>
                         </div>
                         <% } %>
 
                           <% if (dispatch.reciever !="" ) { %>
                             <div>
-                              <span class="reciever">Reciever: <%= dispatch.reciever %></span>
+                              <span id="reciever">Reciever: <%= dispatch.reciever %></span>
                             </div>
                             <% } %>
 
                               <% if (dispatch.material !="" ) { %>
                                 <div>
-                                  <span class="material">Material: <%= dispatch.material %></span>
+                                  <span id="material">Material: <%= dispatch.material %></span>
                                 </div>
                                 <% } %>
-                                  <div class='notes'>
+                                  <div id='notes'>
                                     Notes: <%= dispatch.notes %>
                                   </div>
-
+                                  <div id="status">
+                                    <div>
+                                      <i class="fas fa-circle-notch"></i>
+                                      <%= dispatch.status.empty %>
+                                    </div>
+                                    <div>
+                                      <i class="far fa-paper-plane"></i>
+                                      <%= dispatch.status.sent %>
+                                    </div>
+                                    <div>
+                                      <i class="fas fa-check"></i>
+                                      <%= dispatch.status.confirmed %>
+                                    </div>
+                                    <div>
+                                      <i class="fas fa-vote-yea"></i>
+                                      <%= dispatch.status.active %>
+                                    </div>
+                                    <div>
+                                      <i class="fas fa-check-square"></i>
+                                      <%= dispatch.status.complete %>
+                                    </div>
+                                  </div>
                     </div>
 
-                    <div class="status">
-                      <div>
-                        <i class="fas fa-circle-notch"></i>
-                        <%= dispatch.status.empty %>
-                      </div>
-                      <div>
-                        <i class="far fa-paper-plane"></i>
-                        <%= dispatch.status.sent %>
-                      </div>
-                      <div>
-                        <i class="fas fa-check"></i>
-                        <%= dispatch.status.confirmed %>
-                      </div>
-                      <div>
-                        <i class="fas fa-vote-yea"></i>
-                        <%= dispatch.status.active %>
-                      </div>
-                      <div>
-                        <i class="fas fa-check-square"></i>
-                        <%= dispatch.status.complete %>
-                      </div>
-                    </div>
-                    <div class="num-trucks">
+
+                    <div id="num-trucks">
                       <i class="fas fa-truck"></i>
                       <%= dispatch.numTrucks %>
                     </div>
@@ -139,12 +140,18 @@
               function toggleDown() {
                 // Get details container and toggle
                 const details = document.getElementById("details");
+                const ticketPreview = document.getElementById("ticket_preview");
                 const toggleUp = document.querySelector("#toggles .up");
                 const toggleDown = document.querySelector("#toggles .down");
+                const toggle = document.getElementById("toggles");
+                const status = document.getElementById("status");
 
+                ticketPreview.style.gridTemplateRows = "30px 25px 50px 50px 150px 30px"
                 details.style.display = "block";
                 toggleDown.style.display = "none";
                 toggleUp.style.display = "block";
+                toggle.style.gridRow = "6 / span 1";
+                status.style.display = "block";
               }
 
               /**
@@ -152,12 +159,19 @@
                */
               function toggleUp() {
                 // Get details container and toggle
+                const toggle = document.getElementById("toggles");
                 const details = document.getElementById("details");
                 const toggleUp = document.querySelector("#toggles .up");
                 const toggleDown = document.querySelector("#toggles .down");
+                const ticketPreview = document.getElementById("ticket_preview");
+                const status = document.getElementById("status");
 
+
+                toggle.style.gridRow = "5 / span 1;"
+                ticketPreview.style.gridTemplateRows = "30px 25px 50px 50px 30px"
                 details.style.display = "none";
                 toggleDown.style.display = "block";
                 toggleUp.style.display = "none";
+                status.style.display = "none";
               }
             </script>

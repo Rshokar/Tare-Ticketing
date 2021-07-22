@@ -19,6 +19,21 @@ header h1 {
     margin: 0;
 } */
 
+#controls {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 50% 50%;
+  font-size: 20pt;
+}
+
+#exit {
+  grid-column: 1 / span 1;
+}
+
+#next {
+  text-align: right;
+  grid-column: 2 / span 1;
+}
 
 #content_section {
     margin-left: 1em;
@@ -30,10 +45,18 @@ header h1 {
     width: 100%;
 }
 
-a {
-    text-decoration: none;
+a h2, a h5{
     color: black;
 }
+
+a:link, a:visited, a:hover {
+  color: black;
+}
+
+
+
+
+
 
 .error {
     color: red;
