@@ -4,70 +4,64 @@
 <!-- Custom css for load tickets -->
 <link rel="stylesheet" href="css/load.css">
 
+<!-- Custome CSS for previewing tickets -->
+<link rel="stylesheet" href="css/ticket_preview.css">
+
+
 <div id="back">
     <a href="/job?id=<%= job._id %> "><i class="fas fa-arrow-left"></i></a>
 </div>
 
 
 <!-- All job details will be rendered here -->
-<div id="job_details">
-    <div id="parties">
-        <h1 id="contractor">
+<!-- All Dispatches will be rendered in here -->
+<div id="ticket_preview_container">
+    <div id="ticket_preview" class="<%= job.status %>">
+        <h2>
             <%= job.contractor %>
-        </h1>
-        <h3 id="dispatcher">
-            <%= job.dispatcher.company %>
-        </h3>
-    </div>
-
-    <div id="operator">
-        <span id="operator_name">
-            <%= job.operator.name %>
-        </span>
-    </div>
-
-    <div id="details">
+        </h2>
         <span id="date">
             <%= job.date %>
         </span>
-        <span id="time">
-            <%= job.startTime %>
-        </span>
-        <div id="equipment">
-            <span id="truck">
-                <%= job.equipment.truck %>
-            </span>
-            <% if (job.equipment.trailer !="default" ) { %>
-                <span id="trailer">
-                    <%= job.equipment.trailer %>
-                </span>
-                <% } %>
+        <div id="load">
+            <%= job.loadLocation %>
+                <p class="ticket_text">Load</p>
         </div>
-        <div id="locations">
-            <span id="load">
-                <%= job.loadLocation %>
-            </span>
-            <span id="dump">
-                <%= job.dumpLocation %>
-            </span>
+        <div id="dump">
+            <%= job.dumpLocation %>
+                <p class="ticket_text">Dump</p>
         </div>
-        <span id="status">
-            Status: <%= job.status %>
-        </span>
-        <div id="additional_details">
+
+        <div id="details">
             <% if (job.supplier !="" ) { %>
-                <span id="supplier">
-                    <%= job.supplier %>
-                </span>
+                <div>
+                    <span id="supplier">Supplier: <%= job.supplier %></span>
+                </div>
                 <% } %>
+
                     <% if (job.reciever !="" ) { %>
-                        <span id="reciever">
-                            <%= job.reciever %>
-                        </span>
+                        <div>
+                            <span id="reciever">Reciever: <%= job.reciever %></span>
+                        </div>
                         <% } %>
-                            <span id="material">
-                                <%= job.material %>
-                            </span>
+
+                            <% if (job.material !="" ) { %>
+                                <div>
+                                    <span id="material">Material: <%= job.material %></span>
+                                </div>
+                                <% } %>
+                                    <div id='notes'>
+                                        Notes: <%= job.notes %>
+                                    </div>
+        </div>
+
+
+        <div id="num-trucks">
+            <%= job.startTime %>
+        </div>
+        <div id="toggles">
+            <i class="down fas fa-angle-down" onclick="toggleDown()"></i>
+            <i class="up fas fa-angle-up" style="display:none" onclick="toggleUp()"></i>
         </div>
     </div>
 </div>
@@ -102,6 +96,41 @@
                 <div id="dump_time_error" class="form-text error"></div>
             </div>
             <% } %>
+
+                <div id="checkboxs">
+
+                    <% if (job.loadTickets[loadId].type=="load" ) { %>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="load_check"
+                                onclick="disableTonnageInput()" checked>
+                            <label class="form-check-label" for="load_check">
+                                Load Ticket
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="tonnage_check"
+                                onclick="enableTonnageInput()">
+                            <label class="form-check-label" for="tonnage_check">
+                                Tonnage Ticket
+                            </label>
+                        </div>
+                        <% } else { %>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="load_check"
+                                    onclick="disableTonnageInput()">
+                                <label class="form-check-label" for="load_check">
+                                    Load Ticket
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="tonnage_check"
+                                    onclick="enableTonnageInput()" checked>
+                                <label class="form-check-label" for="tonnage_check">
+                                    Tonnage Ticket
+                                </label>
+                            </div>
+                            <% } %>
+                </div>
                 <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Material</label>
                     <input type="text" class="form-control" id="material_input" aria-describedby="emailHelp"
@@ -110,9 +139,14 @@
                 </div>
                 <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Tonnage</label>
-                    <input type="number" class="form-control" id="tonnage" aria-describedby="emailHelp"
-                        value="<%=job.loadTickets[loadId].tonnage %>">
-                    <div id="tonnage_error" class="form-text error"></div>
+                    <% if (job.loadTickets[loadId].type=="load" ) { %>
+                        <input type="number" class="form-control" id="tonnage_input" aria-describedby="emailHelp"
+                            value="<%=job.loadTickets[loadId].tonnage %>" disabled>
+                        <% } else { %>
+                            <input type="number" class="form-control" id="tonnage_input" aria-describedby="emailHelp"
+                                value="<%=job.loadTickets[loadId].tonnage %>">
+                            <% } %>
+                                <div id="tonnage_error" class="form-text error"></div>
                 </div>
                 <div id="form_error" class="form-text error"></div>
 
@@ -129,4 +163,10 @@
                 </div>
 
                 <!-- This script is responsible for handling load tickets -->
-                <script src="js/load.js"></script>
+                <script src="js/edit_load.js"></script>
+
+                <!-- This script is responsible for handling load tickets -->
+                <script src="js/job.js"></script>
+
+                <!-- This JS file contains functions that will change the status of tickets. -->
+                <script src="js/ticket_preview.js"></script>

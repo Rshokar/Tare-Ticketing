@@ -244,3 +244,27 @@ const signOff = () => {
     }
 
 }
+
+
+/**
+ * This function is meant for verifying a signoff time
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 3 2021
+ */
+function verifySignOff(startTime, signOffTime) {
+    resetErrors();
+    const signOffError = document.getElementById("sign_off_error");
+    if (signOffTime == "") {
+        signOffError.innerHTML = "Field Cannot be left empty";
+        return false;
+    }
+
+
+    if (signOffTime < startTime) {
+        signOffError.innerHTML = "Canot have signoff time before start time";
+        return false;
+    }
+
+    return true;
+}

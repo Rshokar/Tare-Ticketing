@@ -2,7 +2,7 @@
  * This file is meant to manage adding and editing load tickets. 
  * @author Ravinder Shokar 
  * @version 1.0 
- * @date July 30 2021  
+ * @date June 30 2021  
  */
 
 
@@ -10,10 +10,9 @@
  * This function will open the new_load_ticket modal
  * @author Ravidner Shokar
  * @version 1.0
- * @date July 30 2021
+ * @date June 30 2021
  */
 function openNewLoadModal() {
-
   const modal = document.getElementById("new_load_ticket_modal");
   const modalLoadLocation = document.getElementById("load_location");
   const modalLoadTime = document.getElementById("load_time");
@@ -21,8 +20,8 @@ function openNewLoadModal() {
   const modalTonnage = document.getElementById("tonnage")
 
 
-  const loadLocation = document.querySelector(".load_location").innerHTML;
-  const material = document.querySelector(".material").innerHTML;
+  const loadLocation = document.querySelector("#load div").innerHTML;
+  const material = (document.querySelector("#material span") == null ? "" : document.querySelector(".material").innerHTML);
 
   const date = new Date()
 
@@ -33,13 +32,11 @@ function openNewLoadModal() {
   modalLoadTime.value = now;
   modalTonnage.value = 0.00;
 
-
   resetErrors();
 
   window.setTimeout(function () {
     modalLoadMaterial.focus()
   }, 0);
-
 
   modal.style.display = "block";
 }
@@ -56,7 +53,7 @@ function openFinishLoadModal() {
   const modalDumpTime = document.getElementById("dump_time");
   const modalDumpLocation = document.getElementById("dump_location");
 
-  const dumpLocation = document.querySelector(".dump_location").innerHTML;
+  const dumpLocation = document.querySelector("#dump div").innerHTML.trim();
 
   const date = new Date();
   const now = date.getHours() + ":" + ((date.getMinutes() < 10 ? "0" : "") + date.getMinutes());
@@ -77,8 +74,8 @@ function openFinishLoadModal() {
 /**
  * This function is responsible for making an ajaz call that will create a load ticket
  * @author Ravinder Shokar 
- * @verison 1.0 
- * @date July 30 2021 
+ * @verison 1.1
+ * @date July 24 2021
  */
 function createLoadTicket() {
 
@@ -87,7 +84,7 @@ function createLoadTicket() {
   const modalLoadLocation = document.getElementById("load_location");
   const modalLoadTime = document.getElementById("load_time");
   const modalLoadMaterial = document.getElementById("load_material");
-  const modalTonnage = document.getElementById('tonnage');
+  const modalTonnage = document.getElementById('tonnage_input');
 
 
   // Job ID
@@ -95,6 +92,8 @@ function createLoadTicket() {
   const urlParams = new URL(queryString);
   const jobId = urlParams.searchParams.get("id");
 
+  const isTon = document.getElementById("tonnage_check").checked;
+  const isLoad = document.getElementById("load_check").checked;
 
   const obj = {
     jobId: jobId,
@@ -102,10 +101,8 @@ function createLoadTicket() {
     loadTime: modalLoadTime.value.trim(),
     material: modalLoadMaterial.value.trim(),
     tonnage: parseFloat(modalTonnage.value).toFixed(2),
+    type: (isTon ? "ton" : "load"),
   }
-
-  console.log(obj);
-
 
   if (verifyCreateLoadTIcket(obj)) {
     $.ajax({
@@ -115,41 +112,42 @@ function createLoadTicket() {
       data: obj,
       success: (data) => {
         if (data.status == "success") {
-          const loadContainer = document.getElementById("load_ticket");
+          console.log(data);
+          const loadContainer = document.getElementById("load_tickets");
           const button = document.querySelector("#positive_button_container .new_load_ticket");
           const loadDiv = document.createElement("div");
 
-          loadDiv.setAttribute("class", "load active");
+          loadDiv.setAttribute("class", "load_ticket active");
           loadDiv.setAttribute("id", data.ticketId)
 
           loadContainer.appendChild(loadDiv);
 
           let html =
             `
-                    <div class="times">
-                      <div class="load_time">
-                        <span>Load: ${obj.loadTime}</span>
+                      <div class="times">
+                        <div class="load_time">
+                          <span>Load: ${obj.loadTime}</span>
+                        </div>
+                        <div class="dump_time">
+                          <button id="dump_load" onclick="quickDump()">Dump</button>
+                        </div>
+
                       </div>
-                      <div class="dump_time">
-                        <button id="dump_load" onclick="quickDump()">Dump</button>
+                      <div class="weight">
+                        <span>${data.job.loadTickets[data.ticketId].tonnage}</span>
+                        <span>${obj.material}</span>
                       </div>
 
-                    </div>
-                    <div class="weight">
-                      <span>${obj.tonnage}</span>
-                      <span>${obj.material}</span>
-                    </div>
-
-                    <div class="load_details">
-                      <div class="load_location">
-                        <span>Load: ${obj.loadLocation}</span>
+                      <div class="load_details">
+                        <div class="load_location">
+                          <span>Load: ${obj.loadLocation}</span>
+                        </div>
+                        <div class="dump_location">
+                          <span>Dump:</span>
+                        </div>
                       </div>
-                      <div class="dump_location">
-                        <span>Dump:</span>
-                      </div>
-                    </div>
-                    <div class="edit_load"><a href="/edit_load?jobId=${jobId}&loadId=${data.ticketId}"><i class="fas fa-edit" onclick="editLoadTicket(${data.ticketId})"></i></div>
-                    `
+                      <div class="edit_load"><a href="/edit_load?jobId=${jobId}&loadId=${data.ticketId}"><i class="fas fa-edit" onclick="editLoadTicket(${data.ticketId})"></i></div>
+                      `
 
           loadDiv.innerHTML = html;
           button.setAttribute('onclick', 'openFinishLoadModal()');
@@ -157,8 +155,10 @@ function createLoadTicket() {
 
           modal.style.display = "none";
 
+        } else {
+          console.log(data);
         }
-        console.log(data);
+
       },
       error: (err) => {
         console.log(err);
@@ -175,6 +175,8 @@ function createLoadTicket() {
  * @date June 30 2021
  */
 function verifyCreateLoadTIcket(loadTicket) {
+  const lCheck = document.getElementById("load_check");
+
   const formError = document.getElementById('create_load_ticket_error');
   const loadLocationError = document.getElementById("load_location_error");
   const loadTimeError = document.getElementById("load_time_error");
@@ -191,11 +193,11 @@ function verifyCreateLoadTIcket(loadTicket) {
 
   if (loadTicket.loadLocation == "" || loadTicket.loadTime == "" || loadTicket.material == "") {
     isValid = false;
-    formError.innerHTML = "Fields can not be left empty";
+    formError.innerHTML = "Required fields can not be left empty";
   } else if (loadTicket.loadLocation.length < 2) {
     isValid = false;
     loadLocationError.innerHTML = "Load Location must be greater than two characters";
-  } else if (loadTicket.tonnage < 0) {
+  } else if (loadTicket.tonnage < 0 && !lCheck.checked) {
     isValid = false;
     tonnageError.innerHTML = "Must be a positive number."
   }
@@ -257,6 +259,7 @@ function submitFinishedTicket(finishDetails) {
       if (data.status == "success") {
         const modal = document.getElementById("finish_load_ticket_modal");
         const loadTicket = document.getElementById(data.result.loadTicketId);
+
         const dumpTime = loadTicket.querySelector(".times .dump_time");
         const dumpLocation = loadTicket.querySelector(".load_details .dump_location");
 
@@ -267,7 +270,7 @@ function submitFinishedTicket(finishDetails) {
         button.innerHTML = "Add Load Ticket";
 
 
-        loadTicket.setAttribute("class", "load complete");
+        loadTicket.setAttribute("class", "load_ticket complete");
 
         closeModals();
 
@@ -314,29 +317,6 @@ function verifyFinishLoadTicket(loadTicket) {
 }
 
 /**
- * This function is meant for verifying a signoff time
- * @author Ravinder Shokar 
- * @version 1.0 
- * @date July 3 2021
- */
-function verifySignOff(startTime, signOffTime) {
-  resetErrors();
-  const signOffError = document.getElementById("sign_off_error");
-  if (signOffTime == "") {
-    signOffError.innerHTML = "Field Cannot be left empty";
-    return false;
-  }
-
-
-  if (signOffTime < startTime) {
-    signOffError.innerHTML = "Canot have signoff time before start time";
-    return false;
-  }
-
-  return true;
-}
-
-/**
  * This function is responsible for quickly finishing a load ticket
  * This function gets the default dump location and current time and finishes 
  * the load ticket.
@@ -345,7 +325,7 @@ function verifySignOff(startTime, signOffTime) {
  * @date July 1 2021 
  */
 function quickDump() {
-  const dumpLocation = document.querySelector(".dump_location").innerHTML;
+  const dumpLocation = document.querySelector(".dump").innerHTML.trim();
 
   const date = new Date();
   const now = date.getHours() + ":" + ((date.getMinutes() < 10 ? "0" : "") + date.getMinutes());
@@ -389,4 +369,36 @@ const closeModals = () => {
   })
 }
 
+/**
+ * This function is responsible for disabling tonnage input and switching checbox values
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 24 2021
+ */
+function disableTonnageInput() {
+  const lCheck = document.getElementById("load_check");
+  const tCheck = document.getElementById("tonnage_check");
+  const tonnage = document.getElementById("tonnage_input");
 
+  $("#tonnage_input").attr('disabled', true);
+
+  lCheck.checked = true;
+  tCheck.checked = false
+}
+
+/**
+* This functino is responsible for enabling tonnage input and switching checkbox values 
+* @author Ravinder Shokar 
+* @version 1.0 
+* @date July 24 2021
+*/
+function enableTonnageInput() {
+  const lCheck = document.getElementById("load_check");
+  const tCheck = document.getElementById("tonnage_check");
+  const tonnage = document.getElementById("tonnage_input");
+
+  $("#tonnage_input").attr('disabled', false);
+
+  lCheck.checked = false;
+  tCheck.checked = true;
+}

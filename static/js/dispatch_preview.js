@@ -123,21 +123,60 @@ function addOperatorCards() {
 addOperatorCards();
 
 /**
- * This function is responsible for showing the operator
- * rates tab
+ * This function is toggling to left tab
  * @author Ravinder Shokar 
  * @vesrion 1.0 
  * @date July 18 2021
  */
 function showOperators() {
+    const opTab = document.getElementById("left_tab");
+    const rateTab = document.getElementById("right_tab");
+
     const rates = document.getElementById("rates");
     const operators = document.getElementById("operators");
 
     if (operators.style.display == "none") {
-        operators.style.display = "block";
+
+        rateTab.style.color = "black";
+        rateTab.style.backgroundColor = "#CFD8DC";
+
+        opTab.style.backgroundColor = "#004065"
+        opTab.style.color = "white"
+
         rates.style.display = "none";
+        operators.style.display = "block";
     }
 }
+
+/**
+ * This function is responsible for showing the rates tab
+ * @author Ravinder Shokar 
+ * @verion 1.0 
+ * @date July 17 2021
+ */
+function showRates() {
+    const opTab = document.getElementById("left_tab");
+    const rateTab = document.getElementById("right_tab");
+
+    const rates = document.getElementById("rates");
+    const operators = document.getElementById("operators");
+
+
+    if (rates.style.display == "none") {
+
+        console.log("Im Alive")
+
+        rateTab.style.backgroundColor = "#004065";
+        rateTab.style.color = "white";
+
+        opTab.style.backgroundColor = "#CFD8DC";
+        opTab.style.color = "black";
+
+        rates.style.display = "block";
+        operators.style.display = "none";
+    }
+}
+
 
 /**
  * This function is responsible for populating the hourly rates 
@@ -168,53 +207,71 @@ function renderHourly(rates) {
 }
 
 /**
- * This function is responsible for populating the perload rates 
+ * This function adds rates to the HTML.
  * @author Ravinder Shokar 
- * @version 1.0 
- * @date July 17 2021
- * @param rates JSON containing perLoad rates
+ * @version 1.0
+ * @date July 20 2021
+ * @param type which type of rate to be added. Tonnage / Per Load 
+ * @param obj optional variable with rate data.
  */
-function renderPerLoad(rates) {
-    perLoad = document.getElementById("per_load")
-    perLoad.querySelector("#per_load_rates .contractor_rate .rate").innerHTML = rates.contractor;
-    perLoad.querySelector("#per_load_rates .operator_rate .rate").innerHTML = rates.operator;
+function addRates(type, rates) {
+    const fee = rates.fee;
+    const tonnage = document.getElementById("tonnage")
+    const perLoad = document.getElementById("per_load")
 
-    document.getElementById("per_load_rates").style.display = "block"
-    perLoad.style.display = "block"
-}
+    const ton = document.getElementById("tonnage_rates");
+    const per = document.getElementById("per_load_rates");
 
+    rates = rates.rates;
 
-/**
- * This function is resposible for populating the tonnage rates
- * @author Ravinder Shokar 
- * @version 1.0 
- * @date July 17 2021
- * @param rates JSON containing perLoad rates
- */
-function renderTonnage(rates) {
-    tonnage = document.getElementById("tonnage")
-    tonnage.querySelector("#tonnage_rates .contractor_rate .rate").innerHTML = rates.contractor;
-    tonnage.querySelector("#tonnage_rates .operator_rate .rate").innerHTML = rates.operator;
+    let div;
 
-    document.getElementById("tonnage_rates").style.display = "block"
-    tonnage.style.display = "block"
-}
+    if (type == "per_load") {
+        perLoad.style.display = "block";
+        per.style.display = "block"
+        per.querySelector(".operator_rate .rate").innerHTML = fee
+        for (let i = 0; i < rates.length; i++) {
+            div = document.createElement("div");
+            div.setAttribute("class", "per_load_rate input_rate");
+            div.innerHTML = getRateHTML(rates[i]);
+            per.appendChild(div);
 
+        }
 
-/**
- * This function is responsible for showing the rates tab
- * @author Ravinder Shokar 
- * @verion 1.0 
- * @date July 17 2021
- */
-function showRates() {
-    const rates = document.getElementById("rates");
-    const operators = document.getElementById("operators");
-
-    if (rates.style.display == "none") {
-        rates.style.display = "block";
-        operators.style.display = "none";
+    } else {
+        tonnage.style.display = "block";
+        ton.style.display = "block";
+        ton.querySelector(".operator_rate .rate").innerHTML = fee
+        for (let i = 0; i < rates.length; i++) {
+            div = document.createElement("div");
+            div.setAttribute("class", "tonnage_rate input_rate");
+            div.innerHTML = getRateHTML(rates[i]);
+            ton.appendChild(div);
+        }
     }
+}
+
+/**
+ * This function builds the HTML appropriate for adding a rate
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date July 20 2021
+ * @param i ID of HTML
+ * @param type which type of rate to be added. Tonnage / Per Load 
+ * @return HTML with dispatch load and dump filled in. 
+ */
+function getRateHTML(rate) {
+    console.log(rate)
+    return `
+        <span class="mb-2">Contractor Rate</span>
+        <span class="form-control mb-2 rate">${rate.r}</span>
+    
+        <span class="mb-2">Load</span>
+        <span class="form-control mb-2 load">${rate.l}</span>
+    
+        <span class="mb-2">Dump</span>
+        <span class="form-control mb-2 dump">${rate.d}</span>
+        `
 }
 
 $(document).ready(() => {
@@ -247,11 +304,11 @@ $(document).ready(() => {
             renderHourly(dispatch.rates.hourly);
         } else {
             if (dispatch.rates.perLoad != undefined) {
-                renderPerLoad(dispatch.rates.perLoad);
+                addRates("per_load", dispatch.rates.perLoad);
             }
 
             if (dispatch.rates.tonnage != undefined) {
-                renderTonnage(dispatch.rates.tonnage);
+                addRates("tonnage", dispatch.rates.tonnage);
             }
         }
     }

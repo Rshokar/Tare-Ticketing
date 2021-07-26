@@ -22,7 +22,10 @@ function editLoadTicket(loadId, loadStatus) {
     const loadLocation = document.getElementById("load_location");
     const loadTime = document.getElementById("load_time");
     const material = document.getElementById("material_input");
-    const tonnage = document.getElementById("tonnage");
+    const tonnage = document.getElementById("tonnage_input");
+
+    const isTon = document.getElementById("tonnage_check").checked;
+    const isLoad = document.getElementById("load_check").checked
 
     let obj = {}
 
@@ -33,7 +36,8 @@ function editLoadTicket(loadId, loadStatus) {
             loadLocation: loadLocation.value,
             loadTime: loadTime.value,
             material: material.value,
-            tonnage: tonnage.value
+            tonnage: parseFloat(tonnage.value).toFixed(2),
+            type: (isTon ? "ton" : "load")
         }
 
         if (verifyActiveLoadTIcket(obj)) {
@@ -49,7 +53,8 @@ function editLoadTicket(loadId, loadStatus) {
             loadTime: loadTime.value,
             dumpTime: dumpTime.value,
             material: material.value,
-            tonnage: tonnage.value
+            tonnage: parseFloat(tonnage.value).toFixed(2),
+            type: (isTon ? "ton" : "load")
         }
 
 
@@ -80,7 +85,7 @@ function verifyActiveLoadTIcket(loadTicket) {
     // const hours = loadTicket.loadTime.substring(0, 2);
     // const minutes = loadTicket.loadTime.substring(3, 5);
 
-    if (loadTicket.loadLocation == "" || loadTicket.loadTime == "" || loadTicket.material == "" || loadTicket.tonnage == 0) {
+    if (loadTicket.loadLocation == "" || loadTicket.loadTime == "" || loadTicket.material == "") {
         isValid = false;
         formError.innerHTML = "Fields can not be left empty";
     } else if (loadTicket.loadLocation.length < 2) {
@@ -119,7 +124,7 @@ function verifyCompleteLoadTicket(loadTicket) {
     // const hours = loadTicket.loadTime.substring(0, 2);
     // const minutes = loadTicket.loadTime.substring(3, 5);
 
-    if (loadTicket.loadLocation == "" || loadTicket.loadTime == "" || loadTicket.material == "" || loadTicket.tonnage == 0) {
+    if (loadTicket.loadLocation == "" || loadTicket.loadTime == "" || loadTicket.material == "") {
         isValid = false;
         formError.innerHTML = "Fields can not be left empty";
     } else if (loadTicket.loadLocation.length < 2) {
@@ -300,4 +305,3 @@ function deleteLoadModal() {
 
     confModal.style.display = "block";
 }
-

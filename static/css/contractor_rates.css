@@ -26,10 +26,15 @@
 }
 
 
-.rate, .load, .dump {
-    width: 30%;
+.input_rate .rate, .input_rate .load, .input_rate .dump {
+    width: 100%;
     float: right;
     background-color: white;
+    text-align: center;
+}
+
+.rate {
+    width: 30%;
     text-align: center;
 }
 
@@ -48,7 +53,7 @@
     grid-column: 2 / span 1;
 }
 
-.remove_rate {
+.remove_rate, .error{
     grid-column: 1 / span 2;
     width: 50%;
     margin: 0 auto;

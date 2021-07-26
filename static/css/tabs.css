@@ -8,12 +8,23 @@
     text-align: center;
 }
 
-#dispatch, #job, #fuel, #operators_tab, #rates_tab {
+#left_tab, #right_tab, #operators_tab, #rates_tab {
     line-height: 5vh;
     height: 5vh;
     display: inline-block;
     border-left: 1px solid black;
     border-right: 1px solid black;
+}
+
+#left_tab{
+    background-color: #004065;
+    color: white;
+}
+
+
+#right_tab{
+    background-color: #CFD8DC;
+    color: black;
 }
 
 #dispatch {

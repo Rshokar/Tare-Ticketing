@@ -17,6 +17,9 @@ const jobSchema = new Schema({
     startTime: {
         type: String
     },
+    finishTime: {
+        type: String
+    },
     dumpLocation: {
         type: String
     },
@@ -46,7 +49,13 @@ const jobSchema = new Schema({
     },
     loadTickets: {
         type: Array
-    }
+    },
+    rates: {
+        type: Object
+    },
+    position: {
+        type: Number
+    },
 }, { timestamps: true })
 
 const Job = mongoose.model("Job", jobSchema);

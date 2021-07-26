@@ -74,7 +74,7 @@ app.get("/dashboard", authenticate, (req, res) => {
         $and: [
           { "dispatcher.id": decodedToken.id },
           {
-            $or: [{ "status.sent": { $gt: 0 } }, { "status.active": { $gt: 0 } }, { "status.confirmed": { $gt: 0 } }]
+            $or: [{ "status.empty": { $gt: 0 } }, { "status.sent": { $gt: 0 } }, { "status.active": { $gt: 0 } }, { "status.confirmed": { $gt: 0 } }]
           }
         ]
       }).then((result) => {
@@ -438,9 +438,13 @@ app.get("/job", authenticate, (req, res) => {
     Job.findOne({
       _id: jobTicket
     })
-      .then((result) => {
-        console.log(result);
-        res.render("job", { page: pageName, job: result, user: decodedToken });
+      .then((job) => {
+        if (job == null) {
+          res.send("Job ticket not found");
+        } else {
+          console.log("Job Ticket", job);
+          res.render("job", { page: pageName, job, user: decodedToken });
+        }
       })
   })
 })
