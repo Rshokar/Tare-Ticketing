@@ -188,8 +188,6 @@ app.get("/contractor", authenticate, (req, res) => {
             })
           }
         }
-
-
       })
 
   })
@@ -380,6 +378,7 @@ app.get("/tickets", authenticate, (req, res) => {
             "dispatcher.id": decodedToken.id
           })
             .then((jobs) => {
+
               const pageName = "Tickets";
               res.render("tickets", { page: pageName, dispatches, jobs, user: decodedToken });
             })
@@ -389,6 +388,7 @@ app.get("/tickets", authenticate, (req, res) => {
         $and: [{ "operator.id": decodedToken.id }, { status: "complete" }]
       })
         .then((jobs) => {
+          console.log(jobs);
           const pageName = "Tickets";
           res.render("tickets", { page: pageName, jobs, user: decodedToken });
         })
@@ -442,12 +442,104 @@ app.get("/job", authenticate, (req, res) => {
         if (job == null) {
           res.send("Job ticket not found");
         } else {
-          console.log("Job Ticket", job);
-          res.render("job", { page: pageName, job, user: decodedToken });
+          const [perLoadLocations, tonLoadLocations] = getLoadLocations(job);
+
+          res.render("job", { page: pageName, job, user: decodedToken, perLoadLocations, tonLoadLocations });
         }
       })
   })
 })
+
+
+/**
+ * This function will get all load locations for a job ticket. It will seperated 
+ * by tonnage or load ticket 
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 27 2021 
+ * @param job Job ticket
+ * @return An Array containing [perLoadLocations, tonnageLoadLocations]
+ */
+function getLoadLocations(job) {
+  let perLst = [];
+  let tonLst = []
+
+  if (job.rates.perLoad != undefined && job.rates.perLoad.rates != undefined) {
+    perLst = [...job.rates.perLoad.rates]
+  }
+
+  if (job.rates.tonnage != undefined && job.rates.tonnage.rates != undefined) {
+    tonLst = [...job.rates.tonnage.rates];
+  }
+
+  if (perLst != []) {
+    if (!(perLst.length <= 1)) {
+
+      //Remove Duplicates
+      for (let i = 0; i < perLst.length; i++) {
+        for (let j = i + 1; j < perLst.length; j++) {
+          if (perLst[i].l == perLst[j].l) {
+            console.log("Hello");
+            perLst.splice(j, j);
+          }
+        }
+      }
+    }
+  }
+
+  if (tonLst != []) {
+    if (!(tonLst.length <= 1)) {
+
+      //Remove Duplicates
+      for (let i = 0; i < tonLst.length; i++) {
+        for (let j = i + 1; j < tonLst.length; j++) {
+          if (tonLst[i].l == tonLst[j].l) {
+
+            tonLst.splice(j, j);
+          }
+        }
+      }
+    }
+
+    return [perLst, tonLst]
+  }
+}
+
+/**
+ * This fuction will gather the possible dump locations dependent on which loadId passed in 
+ * job ticket
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 27 2021
+ * @param job job Ticket
+ * @param id load ticket ID
+ */
+function getDumpLocations(job, id) {
+  const load = job.loadTickets[id];
+  const per = "load";
+  const ton = "ton";
+
+  const perRates = [...job.rates.perLoad.rates];
+  const tonRates = [...job.rates.tonnage.rates];
+
+  let dumpLocations = []
+
+  if (load.type == ton) {
+    for (let i = 0; i < tonRates.length; i++) {
+      if (tonRates[i].l == load.loadLocation) {
+        dumpLocations.push(tonRates[i].d)
+      }
+    }
+  } else if (load.type == per) {
+    for (let i = 0; i < perRates.length; i++) {
+      if (perRates[i].l == load.loadLocation) {
+        dumpLocations.push(perRates[i].d)
+      }
+    }
+  }
+  return dumpLocations
+}
+
 
 /**
  * This route is responsible for changing the status of a job ticket to confirmed and 
@@ -485,10 +577,6 @@ app.post("/activate_job_ticket", TicketController.activateJobTicket, (req, res) 
  * @date July 3 2021
  */
 app.post("/complete_job_ticket", TicketController.completeJobTicket, (req, res) => {
-  res.send({
-    status: "success",
-    message: "Job status updated"
-  })
 })
 
 /**
@@ -517,16 +605,28 @@ app.post("/finish_load_ticket", TicketController.finishLoadTicket, (req, res) =>
  * @date July 2 2021
  */
 app.get("/edit_load", authenticate, (req, res) => {
-  console.log(req.query);
   const pageName = "Edit Load Ticket";
   const token = req.cookies.jwt;
 
   jwt.verify(token, "butternut", (err, decodedToken) => {
     Job.findOne({
-      _id: req.query.jobId
+      _id: req.query.id
     })
       .then((job) => {
-        res.render("edit_load", { job: job, loadId: req.query.loadId, page: pageName, user: decodedToken });
+        if (job == null) {
+          res.sendStatus(404)
+        } else {
+          const [perLoadLocations, tonLoadLocations] = getLoadLocations(job);
+          const dumpLocations = getDumpLocations(job, req.query.loadId);
+          res.render("edit_load", {
+            job: job,
+            loadId: req.query.loadId,
+            page: pageName,
+            user: decodedToken,
+            perLoadLocations, tonLoadLocations, dumpLocations
+          });
+        }
+
       })
   })
 
@@ -887,6 +987,33 @@ app.get("/search_operators", authenticate, (req, res) => {
 })
 
 
+/**
+ * This function get a job ticket
+ * @author Ravinder Shokar 
+ * @vesion 1.0
+ * @date July 27 2021
+ */
+app.get("/get_job", (req, res) => {
+  const jobId = req.query.jobId;
+  console.log(req.query)
+
+  Job.findOne({
+    _id: jobId
+  })
+    .then((job) => {
+      if (job == null) {
+        res.send({
+          staus: "error",
+          message: "No job ticket found"
+        })
+      } else {
+        res.send({
+          status: "success",
+          job,
+        })
+      }
+    })
+})
 
 //App Listen.
 app.listen(8000, () => console.log("App available on http://localhost:8000"));

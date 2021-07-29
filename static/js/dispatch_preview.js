@@ -110,7 +110,7 @@ function addOperatorCards() {
                             </div>
                         </div>
                         <div class="start_time">
-                         ${startTime}
+                         ${new Date(startTime).toLocaleString([], { hour12: false })}
                         </div>
                         <span class="user_id">${id}</span>
                         <span class="error"></span>

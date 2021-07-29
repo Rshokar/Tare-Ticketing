@@ -19,7 +19,7 @@
  * is dependent on the load status
  */
 function editLoadTicket(loadId, loadStatus) {
-    const loadLocation = document.getElementById("load_location");
+
     const loadTime = document.getElementById("load_time");
     const material = document.getElementById("material_input");
     const tonnage = document.getElementById("tonnage_input");
@@ -27,9 +27,12 @@ function editLoadTicket(loadId, loadStatus) {
     const isTon = document.getElementById("tonnage_check").checked;
     const isLoad = document.getElementById("load_check").checked
 
+    const loadLocation = (isTon ? document.getElementById("tonnage_load_locations") : document.getElementById("per_load_load_locations"));
+
     let obj = {}
 
     resetErrors();
+
 
     if (loadStatus == "active") {
         obj = {
@@ -44,7 +47,7 @@ function editLoadTicket(loadId, loadStatus) {
             submitEditedLoadTicket(obj);
         }
     } else {
-        const dumpLocation = document.getElementById('dump_location');
+        const dumpLocation = document.getElementById('dump_locations');
         const dumpTime = document.getElementById('dump_time');
 
         obj = {
@@ -85,15 +88,18 @@ function verifyActiveLoadTIcket(loadTicket) {
     // const hours = loadTicket.loadTime.substring(0, 2);
     // const minutes = loadTicket.loadTime.substring(3, 5);
 
-    if (loadTicket.loadLocation == "" || loadTicket.loadTime == "" || loadTicket.material == "") {
+    if (loadTicket.loadLocation == "" ||
+        loadTicket.loadTime == "" ||
+        loadTicket.material == "" ||
+        (loadTicket.type != "load" && (loadTicket.tonnage == 0 || loadTicket.tonnage == "NaN"))) {
         isValid = false;
-        formError.innerHTML = "Fields can not be left empty";
+        formError.innerHTML = "Required fields can not be left empty or on default state";
     } else if (loadTicket.loadLocation.length < 2) {
         isValid = false;
         loadLocationError.innerHTML = "Load Location must be greater than two characters";
-    } else if (loadTicket.tonnage < 0) {
+    } else if (loadTicket.type != "load" && loadTicket.tonnage < 10) {
         isValid = false;
-        tonnageError.innerHTML = "Must be a positive number."
+        tonnageError.innerHTML = "Must be a positive number greater than 10"
     }
     // else if (hours < date.getHours() || (hours < date.getHours() && minuets < date.getMinutes())) {
     //     isValid = false;
@@ -111,6 +117,7 @@ function verifyActiveLoadTIcket(loadTicket) {
  * @date July 2 2021
  */
 function verifyCompleteLoadTicket(loadTicket) {
+    console.log(loadTicket)
     const formError = document.getElementById('form_error');
     const loadLocationError = document.getElementById("load_location_error");
     const dumpLocationError = document.getElementById("dump_location_error");
@@ -124,20 +131,22 @@ function verifyCompleteLoadTicket(loadTicket) {
     // const hours = loadTicket.loadTime.substring(0, 2);
     // const minutes = loadTicket.loadTime.substring(3, 5);
 
-    if (loadTicket.loadLocation == "" || loadTicket.loadTime == "" || loadTicket.material == "") {
+    if (loadTicket.loadLocation == "default" ||
+        loadTicket.material == "" ||
+        (loadTicket.type != "load" && (loadTicket.tonnage == 0 || loadTicket.tonnage == "NaN"))) {
         isValid = false;
-        formError.innerHTML = "Fields can not be left empty";
+        formError.innerHTML = "Required fields can not be left empty or on default state";
     } else if (loadTicket.loadLocation.length < 2) {
         isValid = false;
         loadLocationError.innerHTML = "Load Location must be greater than two characters";
     } else if (loadTicket.dumpLocation.length < 2) {
         isValid = false;
         dumpLocationError.innerHTML = "Dump Location must be greater than two characters";
-    } else if (loadTicket.tonnage < 0) {
+    } else if (loadTicket.type != "load" && loadTicket.tonnage < 10) {
         isValid = false;
-        tonnageError.innerHTML = "Must be a positive number."
+        tonnageError.innerHTML = "Must be a positive number greater than 10."
     } else if (loadTicket.dumpTime < loadTicket.loadTime) {
-        isVald = false;
+        isValid = false;
         dumpTimeError.innerHTML = "Dump time cannot be before load time."
     }
     // else if (hours < date.getHours() || (hours < date.getHours() && minuets < date.getMinutes())) {
@@ -180,12 +189,12 @@ function submitEditedLoadTicket(loadTicket) {
 
     const url = window.location.href;
     const query = new URL(url);
-    const jobId = query.searchParams.get("jobId");
+    const id = query.searchParams.get("id");
     const loadId = query.searchParams.get("loadId");
 
     const obj = {
         loadTicket,
-        jobId,
+        id,
         loadId
     }
 
@@ -203,7 +212,7 @@ function submitEditedLoadTicket(loadTicket) {
                 confModal.style.display = "block";
 
                 confYes.addEventListener("click", () => {
-                    window.location.href = "/job?id=" + jobId;
+                    window.location.href = "/job?id=" + id;
                 })
             } else {
                 confText.innerHTML = "Failed to update load ticket";
@@ -216,7 +225,6 @@ function submitEditedLoadTicket(loadTicket) {
                     confModal.style.display = "none"
                 })
             }
-            console.log(data);
         },
         error: (err) => {
             confText.innerHTML = "Error updating load ticket. Try again later";
@@ -305,3 +313,70 @@ function deleteLoadModal() {
 
     confModal.style.display = "block";
 }
+
+/**
+ * This function is responsible for getting a job ticket. This function is
+ * dependent on the URL
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 27 2021
+ */
+function getJob() {
+    return new Promise((resolve, reject) => {
+        const query = new URL(window.location.href);
+        const jobId = query.searchParams.get("id");
+
+        console.log(jobId);
+
+        $.ajax({
+            url: "get_job",
+            dataType: "JSON",
+            type: "GET",
+            data: { jobId },
+            success: (data) => {
+                if (data.status == "success") {
+                    resolve(data.job);
+                } else {
+                    reject()
+                }
+            },
+            error: (err) => {
+                reject()
+            }
+        })
+    })
+}
+
+
+/**
+ * Thesee event listners are responsble for 
+ */
+document.getElementById("per_load_load_locations").addEventListener("change", (event) => {
+    const query = new URL(window.location.href);
+    const loadId = query.searchParams.get("loadId");
+
+    const isTon = document.getElementById("tonnage_check").checked;
+    const isLoad = document.getElementById("load_check").checked
+
+    getJob()
+        .then(job => {
+            updateDumpLocations(job, loadId, isTon, isLoad, event.target.value)
+        });
+
+
+});
+document.getElementById("tonnage_load_locations").addEventListener("change", (event) => {
+    const query = new URL(window.location.href);
+    const loadId = query.searchParams.get("loadId");
+
+    const isTon = document.getElementById("tonnage_check").checked;
+    const isLoad = document.getElementById("load_check").checked
+
+    getJob()
+        .then(job => {
+            updateDumpLocations(job, loadId, isTon, isLoad, event.target.value)
+        })
+
+
+
+})

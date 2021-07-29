@@ -16,7 +16,7 @@ function toggleDown() {
     toggleDown.style.display = "none";
     toggleUp.style.display = "block";
     toggle.style.gridRow = "6 / span 1";
-    status.style.display = "block";
+    if (status != null) { status.style.display = ("block"); }
 }
 
 /**
@@ -37,5 +37,6 @@ function toggleUp() {
     details.style.display = "none";
     toggleDown.style.display = "block";
     toggleUp.style.display = "none";
-    status.style.display = "none";
+    if (status != null) { status.style.display = ("none"); }
+
 }

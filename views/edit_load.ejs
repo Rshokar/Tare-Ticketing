@@ -7,8 +7,7 @@
 <!-- Custome CSS for previewing tickets -->
 <link rel="stylesheet" href="css/ticket_preview.css">
 
-
-<div id="back">
+<div id="controls">
     <a href="/job?id=<%= job._id %> "><i class="fas fa-arrow-left"></i></a>
 </div>
 
@@ -57,7 +56,8 @@
 
 
         <div id="num-trucks">
-            <%= job.startTime %>
+            <% d=new Date(job.loadTickets[loadId].loadTime) %>
+                <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' }) %>
         </div>
         <div id="toggles">
             <i class="down fas fa-angle-down" onclick="toggleDown()"></i>
@@ -68,105 +68,178 @@
 
 <h3>Edit Load Ticket</h3>
 <div class="mb-3">
-    <label for="exampleInputEmail1" class="form-label">Load Location</label>
-    <input type="text" class="form-control" id="load_location" aria-describedby="emailHelp"
-        value="<%=job.loadTickets[loadId].loadLocation %>">
-    <div id="load_location_error" class="form-text error"></div>
+    <label for="exampleInputEmail1" class="form-label">Load Time</label>
+    <input type="datetime-local" class="form-control" id="load_time" value="<%=job.loadTickets[loadId].loadTime %>">
+    <div id="load_time_error" class="form-text error">
+    </div>
 </div>
 <% if (job.loadTickets[loadId].status=="complete" ) { %>
     <div class="mb-3">
-        <label for="exampleInputEmail1" class="form-label">Dump Location</label>
-        <input type="text" class="form-control" id="dump_location" aria-describedby="emailHelp"
-            value="<%=job.loadTickets[loadId].dumpLocation %>">
-        <div id="dump_location_error" class="form-text error"></div>
+        <label for="exampleInputEmail1" class="form-label">Dump Time</label>
+        <input type="datetime-local" class="form-control" id="dump_time" value="<%=job.loadTickets[loadId].dumpTime %>">
+        <div id="dump_time_error" class="form-text error"></div>
     </div>
     <% } %>
-        <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Load Time</label>
-            <input type="time" class="form-control" id="load_time" aria-describedby="emailHelp"
-                value="<%=job.loadTickets[loadId].loadTime %>">
-            <div id="load_time_error" class="form-text error">
+
+        <% if (job.loadTickets[loadId].type=="load" ) { %>
+            <div id="checkboxs">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="load_check" onclick="disableTonnageInput()"
+                        checked>
+                    <label class="form-check-label" for="load_check">
+                        Load Ticket
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="tonnage_check" onclick="enableTonnageInput()">
+                    <label class="form-check-label" for="tonnage_check">
+                        Tonnage Ticket
+                    </label>
+                </div>
             </div>
-        </div>
-        <% if (job.loadTickets[loadId].status=="complete" ) { %>
+
             <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Dump Time</label>
-                <input type="time" class="form-control" id="dump_time" aria-describedby="emailHelp"
-                    value="<%=job.loadTickets[loadId].dumpTime %>">
-                <div id="dump_time_error" class="form-text error"></div>
+                <label for="per_load_load_locations" class="form-label">Load
+                    Location*</label>
+                <select class="form-select" aria-label="Default select example" id="per_load_load_locations">
+                    <option value="default">Per Load Load Locations</option>
+                    <% for (let i=0; i < perLoadLocations.length; i++) { %>
+                        <% if (job.loadTickets[loadId].loadLocation==perLoadLocations[i].l) { %>
+                            <option value="<%=  perLoadLocations[i].l %>" selected>
+                                <% } else { %>
+                            <option value="<%=  perLoadLocations[i].l %>"></option>
+                            <% } %>
+                                <%= perLoadLocations[i].l %>
+                                    </option>
+                                    <% } %>
+                </select>
+
+                <select class="form-select" aria-label="Default select example" id="tonnage_load_locations"
+                    style="display: none;">
+                    <option value="default" selected>Tonnage Load Locations</option>
+                    <% for (let i=0; i < tonLoadLocations.length; i++) { %>
+                        <option value="<%=  tonLoadLocations[i].l %>">
+                            <%= tonLoadLocations[i].l %>
+                        </option>
+                        <% } %>
+                </select>
+                <div id="load_location_error" class="form-text error"></div>
             </div>
-            <% } %>
 
+
+
+
+            <% } else { %>
                 <div id="checkboxs">
-
-                    <% if (job.loadTickets[loadId].type=="load" ) { %>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="load_check"
-                                onclick="disableTonnageInput()" checked>
-                            <label class="form-check-label" for="load_check">
-                                Load Ticket
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="tonnage_check"
-                                onclick="enableTonnageInput()">
-                            <label class="form-check-label" for="tonnage_check">
-                                Tonnage Ticket
-                            </label>
-                        </div>
-                        <% } else { %>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="load_check"
-                                    onclick="disableTonnageInput()">
-                                <label class="form-check-label" for="load_check">
-                                    Load Ticket
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="tonnage_check"
-                                    onclick="enableTonnageInput()" checked>
-                                <label class="form-check-label" for="tonnage_check">
-                                    Tonnage Ticket
-                                </label>
-                            </div>
-                            <% } %>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="load_check" onclick="disableTonnageInput()">
+                        <label class="form-check-label" for="load_check">
+                            Load Ticket
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="tonnage_check"
+                            onclick="enableTonnageInput()" checked>
+                        <label class="form-check-label" for="tonnage_check">
+                            Tonnage Ticket
+                        </label>
+                    </div>
                 </div>
+
+
+
                 <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Material</label>
-                    <input type="text" class="form-control" id="material_input" aria-describedby="emailHelp"
-                        value="<%=job.loadTickets[loadId].material %>">
-                    <div id="material_error" class="form-text error"></div>
+                    <label for="per_load_load_locations" class="form-label">Load
+                        Location*</label>
+                    <select class="form-select" aria-label="Default select example" id="per_load_load_locations"
+                        style="display: none;">
+                        <option value="default">Per Load Load Locations</option>
+                        <% for (let i=0; i < perLoadLocations.length; i++) { %>
+                            <% if (job.loadTickets[loadId].loadLocation==perLoadLocations[i].l) { %>
+                                <option value="<%=  perLoadLocations[i].l %>" selected>
+                                    <% } else { %>
+                                <option value="<%=  perLoadLocations[i].l %>">
+                                    <% } %>
+                                        <%= perLoadLocations[i].l %>
+                                </option>
+                                <% } %>
+                    </select>
+
+                    <select class="form-select" aria-label="Default select example" id="tonnage_load_locations"
+                        style="display: block;">
+                        <option value="default" selected>Tonnage Load Locations</option>
+                        <% for (let i=0; i < tonLoadLocations.length; i++) { %>
+                            <% if (job.loadTickets[loadId].loadLocation==tonLoadLocations[i].l) { %>
+                                <option value="<%=  tonLoadLocations[i].l %>" selected>
+                                    <% } else { %>
+                                <option value="<%=  tonLoadLocations[i].l %>">
+                                    <% } %>
+                                        <%= tonLoadLocations[i].l %>
+                                </option>
+                                <% } %>
+                    </select>
+                    <div id="load_location_error" class="form-text error"></div>
                 </div>
-                <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Tonnage</label>
-                    <% if (job.loadTickets[loadId].type=="load" ) { %>
-                        <input type="number" class="form-control" id="tonnage_input" aria-describedby="emailHelp"
-                            value="<%=job.loadTickets[loadId].tonnage %>" disabled>
-                        <% } else { %>
-                            <input type="number" class="form-control" id="tonnage_input" aria-describedby="emailHelp"
-                                value="<%=job.loadTickets[loadId].tonnage %>">
-                            <% } %>
-                                <div id="tonnage_error" class="form-text error"></div>
-                </div>
-                <div id="form_error" class="form-text error"></div>
+                <% } %>
+
+                    <% if (job.loadTickets[loadId].status=="complete" ) { %>
+
+                        <div class="mb-3">
+                            <label for="dump_locations" class="form-label">Dump
+                                Location*</label>
+                            <select class="form-select" aria-label="Default select example" id="dump_locations">
+                                <option value="default">Dump Locations</option>
+                                <% let load=job.loadTickets[loadId] %>
+                                    <% for (let i=0; i < dumpLocations.length ; i++) { %>
+                                        <% if (dumpLocations[i]==load.dumpLocation) { %>
+                                            <option value="<%= dumpLocations[i] %>" selected>
+                                                <% } else { %>
+                                            <option value="<%= dumpLocations[i] %>">
+                                                <% } %>
+                                                    <%= dumpLocations[i] %>
+                                            </option>
+                                            <% } %>
+
+                            </select>
+                        </div>
+                        <% } %>
+                            <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label">Material*</label>
+                                <input type="text" class="form-control" id="material_input" aria-describedby="emailHelp"
+                                    value="<%=job.loadTickets[loadId].material %>">
+                                <div id="material_error" class="form-text error"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleInputEmail1" class="form-label">Tonnage*</label>
+                                <% if (job.loadTickets[loadId].type=="load" ) { %>
+                                    <input type="number" class="form-control" id="tonnage_input"
+                                        aria-describedby="emailHelp" value="<%=job.loadTickets[loadId].tonnage %>"
+                                        disabled>
+                                    <% } else { %>
+                                        <input type="number" class="form-control" id="tonnage_input"
+                                            aria-describedby="emailHelp" value="<%=job.loadTickets[loadId].tonnage %>">
+                                        <% } %>
+                                            <div id="tonnage_error" class="form-text error"></div>
+                            </div>
+                            <div id="form_error" class="form-text error"></div>
 
 
-                <div id="positive_button_container">
-                    <button class="new_load_ticket"
-                        onclick="editLoadTicket(<%= loadId %>, '<%= job.loadTickets[loadId].status %>')">Edit
-                        Ticket</button>
-                </div>
+                            <div id="positive_button_container">
+                                <button class="new_load_ticket"
+                                    onclick="editLoadTicket('<%= loadId %>', '<%= job.loadTickets[loadId].status %>')">Edit
+                                    Ticket</button>
+                            </div>
 
 
-                <div id="negative_button_container">
-                    <button class="new_load_ticket" onclick="deleteLoadModal()">Delete Ticket</button>
-                </div>
+                            <div id="negative_button_container">
+                                <button class="new_load_ticket" onclick="deleteLoadModal()">Delete Ticket</button>
+                            </div>
 
-                <!-- This script is responsible for handling load tickets -->
-                <script src="js/edit_load.js"></script>
+                            <!-- This script is responsible for handling load tickets -->
+                            <script src="js/edit_load.js"></script>
 
-                <!-- This script is responsible for handling load tickets -->
-                <script src="js/job.js"></script>
+                            <!-- This script is responsible for handling load tickets -->
+                            <script src="js/job.js"></script>
 
-                <!-- This JS file contains functions that will change the status of tickets. -->
-                <script src="js/ticket_preview.js"></script>
+                            <!-- This JS file contains functions that will change the status of tickets. -->
+                            <script src="js/ticket_preview.js"></script>

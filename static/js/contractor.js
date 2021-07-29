@@ -99,20 +99,20 @@ function saveOperatorRates() {
  */
 function getOperatorRates() {
     return {
-        tonnage: document.querySelector("#operator_rates .tonnage_rate input").value,
-        perLoad: document.querySelector("#operator_rates .per_load_rate input").value,
-        t: document.querySelector("#operator_rates .tandem input").value,
-        t2p: document.querySelector("#operator_rates .tandem_2_pup input").value,
-        t3p: document.querySelector("#operator_rates .tandem_3_pup input").value,
-        t3tf: document.querySelector("#operator_rates .tandem_3_transfer input").value,
-        t4tf: document.querySelector("#operator_rates .tandem_4_transfer input").value,
-        t4ed: document.querySelector("#operator_rates .tandem_4_end_dump input").value,
-        tri: document.querySelector("#operator_rates .tri input").value,
-        tri2p: document.querySelector("#operator_rates .tri_2_pony input").value,
-        tri3p: document.querySelector("#operator_rates .tri_3_pony input").value,
-        tri3tf: document.querySelector("#operator_rates .tri_4_transfer input").value,
-        tri4tf: document.querySelector("#operator_rates .tri_4_transfer input").value,
-        tri4ed: document.querySelector("#operator_rates .tri_4_end_dumo input").value,
+        tonnage: parseFloat(document.querySelector("#operator_rates .tonnage_rate input").value).toFixed(2),
+        perLoad: parseFloat(document.querySelector("#operator_rates .per_load_rate input").value).toFixed(2),
+        t: parseFloat(document.querySelector("#operator_rates .tandem input").value).toFixed(2),
+        t2p: parseFloat(document.querySelector("#operator_rates .tandem_2_pup input").value).toFixed(2),
+        t3p: parseFloat(document.querySelector("#operator_rates .tandem_3_pup input").value).toFixed(2),
+        t3tf: parseFloat(document.querySelector("#operator_rates .tandem_3_transfer input").value).toFixed(2),
+        t4tf: parseFloat(document.querySelector("#operator_rates .tandem_4_transfer input").value).toFixed(2),
+        t4ed: parseFloat(document.querySelector("#operator_rates .tandem_4_end_dump input").value).toFixed(2),
+        tri: parseFloat(document.querySelector("#operator_rates .tri input").value).toFixed(2),
+        tri2p: parseFloat(document.querySelector("#operator_rates .tri_2_pony input").value).toFixed(2),
+        tri3p: parseFloat(document.querySelector("#operator_rates .tri_3_pony input").value).toFixed(2),
+        tri3tf: parseFloat(document.querySelector("#operator_rates .tri_4_transfer input").value).toFixed(2),
+        tri4tf: parseFloat(document.querySelector("#operator_rates .tri_4_transfer input").value).toFixed(2),
+        tri4ed: parseFloat(document.querySelector("#operator_rates .tri_4_end_dumo input").value).toFixed(2),
     }
 }
 
@@ -183,18 +183,18 @@ function saveContractorRates() {
  */
 function getContractorRates() {
     return {
-        t: document.querySelector("#contractor_rates .tandem input").value,
-        t2p: document.querySelector("#contractor_rates .tandem_2_pup input").value,
-        t3p: document.querySelector("#contractor_rates .tandem_3_pup input").value,
-        t3tf: document.querySelector("#contractor_rates .tandem_3_transfer input").value,
-        t4tf: document.querySelector("#contractor_rates .tandem_4_transfer input").value,
-        t4ed: document.querySelector("#contractor_rates .tandem_4_end_dump input").value,
-        tri: document.querySelector("#contractor_rates .tri input").value,
-        tri2p: document.querySelector("#contractor_rates .tri_2_pony input").value,
-        tri3p: document.querySelector("#contractor_rates .tri_3_pony input").value,
-        tri3tf: document.querySelector("#contractor_rates .tri_4_transfer input").value,
-        tri4tf: document.querySelector("#contractor_rates .tri_4_transfer input").value,
-        tri4ed: document.querySelector("#contractor_rates .tri_4_end_dumo input").value,
+        t: parseFloat(document.querySelector("#contractor_rates .tandem input").value).toFixed(2),
+        t2p: parseFloat(document.querySelector("#contractor_rates .tandem_2_pup input").value).toFixed(2),
+        t3p: parseFloat(document.querySelector("#contractor_rates .tandem_3_pup input").value).toFixed(2),
+        t3tf: parseFloat(document.querySelector("#contractor_rates .tandem_3_transfer input").value).toFixed(2),
+        t4tf: parseFloat(document.querySelector("#contractor_rates .tandem_4_transfer input").value).toFixed(2),
+        t4ed: parseFloat(document.querySelector("#contractor_rates .tandem_4_end_dump input").value).toFixed(2),
+        tri: parseFloat(document.querySelector("#contractor_rates .tri input").value).toFixed(2),
+        tri2p: parseFloat(document.querySelector("#contractor_rates .tri_2_pony input").value).toFixed(2),
+        tri3p: parseFloat(document.querySelector("#contractor_rates .tri_3_pony input").value).toFixed(2),
+        tri3tf: parseFloat(document.querySelector("#contractor_rates .tri_4_transfer input").value).toFixed(2),
+        tri4tf: parseFloat(document.querySelector("#contractor_rates .tri_4_transfer input").value).toFixed(2),
+        tri4ed: parseFloat(document.querySelector("#contractor_rates .tri_4_end_dumo input").value).toFixed(2),
     }
 }
 

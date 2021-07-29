@@ -157,21 +157,6 @@ function activateJobTicket() {
     })
 }
 
-/**
- * This function opens a confirmation modal before and attaches an
- * eventListner to both the yes and no buttons
- * 
- * yes button = signOff();
- * no button = closeModals();
- * @author Ravinder Shokar
- * @version 1.0
- * @date July 3 2021
- */
-function openSignOffModal() {
-    const modal = document.getElementById('sign_off_ticket_modal');
-    modal.style.display = "block";
-}
-
 
 /**
  * This function is responsible for finishing a job ticket. This means 
@@ -222,6 +207,7 @@ const signOff = () => {
                     confModal.style.display = "block";
                     confYes.style.display = "none";
                     confNo.innerHTML = "Okay";
+                    confNo.style.display = "block";
                     confText.innerHTML = "Status updated";
 
                     confNo.addEventListener("click", closeModals);
@@ -230,6 +216,7 @@ const signOff = () => {
                     confModal.style.display = "block";
                     confYes.style.display = "none";
                     confNo.innerHTML = "Okay";
+                    confNo.style.display = "block";
                     confText.innerHTML = data.message;
 
                     confNo.addEventListener("click", closeModals);
@@ -242,7 +229,6 @@ const signOff = () => {
 
         })
     }
-
 }
 
 

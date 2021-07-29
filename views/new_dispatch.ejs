@@ -89,8 +89,13 @@
 
 <script>
     //Set date minmum 
-    var today = new Date().toISOString().split('T')[0];
-    document.querySelector("#date").setAttribute('min', today);
+    var yesterday;
+    var today = new Date();
+    dateMath = today.getFullYear()
+        + "-" + (today.getMonth() < 10 ? "0" : "") + (today.getMonth() + 1)
+        + "-" + (today.getDate() < 10 ? "0" : "") + today.getDate();
+
+    document.querySelector("#date").setAttribute('min', dateMath);
 
     function showReciever() {
         let checkReciever = document.getElementById("reciever_check");

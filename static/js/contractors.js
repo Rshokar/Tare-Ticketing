@@ -41,8 +41,6 @@ function submitContractor() {
 
     const contractorContainer = document.getElementById("contractors");
 
-
-
     $.ajax({
         url: "/add_contractor",
         dataType: "JSON",
@@ -58,6 +56,7 @@ function submitContractor() {
                 confYes.innerHTML = "Okay";
                 confNo.style.display = "none";
                 confText.innerHTML = data.message;
+                confText.style.color = "black"
                 confModal.style.display = "block";
 
                 const contractor = document.createElement("div");
@@ -67,12 +66,12 @@ function submitContractor() {
 
                 let html =
                     `
-                    <a href="/contractor?contractor=${modalInput.value}">
-                        <h3>
-                        ${modalInput.value}
-                        </h3>
-                    </a>
-                    `
+                        <a href="/contractor?contractor=${modalInput.value}">
+                            <h3>
+                            ${modalInput.value}
+                            </h3>
+                        </a>
+                        `
                 console.log(html);
                 console.log(contractor);
 
@@ -85,6 +84,7 @@ function submitContractor() {
                 confYes.innerHTML = "Okay";
                 confNo.style.display = "none";
                 confText.innerHTML = data.message;
+                confText.style.color = "red"
                 confModal.style.display = "block";
                 confYes.focus();
 
@@ -102,6 +102,7 @@ function submitContractor() {
         }
     })
 }
+
 
 
 /**

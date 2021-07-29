@@ -139,7 +139,8 @@
                     </div>
                     <div class="start_time">
                       <span>
-                        <%= dispatch.operators[i].startTime %>
+                        <% let d=new Date(dispatch.operators[i].startTime) %>
+                          <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' }) %>
                       </span>
                     </div>
                   </div>
@@ -148,235 +149,237 @@
             </div>
 
             <!-- All Rates will be rendered in here -->
-            <div id="rates" style="display: none;">
-              <% if (dispatch.rates.hourly !=undefined) { %>
-                <div id="hourly">
-                  <div class=" contractor">
-                    <h3>
-                      Hourly
-                    </h3>
-                  </div>
-                  <div id="hourly_rates" style="display: block;">
-                    <div class="hourly_rate tandem">
-                      <span>Tandem</span>
-                      <span class="rate">
-                        <%= dispatch.rates.hourly.t %>
-                      </span>
+            <% if (dispatch.rates !=undefined) { %>
+              <div id="rates" style="display: none;">
+                <% if (dispatch.rates.hourly !=undefined) { %>
+                  <div id="hourly">
+                    <div class=" contractor">
+                      <h3>
+                        Hourly
+                      </h3>
                     </div>
-
-                    <div class="hourly_rate tandem_2_pup">
-                      <span>Tandem 2-axle Pony</span>
-                      <span class="rate">
-                        <%= dispatch.rates.hourly.t2p %>
-                      </span>
-                    </div>
-
-                    <div class="hourly_rate tandem_3_pup">
-                      <span>Tandem 3-axle Pony</span>
-                      <span class="rate">
-                        <%= dispatch.rates.hourly.t3p %>
-                      </span>
-                    </div>
-
-                    <div class="hourly_rate tandem_3_transfer">
-                      <span>Tandem 3-axle Transfer</span>
-                      <span class="rate">
-                        <%= dispatch.rates.hourly.t3tf %>
-                      </span>
-                    </div>
-
-                    <div class="hourly_rate tandem_4_transfer">
-                      <label>Tandem 4-axle Transfer</label>
-                      <span class="rate">
-                        <%= dispatch.rates.hourly.t4tf %>
-                      </span>
-                    </div>
-
-                    <div class="hourly_rate tandem_4_end_dump">
-                      <label>Tandem 4-axle End Dump</label>
-                      <span class="rate">
-                        <%= dispatch.rates.hourly.t4ed %>
-                      </span>
-                    </div>
-
-                    <div class="hourly_rate tri">
-                      <label>3-axle</label>
-                      <span class="rate">
-                        <%= dispatch.rates.hourly.tri %>
-                      </span>
-                    </div>
-
-                    <div class="hourly_rate tri_2_pony">
-                      <label>3-axle 2-axle Pony</label>
-                      <span class="rate">
-                        <%= dispatch.rates.hourly.tri2p %>
-                      </span>
-                    </div>
-
-                    <div class="hourly_rate tri_3_pony">
-                      <label>3-axle 3-axle Pony</label>
-                      <span class="rate">
-                        <%= dispatch.rates.hourly.tri3p %>
-                      </span>
-                    </div>
-
-                    <div class="hourly_rate tri_3_transfer">
-                      <label>3-axle 4-axle Transfer</label>
-                      <span class="rate">
-                        <%= dispatch.rates.hourly.tri3tf %>
-                      </span>
-                    </div>
-
-                    <div class="hourly_rate tri_4_transfer">
-                      <label>3-axle 4-axle Transfer</label>
-                      <span class="rate">
-                        <%= dispatch.rates.hourly.tri4tf %>
-                      </span>
-                    </div>
-
-                    <div class="hourly_rate tri_4_end_dumo">
-                      <label>3-axle 4-axle End Dump</label>
-                      <span class="rate">
-                        <%= dispatch.rates.hourly.tri4ed %>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <% } %>
-
-                  <% if (dispatch.rates.perLoad !=undefined) { %>
-                    <div id="per_load">
-                      <div class="contractor">
-                        <h3>
-                          Per Load
-                        </h3>
+                    <div id="hourly_rates" style="display: block;">
+                      <div class="hourly_rate tandem">
+                        <span>Tandem</span>
+                        <span class="rate">
+                          <%= dispatch.rates.hourly.t %>
+                        </span>
                       </div>
-                      <div id="per_load_rates" style="display: block;">
-                        <div class="per_load_rate operator_rate">
-                          <span>Dispatch Fee</span>
-                          <span class="rate">
-                            <%= dispatch.rates.perLoad.fee %>
-                          </span>
+
+                      <div class="hourly_rate tandem_2_pup">
+                        <span>Tandem 2-axle Pony</span>
+                        <span class="rate">
+                          <%= dispatch.rates.hourly.t2p %>
+                        </span>
+                      </div>
+
+                      <div class="hourly_rate tandem_3_pup">
+                        <span>Tandem 3-axle Pony</span>
+                        <span class="rate">
+                          <%= dispatch.rates.hourly.t3p %>
+                        </span>
+                      </div>
+
+                      <div class="hourly_rate tandem_3_transfer">
+                        <span>Tandem 3-axle Transfer</span>
+                        <span class="rate">
+                          <%= dispatch.rates.hourly.t3tf %>
+                        </span>
+                      </div>
+
+                      <div class="hourly_rate tandem_4_transfer">
+                        <label>Tandem 4-axle Transfer</label>
+                        <span class="rate">
+                          <%= dispatch.rates.hourly.t4tf %>
+                        </span>
+                      </div>
+
+                      <div class="hourly_rate tandem_4_end_dump">
+                        <label>Tandem 4-axle End Dump</label>
+                        <span class="rate">
+                          <%= dispatch.rates.hourly.t4ed %>
+                        </span>
+                      </div>
+
+                      <div class="hourly_rate tri">
+                        <label>3-axle</label>
+                        <span class="rate">
+                          <%= dispatch.rates.hourly.tri %>
+                        </span>
+                      </div>
+
+                      <div class="hourly_rate tri_2_pony">
+                        <label>3-axle 2-axle Pony</label>
+                        <span class="rate">
+                          <%= dispatch.rates.hourly.tri2p %>
+                        </span>
+                      </div>
+
+                      <div class="hourly_rate tri_3_pony">
+                        <label>3-axle 3-axle Pony</label>
+                        <span class="rate">
+                          <%= dispatch.rates.hourly.tri3p %>
+                        </span>
+                      </div>
+
+                      <div class="hourly_rate tri_3_transfer">
+                        <label>3-axle 4-axle Transfer</label>
+                        <span class="rate">
+                          <%= dispatch.rates.hourly.tri3tf %>
+                        </span>
+                      </div>
+
+                      <div class="hourly_rate tri_4_transfer">
+                        <label>3-axle 4-axle Transfer</label>
+                        <span class="rate">
+                          <%= dispatch.rates.hourly.tri4tf %>
+                        </span>
+                      </div>
+
+                      <div class="hourly_rate tri_4_end_dumo">
+                        <label>3-axle 4-axle End Dump</label>
+                        <span class="rate">
+                          <%= dispatch.rates.hourly.tri4ed %>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <% } %>
+
+                    <% if (dispatch.rates.perLoad !=undefined) { %>
+                      <div id="per_load">
+                        <div class="contractor">
+                          <h3>
+                            Per Load
+                          </h3>
                         </div>
-                        <% for (let i=0; dispatch.rates.perLoad.rates !=undefined && i <
-                          dispatch.rates.perLoad.rates.length; i++) { %>
-                          <div class="per_load_rate input_rate">
-                            <span class="mb-2">Contractor Rate</span>
-                            <span class="form-control mb-2 rate">
-                              <%= dispatch.rates.perLoad.rates[i].r %>
-                            </span>
-
-                            <span class="mb-2">Load</span>
-                            <span class="form-control mb-2 load">
-                              <%= dispatch.rates.perLoad.rates[i].l %>
-                            </span>
-
-                            <span class="mb-2">Dump</span>
-                            <span class="form-control mb-2 dump">
-                              <%= dispatch.rates.perLoad.rates[i].d %>
+                        <div id="per_load_rates" style="display: block;">
+                          <div class="per_load_rate operator_rate">
+                            <span>Dispatch Fee</span>
+                            <span class="rate">
+                              <%= dispatch.rates.perLoad.fee %>
                             </span>
                           </div>
-                          <% } %>
-                      </div>
-                    </div>
-                    <% } %>
+                          <% for (let i=0; dispatch.rates.perLoad.rates !=undefined && i <
+                            dispatch.rates.perLoad.rates.length; i++) { %>
+                            <div class="per_load_rate input_rate">
+                              <span class="mb-2">Contractor Rate</span>
+                              <span class="form-control mb-2 rate">
+                                <%= dispatch.rates.perLoad.rates[i].r %>
+                              </span>
 
-                      <% if (dispatch.rates.tonnage !=undefined) { %>
-                        <div id="tonnage">
-                          <div class="contractor">
-                            <h3>
-                              Tonnage
-                            </h3>
-                          </div>
-                          <div id="tonnage_rates" style="display: block;">
-                            <div class="tonnage_rate operator_rate">
-                              <span>Operators (Percentage)</span>
-                              <span class="rate">
-                                <%= dispatch.rates.tonnage.fee %>
+                              <span class="mb-2">Load</span>
+                              <span class="form-control mb-2 load">
+                                <%= dispatch.rates.perLoad.rates[i].l %>
+                              </span>
+
+                              <span class="mb-2">Dump</span>
+                              <span class="form-control mb-2 dump">
+                                <%= dispatch.rates.perLoad.rates[i].d %>
                               </span>
                             </div>
-                            <% for (let i=0; dispatch.rates.tonnage.rates !=undefined && i <
-                              dispatch.rates.tonnage.rates.length; i++) { %>
-                              <div class="per_load_rate input_rate">
-                                <span class="mb-2">Contractor Rate</span>
-                                <span class="form-control mb-2 rate">
-                                  <%= dispatch.rates.tonnage.rates[i].r %>
-                                </span>
+                            <% } %>
+                        </div>
+                      </div>
+                      <% } %>
 
-                                <span class="mb-2">Load</span>
-                                <span class="form-control mb-2 load">
-                                  <%= dispatch.rates.tonnage.rates[i].l %>
-                                </span>
-
-                                <span class="mb-2">Dump</span>
-                                <span class="form-control mb-2 dump">
-                                  <%= dispatch.rates.tonnage.rates[i].d %>
+                        <% if (dispatch.rates.tonnage !=undefined) { %>
+                          <div id="tonnage">
+                            <div class="contractor">
+                              <h3>
+                                Tonnage
+                              </h3>
+                            </div>
+                            <div id="tonnage_rates" style="display: block;">
+                              <div class="tonnage_rate operator_rate">
+                                <span>Operators (Percentage)</span>
+                                <span class="rate">
+                                  <%= dispatch.rates.tonnage.fee %>
                                 </span>
                               </div>
-                              <% } %>
+                              <% for (let i=0; dispatch.rates.tonnage.rates !=undefined && i <
+                                dispatch.rates.tonnage.rates.length; i++) { %>
+                                <div class="per_load_rate input_rate">
+                                  <span class="mb-2">Contractor Rate</span>
+                                  <span class="form-control mb-2 rate">
+                                    <%= dispatch.rates.tonnage.rates[i].r %>
+                                  </span>
+
+                                  <span class="mb-2">Load</span>
+                                  <span class="form-control mb-2 load">
+                                    <%= dispatch.rates.tonnage.rates[i].l %>
+                                  </span>
+
+                                  <span class="mb-2">Dump</span>
+                                  <span class="form-control mb-2 dump">
+                                    <%= dispatch.rates.tonnage.rates[i].d %>
+                                  </span>
+                                </div>
+                                <% } %>
 
 
+                            </div>
                           </div>
-                        </div>
-                        <% } %>
-            </div>
+                          <% } %>
+              </div>
+              <% } %>
 
-            <script src="js/ticket_preview.js"></script>
+                <script src="js/ticket_preview.js"></script>
 
-            <script>
-              /**
-               * This function is responsible for showing the rates tab
-               * @author Ravinder Shokar 
-               * @verion 1.0 
-               * @date July 17 2021
-               */
-              function showRates() {
+                <script>
+                  /**
+                   * This function is responsible for showing the rates tab
+                   * @author Ravinder Shokar 
+                   * @verion 1.0 
+                   * @date July 17 2021
+                   */
+                  function showRates() {
 
 
-                const opTab = document.getElementById("left_tab");
-                const rateTab = document.getElementById("right_tab");
+                    const opTab = document.getElementById("left_tab");
+                    const rateTab = document.getElementById("right_tab");
 
-                const rates = document.getElementById("rates");
-                const operators = document.getElementById("operators");
+                    const rates = document.getElementById("rates");
+                    const operators = document.getElementById("operators");
 
-                console.log("Operators", operators)
+                    console.log("Operators", operators)
 
-                if (rates.style.display == "none") {
-                  rateTab.style.backgroundColor = "#004065";
-                  rateTab.style.color = "white";
-                  opTab.style.backgroundColor = "#CFD8DC"
-                  opTab.style.color = "black"
+                    if (rates.style.display == "none") {
+                      rateTab.style.backgroundColor = "#004065";
+                      rateTab.style.color = "white";
+                      opTab.style.backgroundColor = "#CFD8DC"
+                      opTab.style.color = "black"
 
-                  rates.style.display = "block";
-                  operators.style.display = "none";
-                }
-              }
+                      rates.style.display = "block";
+                      operators.style.display = "none";
+                    }
+                  }
 
-              /**
-               * This function is responsible for showing the rates tab
-               * @author Ravinder Shokar 
-               * @verion 1.0 
-               * @date July 17 2021
-               */
-              function showOperators() {
+                  /**
+                   * This function is responsible for showing the rates tab
+                   * @author Ravinder Shokar 
+                   * @verion 1.0 
+                   * @date July 17 2021
+                   */
+                  function showOperators() {
 
-                const opTab = document.getElementById("left_tab");
-                const rateTab = document.getElementById("right_tab");
+                    const opTab = document.getElementById("left_tab");
+                    const rateTab = document.getElementById("right_tab");
 
-                const rates = document.getElementById("rates");
-                const operators = document.getElementById("operators");
+                    const rates = document.getElementById("rates");
+                    const operators = document.getElementById("operators");
 
-                if (operators.style.display == "none") {
+                    if (operators.style.display == "none") {
 
-                  rateTab.style.color = "black";
-                  rateTab.style.backgroundColor = "#CFD8DC";
+                      rateTab.style.color = "black";
+                      rateTab.style.backgroundColor = "#CFD8DC";
 
-                  opTab.style.backgroundColor = "#004065"
-                  opTab.style.color = "white"
+                      opTab.style.backgroundColor = "#004065"
+                      opTab.style.color = "white"
 
-                  rates.style.display = "none";
-                  operators.style.display = "block";
-                }
-              }
+                      rates.style.display = "none";
+                      operators.style.display = "block";
+                    }
+                  }
 
-            </script>
+                </script>

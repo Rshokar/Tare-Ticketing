@@ -23,6 +23,7 @@ function next(url) {
     const tonnage = document.getElementById("tonnage_check");
 
     let rates;
+    let fee;
 
     dispatch["rates"] = {};
 
@@ -31,10 +32,11 @@ function next(url) {
     } else {
         if (perLoad.checked) {
             rates = getPerLoadRates()
+            fee = document.querySelector("#per_load_rates .operator_rate .rate").value
             if (rates) {
                 dispatch.rates["perLoad"] = {
-                    fee: document.querySelector("#per_load_rates .operator_rate .rate").value,
-                    rates
+                    fee,
+                    rates,
                 }
             } else {
                 return
@@ -44,10 +46,11 @@ function next(url) {
         if (tonnage.checked) {
             console.log("Get Tonnage Rate")
             rates = getTonnageRates();
+            fee = document.querySelector("#tonnage_rates .operator_rate .rate").value
             if (rates) {
                 dispatch.rates["tonnage"] = {
-                    fee: document.querySelector("#tonnage_rates .operator_rate .rate").value,
-                    rates
+                    fee,
+                    rates,
                 }
             } else {
                 return
@@ -131,9 +134,9 @@ function getRatesList(type) {
 
     for (let i = 0; i < elements.length; i++) {
         obj = {
-            r: elements[i].querySelector(".rate").value,
-            d: elements[i].querySelector(".dump").value,
-            l: elements[i].querySelector(".load").value,
+            r: parseFloat(elements[i].querySelector(".rate").value.trim()).toFixed(2),
+            d: elements[i].querySelector(".dump").value.trim(),
+            l: elements[i].querySelector(".load").value.trim(),
         }
 
         if (validateRate(obj)) {
@@ -175,6 +178,18 @@ function validateRate(rate) {
         modalYes.addEventListener("click", () => {
             document.querySelector(".modal").style.display = "none";
         })
+        return false
+    } else if (rate.l == "" || rate.d == "") {
+        modalTxt.innerHTML = "Dump and load locations cannot be left empty";
+        modalTxt.style.color = "red"
+        modalNo.style.display = "none";
+        modalYes.innerHTML = "Okay";
+        modal.style.display = "block";
+
+        modalYes.addEventListener("click", () => {
+            document.querySelector(".modal").style.display = "none";
+        })
+
         return false
     }
 

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js",
-    "lint:ejs": "ejslint views/dispatch.ejs"
+    "lint:ejs": "ejslint views/job.ejs"
   },
   "repository": {
     "type": "git",

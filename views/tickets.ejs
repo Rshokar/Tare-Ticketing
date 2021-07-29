@@ -18,7 +18,7 @@
             <span>Jobs</span>
         </div>
         <% } else { %>
-            <div id="left_tab">
+            <div id="single_tab" style="width: 100%;">
                 <span>Jobs</span>
             </div>
             <% } %>
@@ -116,11 +116,12 @@
                                         </div>
                                         <div class="start_time">
                                             <span>
-                                                <%= jobs[i].startTime %>
+                                                <% let d=new Date(jobs[i].startTime) %>
+                                                    <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit'
+                                                        }) %>
                                             </span>
                                         </div>
                         </div>
-
                         <% } %>
                             <% } %>
         </div>

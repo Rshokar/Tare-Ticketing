@@ -8,7 +8,7 @@
     text-align: center;
 }
 
-#left_tab, #right_tab, #operators_tab, #rates_tab {
+#left_tab, #right_tab, #operators_tab, #rates_tab, #single_tab {
     line-height: 5vh;
     height: 5vh;
     display: inline-block;
@@ -25,6 +25,12 @@
 #right_tab{
     background-color: #CFD8DC;
     color: black;
+}
+
+#single_tab {
+    background-color: #004065;
+    color: white;
+    grid-column: 1 / span 2;
 }
 
 #dispatch {
