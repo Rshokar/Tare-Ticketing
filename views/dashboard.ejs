@@ -92,112 +92,37 @@
                         <% } else if (user.type !="dispatcher" && jobs.length> 0) { %>
                           <% for (let i=0; i < jobs.length; i++) { %>
                             <div>
-                              <% if (jobs[i].status=='active' ) { %>
-
-                                <div class="job <%= jobs[i].status %>">
-                                  <a href="/job?id=<%=jobs[i]._id %>">
-                                    <h2>
-                                      <%= jobs[i].contractor %>
-                                    </h2>
-                                    <h5>
-                                      <%= jobs[i].dispatcher.company %>
-                                    </h5>
-                                  </a>
-                                  <div class="equipment">
-                                    <div id="truck">
-                                      <span>
-                                        <%= jobs[i].equipment.truck %>
-                                      </span>
-                                    </div>
-                                    <div id="trailer">
-                                      <% if (jobs[i].equipment.trailer !="default" ) { %>
-                                        <span>
-                                          <%= jobs[i].equipment.trailer %>
-                                        </span>
-                                        <% } %>
-                                    </div>
-                                  </div>
-                                  <div class="start_time">
+                              <div class="job <%= jobs[i].status %>">
+                                <a href="/job?id=<%=jobs[i]._id %>">
+                                  <h2>
+                                    <%= jobs[i].contractor %>
+                                  </h2>
+                                  <h5>
+                                    <%= jobs[i].dispatcher.company %>
+                                  </h5>
+                                </a>
+                                <div class="equipment">
+                                  <div id="truck">
                                     <span>
-                                      <% let d=new Date(jobs[i].startTime ) %>
-                                        <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' }) %>
+                                      <%= jobs[i].equipment.truck %>
                                     </span>
                                   </div>
-                                </div>
-
-                                <% } %>
-                            </div>
-                            <div>
-                              <% if (jobs[i].status=='confirmed' ) { %>
-
-                                <div class="job <%= jobs[i].status %>">
-                                  <a href="/job?id=<%=jobs[i]._id %>">
-                                    <h2>
-                                      <%= jobs[i].contractor %>
-                                    </h2>
-                                    <h5>
-                                      <%= jobs[i].dispatcher.company %>
-                                    </h5>
-                                  </a>
-                                  <div class="equipment">
-                                    <div id="truck">
+                                  <div id="trailer">
+                                    <% if (jobs[i].equipment.trailer !="default" ) { %>
                                       <span>
-                                        <%= jobs[i].equipment.truck %>
+                                        <%= jobs[i].equipment.trailer %>
                                       </span>
-                                    </div>
-                                    <div id="trailer">
-                                      <% if (jobs[i].equipment.trailer !="default" ) { %>
-                                        <span>
-                                          <%= jobs[i].equipment.trailer %>
-                                        </span>
-                                        <% } %>
-                                    </div>
-                                  </div>
-                                  <div class="start_time">
-                                    <span>
-                                      <% let d=new Date(jobs[i].startTime ) %>
-                                        <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' }) %>
-                                    </span>
+                                      <% } %>
                                   </div>
                                 </div>
-
-                                <% } %>
-                            </div>
-                            <div>
-                              <% if (jobs[i].status=='sent' ) { %>
-
-                                <div class="job <%= jobs[i].status %>">
-                                  <a href="/job?id=<%=jobs[i]._id %>">
-                                    <h2>
-                                      <%= jobs[i].contractor %>
-                                    </h2>
-                                    <h5>
-                                      <%= jobs[i].dispatcher.company %>
-                                    </h5>
-                                  </a>
-                                  <div class="equipment">
-                                    <div id="truck">
-                                      <span>
-                                        <%= jobs[i].equipment.truck %>
-                                      </span>
-                                    </div>
-                                    <div id="trailer">
-                                      <% if (jobs[i].equipment.trailer !="default" ) { %>
-                                        <span>
-                                          <%= jobs[i].equipment.trailer %>
-                                        </span>
-                                        <% } %>
-                                    </div>
-                                  </div>
-                                  <div class="start_time">
-                                    <span>
-                                      <% let d=new Date(jobs[i].startTime ) %>
-                                        <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' }) %>
-                                    </span>
-                                  </div>
+                                <div class="start_time">
+                                  <span>
+                                    <% let d=new Date(jobs[i].startTime ) %>
+                                      <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12: false
+                                        }) %>
+                                  </span>
                                 </div>
-
-                                <% } %>
+                              </div>
                             </div>
                             <% } %>
                               <% } else if (user.type=="operator" && jobs.length==0) { %>

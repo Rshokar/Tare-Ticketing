@@ -443,6 +443,7 @@ app.get("/job", authenticate, (req, res) => {
           res.send("Job ticket not found");
         } else {
           const [perLoadLocations, tonLoadLocations] = getLoadLocations(job);
+          console.log(job.rates.hourly != undefined);
 
           res.render("job", { page: pageName, job, user: decodedToken, perLoadLocations, tonLoadLocations });
         }

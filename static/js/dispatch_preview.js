@@ -96,25 +96,27 @@ function addOperatorCards() {
         }
 
         const operatorCardHTML =
-            `
-                    <div id="${i}"class="operator ${status}">
-                        <div class="operator_container">
-                        <span class="operator_name">${name}</span>
+            `        
+            <a>
+                <div id="${i}" class="job ${status}">
+                    <h2>
+                        ${name}
+                    </h2>
+                    <div class="equipment">
+                        <div id="truck">
+                            <span>${truck}</span>
                         </div>
-                        <div class="equipment">
-                            <div class="truck">
-                            ${truck}
-                            </div>
-                            <div class="trailer">
-                            ${trailer}
-                            </div>
+                        <div id="trailer">
+                            <span>${trailer}</span>
                         </div>
-                        <div class="start_time">
-                         ${new Date(startTime).toLocaleString([], { hour12: false })}
-                        </div>
-                        <span class="user_id">${id}</span>
-                        <span class="error"></span>
                     </div>
+                    <div class="start_time">
+                        <span>
+                        ${new Date(startTime).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                    </div>
+                </div>
+                </a>
                 `
         operatorsContainer.insertAdjacentHTML('beforeend', operatorCardHTML);
     }

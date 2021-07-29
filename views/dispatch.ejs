@@ -10,8 +10,8 @@
 <!-- CSS for contractors tabs -->
 <link rel="stylesheet" href="css/contractor_rates.css">
 
-<div id="back">
-  <a href="/tickets"><i class="fas fa-arrow-left"></i></a>
+<div id="controls">
+  <a href="/dashboard"><i class="fas fa-arrow-left"></i></a>
 </div>
 
 
@@ -140,7 +140,7 @@
                     <div class="start_time">
                       <span>
                         <% let d=new Date(dispatch.operators[i].startTime) %>
-                          <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' }) %>
+                          <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12: false }) %>
                       </span>
                     </div>
                   </div>

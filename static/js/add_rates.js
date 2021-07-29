@@ -12,10 +12,10 @@ function back(url) {
 }
 
 /**
- * This funtion gather rate data and saves it to local storage.
+ * This funtion verifies rates amd gathers rate data and saves it to local storage.
  * @author Ravinder Shokar 
- * @version 1.1 
- * @date July 18 2021 
+ * @version 1.2 
+ * @date July 29 2021 
  */
 function next(url) {
     const hourly = document.getElementById("hourly_check");
@@ -25,42 +25,58 @@ function next(url) {
     let rates;
     let fee;
 
-    dispatch["rates"] = {};
+    if (!hourly.checked && !perLoad.checked && !tonnage.checked) {
+        const modal = document.getElementById("confirmation_modal");
+        const modalTxt = document.getElementById("confirmation_text");
+        const modalYes = document.getElementById("confirmation_yes");
+        const modalNo = document.getElementById("confirmation_no");
 
-    if (hourly.checked) {
-        dispatch.rates["hourly"] = getHourlyRates();
+        modalTxt.innerHTML = "Must select rate type before continuing.";
+        modalTxt.style.color = "red";
+        modalYes.innerHTML = "Okay";
+        modalYes.addEventListener("click", closeConfModals)
+        modalNo.style.display = "none";
+
+        modal.style.display = "block";
     } else {
-        if (perLoad.checked) {
-            rates = getPerLoadRates()
-            fee = document.querySelector("#per_load_rates .operator_rate .rate").value
-            if (rates) {
-                dispatch.rates["perLoad"] = {
-                    fee,
-                    rates,
+        dispatch["rates"] = {};
+
+        if (hourly.checked) {
+            dispatch.rates["hourly"] = getHourlyRates();
+        } else {
+            if (perLoad.checked) {
+                rates = getPerLoadRates()
+                fee = document.querySelector("#per_load_rates .operator_rate .rate").value
+                if (rates) {
+                    dispatch.rates["perLoad"] = {
+                        fee,
+                        rates,
+                    }
+                } else {
+                    return
                 }
-            } else {
-                return
+            }
+
+            if (tonnage.checked) {
+                console.log("Get Tonnage Rate")
+                rates = getTonnageRates();
+                fee = document.querySelector("#tonnage_rates .operator_rate .rate").value
+                if (rates) {
+                    dispatch.rates["tonnage"] = {
+                        fee,
+                        rates,
+                    }
+                } else {
+                    return
+                }
             }
         }
 
-        if (tonnage.checked) {
-            console.log("Get Tonnage Rate")
-            rates = getTonnageRates();
-            fee = document.querySelector("#tonnage_rates .operator_rate .rate").value
-            if (rates) {
-                dispatch.rates["tonnage"] = {
-                    fee,
-                    rates,
-                }
-            } else {
-                return
-            }
-        }
+        sessionStorage.setItem("dispatch", JSON.stringify(dispatch));
+        console.log(dispatch)
+        window.location.href = url;
     }
 
-    sessionStorage.setItem("dispatch", JSON.stringify(dispatch));
-    console.log(dispatch)
-    window.location.href = url;
 }
 
 /**
@@ -175,9 +191,7 @@ function validateRate(rate) {
         modalYes.innerHTML = "Okay";
         modal.style.display = "block";
 
-        modalYes.addEventListener("click", () => {
-            document.querySelector(".modal").style.display = "none";
-        })
+        modalYes.addEventListener("click", closeConfModals)
         return false
     } else if (rate.l == "" || rate.d == "") {
         modalTxt.innerHTML = "Dump and load locations cannot be left empty";
@@ -186,15 +200,16 @@ function validateRate(rate) {
         modalYes.innerHTML = "Okay";
         modal.style.display = "block";
 
-        modalYes.addEventListener("click", () => {
-            document.querySelector(".modal").style.display = "none";
-        })
-
+        modalYes.addEventListener("click", closeConfModals)
         return false
     }
 
     return true
+
 }
+
+
+
 
 /**
  * This function checks for duplicate rates. If false displays errorto HTML
