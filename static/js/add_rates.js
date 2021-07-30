@@ -73,7 +73,6 @@ function next(url) {
         }
 
         sessionStorage.setItem("dispatch", JSON.stringify(dispatch));
-        console.log(dispatch)
         window.location.href = url;
     }
 
@@ -292,9 +291,14 @@ function closeTonnagePerload() {
  * @date July 17 2021
  */
 function togglePerLoadRates() {
+    const routes = document.querySelectorAll("#per_load_rates .input_rate");
     const hourly = document.getElementById("hourly_check");
     const perLoad = document.getElementById("per_load_check");
     const tonnage = document.getElementById("tonnage_check");
+
+    if (routes.length < 1) {
+        addRoute("per_load", 1)
+    }
 
     if (hourly.checked) {
         document.getElementById("hourly_rates").style.display = "none";
@@ -315,9 +319,14 @@ function togglePerLoadRates() {
  * @date July 17 2021
  */
 function toggleTonnageRates() {
+    const routes = document.querySelectorAll("#tonnage_rates .input_rate");
     const hourly = document.getElementById("hourly_check");
     const perLoad = document.getElementById("per_load_check");
     const tonnage = document.getElementById("tonnage_check");
+
+    if (routes.length < 1) {
+        addRoute("tonnage", 1)
+    }
 
     if (hourly.checked) {
         document.getElementById("hourly_rates").style.display = "none";
@@ -338,7 +347,7 @@ function toggleTonnageRates() {
  * @author Ravinder Shokar
  * @version 1.0 
  * @date July 18 2021 
- * @param rates JSON object containing hourly rates
+ * @param { JSON } rates JSON object containing hourly rates
  */
 function updateHourlyRates(rates) {
     document.querySelector("#hourly_rates .tandem input").value = rates.t;
@@ -356,41 +365,48 @@ function updateHourlyRates(rates) {
 }
 
 /**
- * This function adds rates to the HTML.
+ * This function adds routes to the HTML. 
  * @author Ravinder Shokar 
  * @version 1.0
  * @date July 20 2021
- * @param type which type of rate to be added. Tonnage / Per Load 
- * @param obj optional variable with rate data.
+ * @param {string} type which type of rate to be added. Tonnage / Per Load 
+ * @param { integer } i number of routes. If i is 1 then button is not added. if it is  
+ * not then it shows the all routes remove route button. 
+ * @param {JSON} obj optional variable with rate data.
  */
-function addRate(type, obj) {
+function addRoute(type, i, obj) {
     const ton = document.getElementById("tonnage_rates");
     const per = document.getElementById("per_load_rates");
     const rate = document.createElement("div");
 
-
-    // HTML ID. Put in class.
-    let i;
+    if (i !== 1) {
+        showRouteButtons(type);
+    }
 
     if (type == "per_load") {
         const button = document.querySelector("#per_load_rates .add_rate");
-
         rate.setAttribute("class", "per_load_rate input_rate");
-        rate.innerHTML = getRateHTML(obj);
-
+        rate.innerHTML = getRouteHTML(obj, i);
         per.insertBefore(rate, button);
 
     } else {
         const button = document.querySelector("#tonnage_rates .add_rate");
-
         rate.setAttribute("class", "tonnage_rate input_rate");
-        rate.innerHTML = getRateHTML(obj);
-
+        rate.innerHTML = getRouteHTML(obj, i);
         ton.insertBefore(rate, button);
     }
 
     rate.querySelector("button").addEventListener("click", (e) => {
-        e.path[1].remove();
+        const container = e.path[2]
+        const routes = container.querySelectorAll(".input_rate");
+
+        if (routes.length == 2) {
+            e.path[1].remove();
+            container.querySelector(".input_rate .remove_rate").style.display = "none"
+        } else {
+            e.path[1].remove();
+        }
+
     });
 }
 
@@ -399,13 +415,15 @@ function addRate(type, obj) {
  * @author Ravinder Shokar 
  * @version 1.0
  * @date July 20 2021
- * @param i ID of HTML
- * @param type which type of rate to be added. Tonnage / Per Load 
+ * @param {JSON} route data
+ * @param  {number} i passed in to see if remove rate button is to to shown or hidden. 
  * @return HTML with dispatch load and dump filled in. 
  */
-function getRateHTML(rate) {
-    if (rate == undefined) {
-        return `
+function getRouteHTML(route, i) {
+    let html;
+
+    if (route == undefined) {
+        html = `
         <span class="mb-2">Contractor Rate</span>
         <input type="number" class="form-control mb-2 rate" value="0" >
     
@@ -414,26 +432,44 @@ function getRateHTML(rate) {
     
         <span class="mb-2">Dump</span>
         <input type="text" class="form-control mb-2 dump" value="${dispatch.dumpLocation}">
-    
-        <button type="button" class="btn btn-danger remove_rate">Remove Rate</button>
         `
     } else {
-        return `
+        html = `
         <span class="mb-2">Contractor Rate</span>
-        <input type="number" class="form-control mb-2 rate" value="${rate.r}" >
+        <input type="number" class="form-control mb-2 rate" value="${route.r}" >
     
         <span class="mb-2">Load</span>
-        <input type="text" class="form-control mb-2 load" value="${rate.l}">
+        <input type="text" class="form-control mb-2 load" value="${route.l}">
     
         <span class="mb-2">Dump</span>
-        <input type="text" class="form-control mb-2 dump" value="${rate.d}">
+        <input type="text" class="form-control mb-2 dump" value="${route.d}">
     
-        <button type="button" class="btn btn-danger remove_rate">Remove Rate</button>
         `
     }
 
+    if (i === 1) {
+        html += `<button type="button" class="btn btn-danger remove_rate" style="display: none;">Remove Rate</button>`
+    } else {
+        html += '<button type="button" class="btn btn-danger remove_rate">Remove Rate</button>'
+    }
+
+    return html;
+
 }
 
+/**
+ * This function finds all remove route buttons and switches display to block 
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 29 2021
+ * @param { string } type of route
+ */
+function showRouteButtons(type) {
+    const buttons = document.querySelectorAll("#" + type + "_rates .input_rate button");
+    buttons.forEach((button) => {
+        button.style.display = "block";
+    })
+}
 
 $(document).ready(() => {
     const contractor = document.getElementById("contractor");
@@ -445,8 +481,6 @@ $(document).ready(() => {
     const material = document.getElementById("material");
     const numTrucks = document.getElementById("num-trucks");
     const notes = document.getElementById("notes");
-
-    console.log(dispatch)
 
     contractor.innerHTML = dispatch.contractor;
     loadLocation.innerHTML = dispatch.loadLocation + "<p class='ticket_text'>Load</p>";
@@ -473,7 +507,7 @@ $(document).ready(() => {
                 perLoad.checked = true;
                 document.querySelector("#per_load_rates .operator_rate input").value = dispatch.rates.perLoad.fee;
                 dispatch.rates.perLoad.rates.forEach((rate) => {
-                    addRate("per_load", rate)
+                    addRoute("per_load", -1, rate)
                 })
                 togglePerLoadRates()
             }
@@ -482,7 +516,7 @@ $(document).ready(() => {
                 tonnage.checked = true;
                 document.querySelector("#tonnage_rates .operator_rate input").value = dispatch.rates.tonnage.fee;
                 dispatch.rates.tonnage.rates.forEach((rate) => {
-                    addRate("tonnage", rate)
+                    addRoute("tonnage", -1, rate)
                 })
                 toggleTonnageRates()
             }

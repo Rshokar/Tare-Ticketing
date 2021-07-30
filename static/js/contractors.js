@@ -45,18 +45,15 @@ function submitContractor() {
         url: "/add_contractor",
         dataType: "JSON",
         type: "POST",
-        data: {
-            contractor: modalInput.value
-        },
+        data: { contractor: modalInput.value },
         success: (data) => {
             console.log(data)
 
             if (data.status == "success") {
-                confYes.addEventListener("click", closeModals);
-                confYes.innerHTML = "Okay";
+                confYes.style.display = "none";
                 confNo.style.display = "none";
                 confText.innerHTML = data.message;
-                confText.style.color = "black"
+                confText.style.color = "green";
                 confModal.style.display = "block";
 
                 const contractor = document.createElement("div");
@@ -72,12 +69,14 @@ function submitContractor() {
                             </h3>
                         </a>
                         `
-                console.log(html);
-                console.log(contractor);
 
                 contractor.innerHTML = html;
 
-                modalInput.value = "";
+                console.log("/contractor?contractor=" + modalInput.value);
+
+                setTimeout(() => {
+                    window.location.replace("/contractor?contractor=" + modalInput.value);
+                }, 2000);
 
             } else {
                 confYes.addEventListener("click", closeModals);

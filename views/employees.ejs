@@ -29,7 +29,6 @@
 
 <div id="employees">
   <% for (let i=0 ; i < user.employees.length ; i++) { %>
-
     <div class="employee">
       <a href="/employee?id=<%= user.employees[i].id %>">
         <h3>
@@ -37,11 +36,6 @@
             <%= user.employees[i].lName %>
         </h3>
       </a>
-      <span>
-        <%= user.employees[i].phone %>
-      </span>
     </div>
-
     <% } %>
-
 </div>

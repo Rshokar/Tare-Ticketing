@@ -375,7 +375,11 @@ app.get("/tickets", authenticate, (req, res) => {
       })
         .then((dispatches) => {
           Job.find({
-            "dispatcher.id": decodedToken.id
+            $and: [
+              { "dispatcher.id": decodedToken.id },
+              { status: "complete" }
+
+            ]
           })
             .then((jobs) => {
 
