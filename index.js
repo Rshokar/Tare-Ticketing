@@ -66,6 +66,8 @@ app.get("/dashboard", authenticate, (req, res) => {
   const pageName = "Dashboard";
   const token = req.cookies.jwt;
 
+  console.log(res)
+  res.url = "/account";
   jwt.verify(token, "butternut", (err, decodedToken) => {
     console.log(decodedToken);
 
@@ -447,9 +449,7 @@ app.get("/job", authenticate, (req, res) => {
           res.send("Job ticket not found");
         } else {
           const [perLoadLocations, tonLoadLocations] = getLoadLocations(job);
-          console.log(job.rates.hourly != undefined);
-
-          res.render("job", { page: pageName, job, user: decodedToken, perLoadLocations, tonLoadLocations });
+          res.render("job", { page: pageName, job, user: decodedToken, perLoadLocations, tonLoadLocations, minDate: job.date + "T00:00" });
         }
       })
   })
@@ -479,36 +479,37 @@ function getLoadLocations(job) {
 
   if (perLst != []) {
     if (!(perLst.length <= 1)) {
-
-      //Remove Duplicates
-      for (let i = 0; i < perLst.length; i++) {
-        for (let j = i + 1; j < perLst.length; j++) {
-          if (perLst[i].l == perLst[j].l) {
-            console.log("Hello");
-            perLst.splice(j, j);
-          }
-        }
-      }
+      perLst = remLoadLocationDuplicates(perLst)
     }
   }
 
   if (tonLst != []) {
     if (!(tonLst.length <= 1)) {
+      tonLst = remLoadLocationDuplicates(tonLst)
+    }
+  }
 
-      //Remove Duplicates
-      for (let i = 0; i < tonLst.length; i++) {
-        for (let j = i + 1; j < tonLst.length; j++) {
-          if (tonLst[i].l == tonLst[j].l) {
+  return [perLst, tonLst]
+}
 
-            tonLst.splice(j, j);
-          }
-        }
+var remLoadLocationDuplicates = (lst) => {
+  //Remove Duplicates
+  for (let i = lst.length - 1; i > 0; i--) {
+    for (let j = 0; j < i; j++) {
+      if (lst[i].l == lst[j].l) {
+        lst.splice(j, 1);
+
+        i--
+        j = -1;
       }
     }
-
-    return [perLst, tonLst]
   }
+
+  return lst
 }
+
+
+
 
 /**
  * This fuction will gather the possible dump locations dependent on which loadId passed in 
@@ -628,16 +629,15 @@ app.get("/edit_load", authenticate, (req, res) => {
             loadId: req.query.loadId,
             page: pageName,
             user: decodedToken,
-            perLoadLocations, tonLoadLocations, dumpLocations
+            perLoadLocations,
+            tonLoadLocations,
+            dumpLocations,
+            minDate: job.date + "T00:00",
           });
         }
-
       })
   })
-
-
 })
-
 
 /**
  * This route is responsible for editing a load ticket. 
@@ -709,6 +709,7 @@ app.get("/add_operators", authenticate, (req, res) => {
 app.get("/add_rates", authenticate, (req, res) => {
   const token = req.cookies.jwt;
   const pageName = "Add Rates";
+  console.log(req.query);
 
   jwt.verify(token, "butternut", (err, decodedToken) => {
     if (err) {
@@ -799,9 +800,6 @@ app.get("/new_employee", authenticate, (req, res) => {
   })
 })
 
-
-
-
 /**
  * This route will serve the HTML neccesary to edit and delete employees. 
  * @author Ravinder Shokar 
@@ -832,8 +830,6 @@ app.get("/employee", authenticate, (req, res) => {
       })
   })
 })
-
-
 
 /**
  * This route will serve the HTML neccesary to edit and delete employees. 
@@ -889,8 +885,6 @@ app.post("/update_employee", authenticate, async (req, res) => {
       })
   })
 })
-
-
 
 async function updateEmp(emp, decodedToken) {
   User.findOne({ _id: decodedToken.id })
@@ -955,8 +949,6 @@ app.get("/get_employees", authenticate, (req, res) => {
       })
   })
 })
-
-
 
 /**
  * This route will return the appropriate HTML for the operator page. 

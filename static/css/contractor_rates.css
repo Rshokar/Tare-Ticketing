@@ -9,7 +9,6 @@
 .contractor  h3{
     margin: 0;
     margin-left: 1em;
-    text-decoration: underline;
 }
 
 #contractor_rates, #operator_rates, #hourly_rates, #per_load_rates, #tonnage_rates {
@@ -18,48 +17,48 @@
     padding: .5em .5em .5em .5em;
 }
 
+
 .hourly_rate, .tonnage_rate, .per_load_rate, .input_rate {
     font-size: 13pt;
     margin: 1em 0em 1em 0em;
     text-align: center;
-    width: 100%;
     text-align: left;
 }
 
 
-.input_rate .rate, .input_rate .load, .input_rate .dump {
-    width: 100%;
-    float: right;
-    background-color: white;
+ .rate,  .load,  .dump {
     text-align: center;
 }
 
-.rate {
-    width: 30%;
+.operator_rate {
+    margin: auto;
+    width: 50%;
     text-align: center;
 }
+
+.operator_rate input{
+    width: 50%;
+    text-align: center;
+}
+
+.operator_rate span {
+    font-size: 14pt;
+    font-weight: bold;
+}
+
 
 .input_rate {
     background-color: white;
-    display: grid;
-    grid-template-columns: 50% 50%;
     padding: 1em 1em 1em 1em;
-}
-
-.input_rate span {
-    grid-column: 1 / span 1;
-}
-
-.input_rate .rate {
-    grid-column: 2 / span 1;
 }
 
 .remove_rate, .error{
     grid-column: 1 / span 2;
-    width: 50%;
-    margin: 0 auto;
+    width: 100%;
 }
 
 .add_rate {
     width: 100%;
 }
+
+

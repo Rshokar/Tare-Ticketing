@@ -83,7 +83,7 @@ function saveOperatorRates() {
     } else {
         confYes.style.display = "block";
         confYes.innerHTML = "Okay";
-        confText.innerHTML = "Rates Cannot be less than zero";
+        confText.innerHTML = "Rates Cannot be less than zero and percentages cannot be greater than 100%";
         confText.style.color = "red";
 
         confYes.addEventListener("click", closeConfModals)
@@ -239,7 +239,12 @@ function verifyRates(rates) {
         rates.perLoad < 0
     ) {
         return false;
-    } else {
+    } else if (
+        rates.perLoad > 100 ||
+        rates.tonnage > 100
+    ) {
+        return false;
+    } {
         return true;
     }
 }

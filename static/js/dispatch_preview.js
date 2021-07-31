@@ -265,14 +265,18 @@ function addRates(type, rates) {
 function getRateHTML(rate) {
     console.log(rate)
     return `
-        <span class="mb-2">Contractor Rate</span>
-        <span class="form-control mb-2 rate">${rate.r}</span>
-    
+    <div class="form-control mb-2 rate">
+        <span class="mb-2">Rate</span>
+        <span >${rate.r}</span>
+    </div>
+    <div class="form-control mb-2 load">
         <span class="mb-2">Load</span>
-        <span class="form-control mb-2 load">${rate.l}</span>
-    
+        <span>${rate.l}</span>
+    </div>
+    <div class="form-control mb-2 dump">
         <span class="mb-2">Dump</span>
-        <span class="form-control mb-2 dump">${rate.d}</span>
+        <span >${rate.d}</span>
+    </div>
         `
 }
 

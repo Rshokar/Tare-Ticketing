@@ -14,78 +14,88 @@
 
 <h1>New Dispatch</h1>
 
-<div class="mb-3">
-    <label for="contractor" class="form-label">Contractor *</label>
-    <select class="form-select" aria-label="Default select example" id="contractor">
-        <option selected>Select A Contractor</option>
-        <% for (let contractor in contractors) { %>
-            <option value="<%=contractor%>">
-                <%= contractor %>
-            </option>
-            <% } %>
-    </select>
-    <div id="contractor-error" class="form-text error"></div>
-    <a href="/contractors"><button type="button" class="btn btn-primary">Add Contractor</button></a>
-</div>
-<div class="mb-3">
-    <label for="date" class="form-label">Date *</label>
-    <input type="date" class="form-control" id="date">
-    <div id="date-error" class="form-text error"></div>
-</div>
-<div class="mb-3">
-    <label for="load_location" class="form-label">Load Location *</label>
-    <input type="text" class="form-control" id="load_location" placeholder="Load Location">
-    <div id="load-location-error" class="form-text error"></div>
-</div>
-<div class="mb-3">
-    <label for="dump_location" class="form-label">Dump Location *</label>
-    <input type="text" class="form-control" id="dump_location" placeholder="Dump Location">
-    <div id="dump-location-error" class="form-text error"></div>
-</div>
-<div class="mb-3">
-    <label for="num_trucks" class="form-label">Num Trucks</label>
-    <input type="number" class="form-control" id="num_trucks" placeholder="0" step="1">
-    <div id="num_trucks_error" class="form-text error"></div>
-</div>
+<form>
+    <div class="mb-3">
+        <label for="contractor" class="form-label">Contractor *</label>
+        <select class="form-select" aria-label="Default select example" id="contractor">
+            <option selected>Select A Contractor</option>
+            <% for (let contractor in contractors) { %>
+                <option value="<%=contractor%>">
+                    <%= contractor %>
+                </option>
+                <% } %>
+        </select>
+        <div id="contractor-error" class="form-text error"></div>
+        <a href="/contractors"><button type="button" class="btn btn-secondary">Add Contractor</button></a>
+    </div>
+    <div class="mb-3">
+        <label for="date" class="form-label">Date *</label>
+        <input type="date" class="form-control" id="date">
+        <div id="date-error" class="form-text error"></div>
+    </div>
+    <div class="mb-3">
+        <label for="load_location" class="form-label">Load Location *</label>
+        <input type="text" class="form-control" id="load_location" placeholder="Load Location">
+        <div id="load-location-error" class="form-text error"></div>
+    </div>
+    <div class="mb-3">
+        <label for="dump_location" class="form-label">Dump Location *</label>
+        <input type="text" class="form-control" id="dump_location" placeholder="Dump Location">
+        <div id="dump-location-error" class="form-text error"></div>
+    </div>
+    <div class="mb-3">
+        <label for="num_trucks" class="form-label">Num Trucks</label>
+        <input type="number" class="form-control" id="num_trucks" placeholder="0" step="1">
+        <div id="num_trucks_error" class="form-text error"></div>
+    </div>
 
-<div class="mb-3">
-    <label for="notes" class="form-label">Notes</label>
-    <textarea type="text" class="form-control" id="notes" placeholder="Notes"></textarea>
-    <div id="notes_error" class="form-text error"></div>
-</div>
+    <div class="mb-3">
+        <input type="checkbox" id="reciever_check" value="Reciever" onclick="showReciever()">
+        <label class="form-check-label">Reciever</label>
 
-<div class="mb-3" id="reciever">
-    <label for="reciever" class="form-label">Reciever</label>
-    <input type="text" class="form-control" placeholder="Reciever">
-    <div id="reciever-error" class="form-text error"></div>
-</div>
+        <input type="checkbox" id="supplier_check" value="Supplier" onclick="showSupplier()">
+        <label class="form-check-label">Supplier</label>
 
-<div class="mb-3" id="supplier">
-    <label for="supplier" class="form-label">Supplier</label>
-    <input type="text" class="form-control" placeholder="Supplier">
-    <div id="supplier-error" class="form-text error"></div>
-</div>
+        <input type="checkbox" id="material_check" value="Material" onclick="showMaterial()">
+        <label class="form-check-label">Material</label>
+    </div>
 
-<div class="mb-3" id="material">
-    <label for="material" class="form-label">Material</label>
-    <input type="text" class="form-control" placeholder="Material">
-    <div id="material-error" class="form-text error"></div>
-</div>
+    <div class="mb-3" id="reciever">
+        <label for="reciever" class="form-label">Reciever</label>
+        <input type="text" class="form-control" placeholder="Reciever">
+        <div id="reciever-error" class="form-text error"></div>
+    </div>
 
-<div class="mb-3">
-    <input type="checkbox" id="reciever_check" value="Reciever" onclick="showReciever()">
-    <label class="form-check-label">Reciever</label>
+    <div class="mb-3" id="supplier">
+        <label for="supplier" class="form-label">Supplier</label>
+        <input type="text" class="form-control" placeholder="Supplier">
+        <div id="supplier-error" class="form-text error"></div>
+    </div>
 
-    <input type="checkbox" id="supplier_check" value="Supplier" onclick="showSupplier()">
-    <label class="form-check-label">Supplier</label>
+    <div class="mb-3" id="material">
+        <label for="material" class="form-label">Material</label>
+        <input type="text" class="form-control" placeholder="Material">
+        <div id="material-error" class="form-text error"></div>
+    </div>
 
-    <input type="checkbox" id="material_check" value="Material" onclick="showMaterial()">
-    <label class="form-check-label">Material</label>
-</div>
 
-<div class="mb-3">
-    <div id="form-error" class="form-text error"></div>
-</div>
+    <div class="mb-3">
+        <label for="notes" class="form-label">Notes</label>
+        <textarea type="text" class="form-control" id="notes" placeholder="Notes"></textarea>
+        <div id="notes_error" class="form-text error"></div>
+    </div>
+
+
+
+    <div class="mb-3">
+        <div id="form-error" class="form-text error"></div>
+    </div>
+</form>
+
+
+<button type="button" class="btn btn-primary" style="width: 100%;" onclick="next('/add_rates')">Next</button>
+
+
 
 <script>
     //Set date minmum 
@@ -101,34 +111,35 @@
         let checkReciever = document.getElementById("reciever_check");
         let reciever = document.getElementById("reciever");
 
-        if (checkReciever.checked == true) {
-            reciever.style.display = 'block';
-        } else {
-            reciever.style.display = "none"
-        }
+        change(reciever, checkReciever.checked)
     }
 
     function showSupplier() {
         let checkSupplier = document.getElementById("supplier_check");
         let supplier = document.getElementById("supplier");
 
-        if (checkSupplier.checked == true) {
-            supplier.style.display = 'block';
-        } else {
-            supplier.style.display = "none"
-        }
+        change(supplier, checkSupplier.checked)
     }
 
     function showMaterial() {
         let checkMaterial = document.getElementById("material_check");
         let material = document.getElementById("material");
 
-        if (checkMaterial.checked == true) {
-            material.style.display = 'block';
+        change(material, checkMaterial.checked)
+
+    }
+
+    const change = (div, bool) => {
+        if (div) {
+            div.style.display = 'block';
+            div.scrollIntoView()
+            div.focus();
         } else {
-            material.style.display = "none"
+            div.style.display = "none"
         }
     }
+
+
 
 </script>
 

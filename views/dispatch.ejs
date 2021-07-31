@@ -254,29 +254,35 @@
                           </h3>
                         </div>
                         <div id="per_load_rates" style="display: block;">
-                          <div class="per_load_rate operator_rate">
-                            <span>Dispatch Fee</span>
+                          <div class="per_load_rate operator_rate mb-2">
+                            <span>Dispatch Fee (%)</span>
                             <span class="rate">
                               <%= dispatch.rates.perLoad.fee %>
                             </span>
                           </div>
                           <% for (let i=0; dispatch.rates.perLoad.rates !=undefined && i <
                             dispatch.rates.perLoad.rates.length; i++) { %>
-                            <div class="per_load_rate input_rate">
-                              <span class="mb-2">Contractor Rate</span>
-                              <span class="form-control mb-2 rate">
-                                <%= dispatch.rates.perLoad.rates[i].r %>
-                              </span>
+                            <div class="per_load_rate input_rate mb-2">
+                              <div class="form-control mb-2 rate">
+                                <span class="mb-2">Rate: </span>
+                                <span>
+                                  <%= dispatch.rates.perLoad.rates[i].r %>
+                                </span>
+                              </div>
 
-                              <span class="mb-2">Load</span>
-                              <span class="form-control mb-2 load">
-                                <%= dispatch.rates.perLoad.rates[i].l %>
-                              </span>
+                              <div class="form-control mb-2 load">
+                                <span class="mb-2">Load: </span>
+                                <span>
+                                  <%= dispatch.rates.perLoad.rates[i].l %>
+                                </span>
+                              </div>
 
-                              <span class="mb-2">Dump</span>
-                              <span class="form-control mb-2 dump">
-                                <%= dispatch.rates.perLoad.rates[i].d %>
-                              </span>
+                              <div class="form-control mb-2 dump">
+                                <span class="mb-2">Dump: </span>
+                                <span>
+                                  <%= dispatch.rates.perLoad.rates[i].d %>
+                                </span>
+                              </div>
                             </div>
                             <% } %>
                         </div>
@@ -291,29 +297,35 @@
                               </h3>
                             </div>
                             <div id="tonnage_rates" style="display: block;">
-                              <div class="tonnage_rate operator_rate">
-                                <span>Operators (Percentage)</span>
+                              <div class="tonnage_rate operator_rate mb-2">
+                                <span>Dispatch Fee (%)</span>
                                 <span class="rate">
                                   <%= dispatch.rates.tonnage.fee %>
                                 </span>
                               </div>
                               <% for (let i=0; dispatch.rates.tonnage.rates !=undefined && i <
                                 dispatch.rates.tonnage.rates.length; i++) { %>
-                                <div class="per_load_rate input_rate">
-                                  <span class="mb-2">Contractor Rate</span>
-                                  <span class="form-control mb-2 rate">
-                                    <%= dispatch.rates.tonnage.rates[i].r %>
-                                  </span>
+                                <div class="tonnage_rate input_rate mb-2">
+                                  <div class="form-control mb-2 rate">
+                                    <span class="mb-2">Rate: </span>
+                                    <span>
+                                      <%= dispatch.rates.tonnage.rates[i].r %>
+                                    </span>
+                                  </div>
 
-                                  <span class="mb-2">Load</span>
-                                  <span class="form-control mb-2 load">
-                                    <%= dispatch.rates.tonnage.rates[i].l %>
-                                  </span>
+                                  <div class="form-control mb-2 load">
+                                    <span class="mb-2">Load: </span>
+                                    <span>
+                                      <%= dispatch.rates.tonnage.rates[i].l %>
+                                    </span>
+                                  </div>
 
-                                  <span class="mb-2">Dump</span>
-                                  <span class="form-control mb-2 dump">
-                                    <%= dispatch.rates.tonnage.rates[i].d %>
-                                  </span>
+                                  <div class="form-control mb-2 dump">
+                                    <span class="mb-2">Dump: </span>
+                                    <span>
+                                      <%= dispatch.rates.tonnage.rates[i].d %>
+                                    </span>
+                                  </div>
                                 </div>
                                 <% } %>
 

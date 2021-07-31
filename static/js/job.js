@@ -386,9 +386,10 @@ const closeModals = () => {
  */
 function openSignOffModal() {
   const modal = document.getElementById('sign_off_ticket_modal');
+  const signOff = document.getElementById("sign_off_time");
 
   modal.style.display = "block";
-  document.getElementById("sign_off_time").value = now();
+  signOff.value = now();
 }
 
 /**

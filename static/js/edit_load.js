@@ -250,7 +250,7 @@ const deleteLoadTicket = () => {
 
     const url = window.location.href;
     const query = new URL(url);
-    const jobId = query.searchParams.get("jobId");
+    const jobId = query.searchParams.get("id");
     const loadId = query.searchParams.get("loadId")
 
     console.log(jobId);

@@ -66,17 +66,19 @@
     </div>
 </div>
 
-<h3>Edit Load Ticket</h3>
+<h3 class="mt-3">Edit Load Ticket</h3>
 <div class="mb-3">
     <label for="exampleInputEmail1" class="form-label">Load Time</label>
-    <input type="datetime-local" class="form-control" id="load_time" value="<%=job.loadTickets[loadId].loadTime %>">
+    <input type="datetime-local" class="form-control" id="load_time" value="<%=job.loadTickets[loadId].loadTime %>"
+        min="<%= minDate %>">
     <div id="load_time_error" class="form-text error">
     </div>
 </div>
 <% if (job.loadTickets[loadId].status=="complete" ) { %>
     <div class="mb-3">
         <label for="exampleInputEmail1" class="form-label">Dump Time</label>
-        <input type="datetime-local" class="form-control" id="dump_time" value="<%=job.loadTickets[loadId].dumpTime %>">
+        <input type="datetime-local" class="form-control" id="dump_time" value="<%=job.loadTickets[loadId].dumpTime %>"
+            min="<%= minDate %>">
         <div id="dump_time_error" class="form-text error"></div>
     </div>
     <% } %>
@@ -224,15 +226,17 @@
                             <div id="form_error" class="form-text error"></div>
 
 
-                            <div id="positive_button_container">
-                                <button class="new_load_ticket"
-                                    onclick="editLoadTicket('<%= loadId %>', '<%= job.loadTickets[loadId].status %>')">Edit
-                                    Ticket</button>
+                            <div id="positive_button_container" class="mb-2">
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="editLoadTicket('<%= loadId %>', '<%= job.loadTickets[loadId].status %>')"
+                                    style="width: 100%;">
+                                    Save Ticket</button>
                             </div>
 
 
-                            <div id="negative_button_container">
-                                <button class="new_load_ticket" onclick="deleteLoadModal()">Delete Ticket</button>
+                            <div id="negative_button_container" class="mb-2">
+                                <button class="btn btn-danger"" onclick=" deleteLoadModal()" style="width: 100%;">Delete
+                                    Ticket</button>
                             </div>
 
                             <!-- This script is responsible for handling load tickets -->

@@ -86,7 +86,12 @@
                             No Active Dispathces
                           </h1>
                           <span>
-                            <a href="/new_dispatch">Create a dispatch</a>
+
+                            <a href="/new_dispatch">
+                              <button type="button" class="btn btn-primary">
+                                Create Dispatch
+                              </button>
+                            </a>
                           </span>
                         </div>
                         <% } else if (user.type !="dispatcher" && jobs.length> 0) { %>
@@ -131,7 +136,11 @@
                                     No New Job Tickets
                                   </h1>
                                   <span>
-                                    <a href="/new_job">Create a Job ticket</a>
+                                    <a href="/new_job">
+                                      <button type="button" class="btn btn-primary">
+                                        Create Job ticket
+                                      </button>
+                                    </a>
                                   </span>
                                 </div>
                                 <% } else { %>

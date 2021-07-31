@@ -14,29 +14,29 @@ function back(url) {
 /**
  * This funtion verifies rates amd gathers rate data and saves it to local storage.
  * @author Ravinder Shokar 
- * @version 1.2 
- * @date July 29 2021 
+ * @version 1.3 
+ * @date July 30 2021 
  */
 function next(url) {
     const hourly = document.getElementById("hourly_check");
     const perLoad = document.getElementById("per_load_check");
     const tonnage = document.getElementById("tonnage_check");
 
+    const modal = document.getElementById("confirmation_modal");
+    const modalTxt = document.getElementById("confirmation_text");
+    const modalYes = document.getElementById("confirmation_yes");
+    const modalNo = document.getElementById("confirmation_no");
+
+    modalTxt.style.color = "red";
+    modalYes.innerHTML = "Okay";
+    modalYes.addEventListener("click", closeConfModals);
+    modalNo.style.display = "none";
+
     let rates;
     let fee;
 
     if (!hourly.checked && !perLoad.checked && !tonnage.checked) {
-        const modal = document.getElementById("confirmation_modal");
-        const modalTxt = document.getElementById("confirmation_text");
-        const modalYes = document.getElementById("confirmation_yes");
-        const modalNo = document.getElementById("confirmation_no");
-
         modalTxt.innerHTML = "Must select rate type before continuing.";
-        modalTxt.style.color = "red";
-        modalYes.innerHTML = "Okay";
-        modalYes.addEventListener("click", closeConfModals)
-        modalNo.style.display = "none";
-
         modal.style.display = "block";
     } else {
         dispatch["rates"] = {};
@@ -45,30 +45,39 @@ function next(url) {
             dispatch.rates["hourly"] = getHourlyRates();
         } else {
             if (perLoad.checked) {
-                rates = getPerLoadRates()
-                fee = document.querySelector("#per_load_rates .operator_rate .rate").value
-                if (rates) {
-                    dispatch.rates["perLoad"] = {
-                        fee,
-                        rates,
-                    }
-                } else {
+                fee = parseFloat(document.querySelector("#per_load_rates .operator_rate .rate").value);
+                if (fee < 0 || fee >= 100) {
+                    modalTxt.innerHTML = "Per Load fee must be less than or equal to 100 and greater than or equal 0";
+                    modal.style.display = "block";
                     return
+                } else {
+                    rates = getPerLoadRates()
+                    if (rates) {
+                        fee = (fee == "NaN" ? 0.00 : (100 * fee).toFixed(0) / 100.00);
+                        dispatch.rates["perLoad"] = { fee, rates, }
+                    } else {
+                        return
+                    }
                 }
             }
 
             if (tonnage.checked) {
-                console.log("Get Tonnage Rate")
-                rates = getTonnageRates();
-                fee = document.querySelector("#tonnage_rates .operator_rate .rate").value
-                if (rates) {
-                    dispatch.rates["tonnage"] = {
-                        fee,
-                        rates,
-                    }
-                } else {
+                fee = parseFloat(document.querySelector("#tonnage_rates .operator_rate .rate").value);
+                fee = (fee == "NaN" ? 0.00 : fee);
+                if (fee < 0 || fee >= 100) {
+                    modalTxt.innerHTML = "Tonnage fee must be less than or equal to 100 and greater than or equal 0";
+                    modal.style.display = "block";
                     return
+                } else {
+                    rates = getTonnageRates();
+                    if (rates) {
+                        fee = (100 * fee).toFixed(0) / 100.00;
+                        dispatch.rates["tonnage"] = { fee, rates, }
+                    } else {
+                        return
+                    }
                 }
+
             }
         }
 
@@ -137,6 +146,7 @@ function getRatesList(type) {
     const per = document.getElementById("per_load_rates");
     const ton = document.getElementById("tonnage_rates");
 
+    let rate;
     let elements;
     let rates = [];
     let obj = {}
@@ -147,11 +157,14 @@ function getRatesList(type) {
         elements = ton.querySelectorAll(".input_rate")
     }
 
+
     for (let i = 0; i < elements.length; i++) {
+        console.log(elements[i]);
+        rate = parseFloat(elements[i].querySelector(".rate input").value.trim()).toFixed(2);
         obj = {
-            r: parseFloat(elements[i].querySelector(".rate").value.trim()).toFixed(2),
-            d: elements[i].querySelector(".dump").value.trim(),
-            l: elements[i].querySelector(".load").value.trim(),
+            r: (rate == "NaN" ? 0.00 : rate),
+            d: elements[i].querySelector(".dump input").value.trim(),
+            l: elements[i].querySelector(".load input").value.trim(),
         }
 
         if (validateRate(obj)) {
@@ -424,26 +437,38 @@ function getRouteHTML(route, i) {
 
     if (route == undefined) {
         html = `
-        <span class="mb-2">Contractor Rate</span>
-        <input type="number" class="form-control mb-2 rate" value="0" >
-    
-        <span class="mb-2">Load</span>
-        <input type="text" class="form-control mb-2 load" value="${dispatch.loadLocation}">
-    
-        <span class="mb-2">Dump</span>
-        <input type="text" class="form-control mb-2 dump" value="${dispatch.dumpLocation}">
+        <div class="mb-2 rate">
+            <span class="mb-2">Rate</span>
+            <input type="number" class="form-control mb-2" value="0">
+        </div>
+
+        <div class="mb-2 load">
+            <span class="mb-2">Load</span>
+            <input type="text" class="form-control mb-2" value="${dispatch.loadLocation}">
+        </div>
+
+        <div class="mb-2 dump">
+            <span class="mb-2">Dump</span>
+            <input type="text" class="form-control mb-2" value="${dispatch.dumpLocation}">
+        </div>
         `
     } else {
         html = `
-        <span class="mb-2">Contractor Rate</span>
-        <input type="number" class="form-control mb-2 rate" value="${route.r}" >
-    
-        <span class="mb-2">Load</span>
-        <input type="text" class="form-control mb-2 load" value="${route.l}">
-    
-        <span class="mb-2">Dump</span>
-        <input type="text" class="form-control mb-2 dump" value="${route.d}">
-    
+
+        <div class="rate">
+            <span class="mb-2">Rate</span>
+            <input type="number" class="form-control mb-2" value="${route.r}">
+        </div>
+
+        <div class="mb-2 load">
+            <span class="mb-2">Load</span>
+            <input type="text" class="form-control mb-2"value="${route.l}">
+        </div>
+
+        <div class="mb-2 dump">
+            <span class="mb-2">Dump</span>
+            <input type="text" class="form-control mb-2"value="${route.d}">
+        </div>    
         `
     }
 
@@ -506,8 +531,8 @@ $(document).ready(() => {
             if (dispatch.rates.perLoad != undefined) {
                 perLoad.checked = true;
                 document.querySelector("#per_load_rates .operator_rate input").value = dispatch.rates.perLoad.fee;
-                dispatch.rates.perLoad.rates.forEach((rate) => {
-                    addRoute("per_load", -1, rate)
+                dispatch.rates.perLoad.rates.forEach((rate, i, lst) => {
+                    addRoute("per_load", (lst.length > 1 ? -1 : 1), rate)
                 })
                 togglePerLoadRates()
             }
@@ -515,8 +540,9 @@ $(document).ready(() => {
             if (dispatch.rates.tonnage != undefined) {
                 tonnage.checked = true;
                 document.querySelector("#tonnage_rates .operator_rate input").value = dispatch.rates.tonnage.fee;
-                dispatch.rates.tonnage.rates.forEach((rate) => {
-                    addRoute("tonnage", -1, rate)
+                dispatch.rates.tonnage.rates.forEach((rate, i, lst) => {
+                    console.log()
+                    addRoute("tonnage", (lst.length > 1 ? -1 : 1), rate)
                 })
                 toggleTonnageRates()
             }

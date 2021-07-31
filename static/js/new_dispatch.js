@@ -22,7 +22,7 @@ function next(url) {
     if (dispatch == null || dispatch == "") {
         if (validateDispatch(data)) {
             sessionStorage.setItem('dispatch', JSON.stringify(data));
-            window.location.href = url + "?contractor=" + data.contractor;
+            window.location.href = url + "?contractor=" + data.contractor.replace("&", "%26");
         }
     } else {
         dispatch = JSON.parse(dispatch);
@@ -34,7 +34,7 @@ function next(url) {
                 data["rates"] = dispatch.rates;
             }
             sessionStorage.setItem('dispatch', JSON.stringify(data));
-            window.location.href = url + "?contractor=" + data.contractor;
+            window.location.href = url + "?contractor=" + data.contractor.replace("&", "%26");
         }
     }
 
@@ -58,12 +58,14 @@ function getDispatchFormData() {
     let supplier = document.querySelector("#supplier input");
     let material = document.querySelector("#material input");
 
+
+
     return {
         contractor: contractor.value.trim(),
         date: date.value.trim(),
         loadLocation: loadLocation.value.trim(),
         dumpLocation: dumpLocation.value.trim(),
-        numTrucks: numTrucks.value,
+        numTrucks: (numTrucks.value == "" ? 0 : Math.trunc(numTrucks.value)),
         notes: notes.value.trim(),
         reciever: reciever.value.trim(),
         supplier: supplier.value.trim(),
