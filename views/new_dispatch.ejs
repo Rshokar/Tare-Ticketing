@@ -1,123 +1,145 @@
-<!-- Customer CSS for register/login html-->
-<link href="css/login-register.css" rel="stylesheet">
-
 <!-- Custome CSS for new dispatch form -->
 <link href="css/new_dispatch_form.css" rel="stylesheet">
 
 
-<div id="exit">
-    <a href="/dashboard"><i class="far fa-window-close"></i></a>
+<div id="controls">
+    <div id="exit" onclick="exit()">
+        <i class="fas fa-times"></i>
+    </div>
+
+    <div id="next" onclick="next('/add_rates')">
+        <i class="fas fa-arrow-right"></i>
+    </div>
 </div>
 
-<div id="login">
-    <legend>New Dispatch</legend>
+<h1>New Dispatch</h1>
 
-    <div id="contractor" class="input">
-        <label>Contractor *</label>
-        <input type='text' required placeholder="Contractor">
-        <p id="contractor-error" class="error"></p>
+<form>
+    <div class="mb-3">
+        <label for="contractor" class="form-label">Contractor *</label>
+        <select class="form-select" aria-label="Default select example" id="contractor">
+            <option selected>Select A Contractor</option>
+            <% for (let contractor in contractors) { %>
+                <option value="<%=contractor%>">
+                    <%= contractor %>
+                </option>
+                <% } %>
+        </select>
+        <div id="contractor-error" class="form-text error"></div>
+        <a href="/contractors"><button type="button" class="btn btn-secondary">Add Contractor</button></a>
+    </div>
+    <div class="mb-3">
+        <label for="date" class="form-label">Date *</label>
+        <input type="date" class="form-control" id="date">
+        <div id="date-error" class="form-text error"></div>
+    </div>
+    <div class="mb-3">
+        <label for="load_location" class="form-label">Load Location *</label>
+        <input type="text" class="form-control" id="load_location" placeholder="Load Location">
+        <div id="load-location-error" class="form-text error"></div>
+    </div>
+    <div class="mb-3">
+        <label for="dump_location" class="form-label">Dump Location *</label>
+        <input type="text" class="form-control" id="dump_location" placeholder="Dump Location">
+        <div id="dump-location-error" class="form-text error"></div>
+    </div>
+    <div class="mb-3">
+        <label for="num_trucks" class="form-label">Num Trucks</label>
+        <input type="number" class="form-control" id="num_trucks" placeholder="0" step="1">
+        <div id="num_trucks_error" class="form-text error"></div>
     </div>
 
-    <div id="date" class="input">
-        <label>Date *</label>
-        <input type='date' required placeholder="Date">
-        <p id="date-error" class="error"></p>
-    </div>
-
-    <div id="load_location" class="input">
-        <label>Load Location *</label>
-        <input type='text' required placeholder="load_location">
-        <p id="load-location-error" class="error"></p>
-    </div>
-
-    <div id="dump_location" class="input">
-        <label>Dump Location *</label>
-        <input type='text' required placeholder="Dump Location">
-        <p id="dump-location-error" class="error"></p>
-    </div>
-
-    <div id="num_trucks" class="input">
-        <label>Number Of Trucks</label>
-        <input type='number' required placeholder="0"></input>
-        <p id="num-trucks-error" class="error"></p>
-    </div>
-
-    <div id="notes" class="input">
-        <label>Notes</label>
-        <textarea type='text' required placeholder="Notes"></textarea>
-        <p id="notes-error" class="error"></p>
-    </div>
-
-    <div id="non_required_inputs">
+    <div class="mb-3">
         <input type="checkbox" id="reciever_check" value="Reciever" onclick="showReciever()">
-        <label>Reciever</label>
+        <label class="form-check-label">Reciever</label>
 
         <input type="checkbox" id="supplier_check" value="Supplier" onclick="showSupplier()">
-        <label>Supplier</label>
+        <label class="form-check-label">Supplier</label>
 
         <input type="checkbox" id="material_check" value="Material" onclick="showMaterial()">
-        <label>Material</label>
+        <label class="form-check-label">Material</label>
     </div>
 
-    <div id="reciever" class="input">
-        <label>Reciever</label>
-        <input type='text' required placeholder="Reciever">
-        <p id="reciever-error" class="error"></p>
+    <div class="mb-3" id="reciever">
+        <label for="reciever" class="form-label">Reciever</label>
+        <input type="text" class="form-control" placeholder="Reciever">
+        <div id="reciever-error" class="form-text error"></div>
     </div>
 
-    <div id="supplier" class="input">
-        <label>Supplier</label>
-        <input type='text' required placeholder="Supplier">
-        <p id="supplier-error" class="error"></p>
+    <div class="mb-3" id="supplier">
+        <label for="supplier" class="form-label">Supplier</label>
+        <input type="text" class="form-control" placeholder="Supplier">
+        <div id="supplier-error" class="form-text error"></div>
     </div>
 
-    <div id="material" class="input">
-        <label>Material</label>
-        <input type='text' required placeholder="Material">
-        <p id="material-error" class="error"></p>
+    <div class="mb-3" id="material">
+        <label for="material" class="form-label">Material</label>
+        <input type="text" class="form-control" placeholder="Material">
+        <div id="material-error" class="form-text error"></div>
     </div>
 
-    <input id="submit" type="submit" onclick="createDispatch()">
-    <p id="form-error" class="error"></p>
-</div>
+
+    <div class="mb-3">
+        <label for="notes" class="form-label">Notes</label>
+        <textarea type="text" class="form-control" id="notes" placeholder="Notes"></textarea>
+        <div id="notes_error" class="form-text error"></div>
+    </div>
+
+
+
+    <div class="mb-3">
+        <div id="form-error" class="form-text error"></div>
+    </div>
+</form>
+
+
+<button type="button" class="btn btn-primary" style="width: 100%;" onclick="next('/add_rates')">Next</button>
+
+
 
 <script>
     //Set date minmum 
-    var today = new Date().toISOString().split('T')[0];
-    document.querySelector("#date input").setAttribute('min', today);
+    var yesterday;
+    var today = new Date();
+    dateMath = today.getFullYear()
+        + "-" + (today.getMonth() < 10 ? "0" : "") + (today.getMonth() + 1)
+        + "-" + (today.getDate() < 10 ? "0" : "") + today.getDate();
+
+    document.querySelector("#date").setAttribute('min', dateMath);
 
     function showReciever() {
         let checkReciever = document.getElementById("reciever_check");
         let reciever = document.getElementById("reciever");
 
-        if (checkReciever.checked == true) {
-            reciever.style.display = 'block';
-        } else {
-            reciever.style.display = "none"
-        }
+        change(reciever, checkReciever.checked)
     }
 
     function showSupplier() {
         let checkSupplier = document.getElementById("supplier_check");
         let supplier = document.getElementById("supplier");
 
-        if (checkSupplier.checked == true) {
-            supplier.style.display = 'block';
-        } else {
-            supplier.style.display = "none"
-        }
+        change(supplier, checkSupplier.checked)
     }
 
     function showMaterial() {
         let checkMaterial = document.getElementById("material_check");
         let material = document.getElementById("material");
 
-        if (checkMaterial.checked == true) {
-            material.style.display = 'block';
+        change(material, checkMaterial.checked)
+
+    }
+
+    const change = (div, bool) => {
+        if (div) {
+            div.style.display = 'block';
+            div.scrollIntoView()
+            div.focus();
         } else {
-            material.style.display = "none"
+            div.style.display = "none"
         }
     }
+
+
 
 </script>
 

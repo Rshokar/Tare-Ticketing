@@ -38,7 +38,10 @@ const dispatchSchema = new Schema({
     },
     status: {
         type: Object
-    }
+    },
+    rates: {
+        type: Object
+    },
 }, { timestamps: true })
 
 const Dispatch = mongoose.model("Dispatch", dispatchSchema);

@@ -7,33 +7,42 @@
 }
 
 
-.contractor, .load_location, .status, .dump_location, .date {
+.contractor, .dispatcher, .load_location, .status, .dump_location, #details {
     grid-column: 1 / span 1;
 }
 
-.dispatch .notes, .supplier, .reciever, .material {
+#details {
+    display: none;
+}
+
+.dispatch .notes {
     grid-column: 1 / span 2;
 }
 
-.dispatch h2 {
-    margin: 0;
-}
 
-.dispatch .address, .dispatch .status{
-    padding-top: .5em;
-}
+
 
 .dispatch .num-trucks {
     grid-column: 2 / span 1;
-    grid-row: 1 / span 3;
+    grid-row: 1 / span 2;
 }
 
 .num-trucks {
     font-size: 20pt;
-
+    text-align: center;
 }
 
 .status div{
     padding-right: .5em;
     display: inline;
 }
+
+
+
+#toggles {
+    grid-column: 2 / span 1;
+    text-align: center;
+    display: grid;
+    align-content: center;
+}
+

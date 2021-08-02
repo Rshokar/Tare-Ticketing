@@ -1,0 +1,82 @@
+#ticket_preview {
+    margin-top: 1em;
+    padding: .5em .5em .5em .5em;
+    display: grid;
+    grid-template-columns: 70% 30%;
+    grid-template-rows: 30px 25px 50px 50px 30px;
+    border-radius: 2%;
+}
+
+
+#contractor {
+    grid-column: 1 / span 1;
+    grid-row: 1 / span 1;
+}
+
+#date {
+    grid-column: 1 /span 1;
+    grid-row: 2 / span 1;
+}
+
+#load {
+    grid-column: 1 /span 1;
+    grid-row: 3 / span 1;
+}
+
+#dump {
+    grid-column: 1 /span 1;
+    grid-row: 4 / span 1;
+}
+
+#num-trucks {
+    text-align: center;
+    font-size: 25pt;
+    grid-column: 2 / span 1;
+    grid-row: 1 / span 2;
+}
+
+#details {
+    grid-column: 1 / span 2;
+    grid-row: 5 / span 1;
+    display: none;
+}
+
+
+#notes {
+    grid-column: 1 / span 2;
+}
+
+.ticket_text {
+    font-size: 10pt;
+}
+#num-trucks {
+    grid-column: 2 / span 1;
+    grid-row: 1 / span 2;
+    font-size: 20pt;
+    text-align: center;
+}
+
+
+#status div{
+    padding-right: .5em;
+    display: inline;
+}
+
+#status {
+    grid-column: 1 / span 2;
+    grid-row: 5 / span 1;
+    display: none;
+}
+
+
+
+#toggles {
+    grid-column: 1 / span 2;
+    grid-row: 5 / span 1;
+    text-align: center;
+    display: grid;
+    align-content: center;
+}
+
+
+

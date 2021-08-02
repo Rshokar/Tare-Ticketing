@@ -1,0 +1,64 @@
+.contractor {
+    background-color: #CFCFCF;
+    height: 8vh;
+    display: grid;
+    align-content: center;
+    margin-top: 1em;
+}
+
+.contractor  h3{
+    margin: 0;
+    margin-left: 1em;
+}
+
+#contractor_rates, #operator_rates, #hourly_rates, #per_load_rates, #tonnage_rates {
+    background-color: #039bE5;
+    display: none;
+    padding: .5em .5em .5em .5em;
+}
+
+
+.hourly_rate, .tonnage_rate, .per_load_rate, .input_rate {
+    font-size: 13pt;
+    margin: 1em 0em 1em 0em;
+    text-align: center;
+    text-align: left;
+}
+
+
+ .rate,  .load,  .dump {
+    text-align: center;
+}
+
+.operator_rate {
+    margin: auto;
+    width: 50%;
+    text-align: center;
+}
+
+.operator_rate input{
+    width: 50%;
+    text-align: center;
+}
+
+.operator_rate span {
+    font-size: 14pt;
+    font-weight: bold;
+}
+
+
+.input_rate {
+    background-color: white;
+    padding: 1em 1em 1em 1em;
+}
+
+.remove_rate, .error{
+    grid-column: 1 / span 2;
+    width: 100%;
+}
+
+.add_rate {
+    width: 100%;
+}
+
+

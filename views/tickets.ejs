@@ -1,31 +1,34 @@
 <!-- Custome CSS for Dispatch tickets -->
 <link rel="stylesheet" href="css/dispatch.css">
 
-<!-- Custome CSS for /tickets tickets -->
-<link rel="stylesheet" href="css/tickets.css">
+<!-- Custome CSS for tabs -->
+<link rel="stylesheet" href="css/tabs.css">
 
 <!-- Custome CSS for Dispatch tickets -->
 <link rel="stylesheet" href="css/job.css">
+
+
+
+<div id="tabs">
+    <% if (user.type=="dispatcher" ) { %>
+        <div id="left_tab">
+            <span>Dispatches</span>
+        </div>
+        <div id="right_tab">
+            <span>Jobs</span>
+        </div>
+        <% } else { %>
+            <div id="single_tab" style="width: 100%;">
+                <span>Jobs</span>
+            </div>
+            <% } %>
+</div>
 
 
 <div id="search">
     <input type="text" placeholder="Search...">
 </div>
 
-<div id="tabs">
-    <% if (user.type=="dispatcher" ) { %>
-        <div id="dispatch">
-            <span>Dispatches</span>
-        </div>
-        <div id="job">
-            <span>Jobs</span>
-        </div>
-        <% } else { %>
-            <div id="job">
-                <span>Jobs</span>
-            </div>
-            <% } %>
-</div>
 <% if (user.type=="dispatcher" ) { %>
     <!-- All Dispatches will be rendered in here -->
     <div id="dispatch_container">
@@ -33,43 +36,43 @@
             <h3>No Dispatches Found</h3>
             <% } else { %>
                 <% for(let i=0; i < dispatches.length; i++) { %>
-                    <a href="/dispatch?id=<%= dispatches[i].id %>">
-                        <div class="dispatch confirmed">
+                    <div class="dispatch complete">
+                        <a href="/dispatch?id=<%= dispatches[i].id %>">
                             <h2>
                                 <%= dispatches[i].contractor %>
                             </h2>
-                            <span class="address">
-                                <%= dispatches[i].loadLocation %>
-                            </span>
+                        </a>
+                        <span class="address">
+                            <%= dispatches[i].loadLocation %>
+                        </span>
 
-                            <div class="status">
-                                <div>
-                                    <i class="fas fa-circle-notch"></i>
-                                    <%= dispatches[i].status.empty %>
-                                </div>
-                                <div>
-                                    <i class="far fa-paper-plane"></i>
-                                    <%= dispatches[i].status.sent %>
-                                </div>
-                                <div>
-                                    <i class="fas fa-check"></i>
-                                    <%= dispatches[i].status.confirmed %>
-                                </div>
-                                <div>
-                                    <i class="fas fa-vote-yea"></i>
-                                    <%= dispatches[i].status.active %>
-                                </div>
-                                <div>
-                                    <i class="fas fa-check-square"></i>
-                                    <%= dispatches[i].status.complete %>
-                                </div>
+                        <div class="status">
+                            <div>
+                                <i class="fas fa-exclamation-circle"></i>
+                                <%= dispatches[i].status.empty %>
                             </div>
-                            <div class="num-trucks">
-                                <i class="fas fa-truck"></i>
-                                <%= dispatches[i].numTrucks %>
+                            <div>
+                                <i class="far fa-paper-plane"></i>
+                                <%= dispatches[i].status.sent %>
+                            </div>
+                            <div>
+                                <i class="far fa-calendar-check"></i>
+                                <%= dispatches[i].status.confirmed %>
+                            </div>
+                            <div>
+                                <i class="fas fa-spinner"></i>
+                                <%= dispatches[i].status.active %>
+                            </div>
+                            <div>
+                                <i class="fas fa-calendar-check"></i>
+                                <%= dispatches[i].status.complete %>
                             </div>
                         </div>
-                    </a>
+                        <div class="num-trucks">
+                            <i class="fas fa-truck"></i>
+                            <%= dispatches[i].numTrucks %>
+                        </div>
+                    </div>
                     <% } %>
                         <% } %>
     </div>
@@ -81,52 +84,64 @@
                 <h3>No jobs found</h3>
                 <% } else { %>
                     <% for (let i=0; i < jobs.length; i++) { %>
-                        <a href="/job?id=<%=jobs[i]._id %>">
-                            <div class="job <%= jobs[i].status %>">
+
+                        <div class="job <%= jobs[i].status %>">
+                            <a href="/job?id=<%=jobs[i]._id %>">
                                 <h2>
                                     <%= jobs[i].contractor %>
                                 </h2>
+                            </a>
+                            <% if (user.type !="dispatcher" ) { %>
                                 <h5>
                                     <%= jobs[i].dispatcher.company %>
                                 </h5>
-                                <div class="equipment">
-                                    <div id="truck">
-                                        <span>
-                                            <%= jobs[i].equipment.truck %>
-                                        </span>
-                                    </div>
-                                    <div id="trailer">
-                                        <% if (jobs[i].equipment.trailer !="default" ) { %>
+                                <% } else { %>
+                                    <h5>
+                                        <%= jobs[i].operator.name %>
+                                    </h5>
+                                    <% } %>
+                                        <div class="equipment">
+                                            <div id="truck">
+                                                <span>
+                                                    <%= jobs[i].equipment.truck %>
+                                                </span>
+                                            </div>
+                                            <div id="trailer">
+                                                <% if (jobs[i].equipment.trailer !="default" ) { %>
+                                                    <span>
+                                                        <%= jobs[i].equipment.trailer %>
+                                                    </span>
+                                                    <% } %>
+                                            </div>
+                                        </div>
+                                        <div class="start_time">
                                             <span>
-                                                <%= jobs[i].equipment.trailer %>
+                                                <% let d=new Date(jobs[i].startTime) %>
+                                                    <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit'
+                                                        }) %>
                                             </span>
-                                            <% } %>
-                                    </div>
-                                </div>
-                                <div class="start_time">
-                                    <span>
-                                        <%= jobs[i].startTime %>
-                                    </span>
-                                </div>
-                            </div>
-                        </a>
+                                        </div>
+                        </div>
                         <% } %>
                             <% } %>
         </div>
 
         <% if(user.type=="dispatcher" ) { %>
             <script>
-                const dispatch = document.getElementById("dispatch");
-                const job = document.getElementById("job");
+                const disp = document.getElementById("left_tab");
+                const job = document.getElementById("right_tab");
 
 
                 const dispatch_container = document.getElementById("dispatch_container");
                 const job_container = document.getElementById("job_container");
 
-                dispatch.addEventListener("click", (e) => {
+                disp.addEventListener("click", (e) => {
                     //Change tab colors
-                    job.style.backgroundColor = "#EFEFEF";
-                    dispatch.style.backgroundColor = "CFCFCF";
+                    job.style.backgroundColor = "#CFD8DC";
+                    job.style.color = "black";
+
+                    disp.style.backgroundColor = "#004065";
+                    disp.style.color = "white";
 
                     //Change visible cards with CSS
                     job_container.style.display = "none";
@@ -135,8 +150,11 @@
 
                 job.addEventListener("click", (e) => {
                     //Change tab colors
-                    dispatch.style.backgroundColor = "#EFEFEF";
-                    job.style.backgroundColor = "CFCFCF";
+                    job.style.backgroundColor = "#004065";
+                    job.style.color = "white";
+
+                    disp.style.backgroundColor = "#CFD8DC";
+                    disp.style.color = "black";
 
                     //Change visible cards with CSS
                     job_container.style.display = "block";

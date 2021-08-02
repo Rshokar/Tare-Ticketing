@@ -1,15 +1,16 @@
-<!-- Custome CSS for Dispatch tickets -->
-<link rel="stylesheet" href="css/dispatch.css">
-
 <!-- Custome CSS for add operators page -->
 <link rel="stylesheet" href="css/add_operators.css">
 
 <!-- Custome CSS for Employees in operators modal -->
 <link rel="stylesheet" href="css/employee.css">
 
+<!-- Custome CSS for Ticket preview -->
+<link rel="stylesheet" href="css/ticket_preview.css">
+
+
 
 <div id="controls">
-    <div id="exit" onclick="saveDispatch('/new_dispatch')">
+    <div id="exit" onclick="back('/add_rates')">
         <i class="fas fa-arrow-left"></i>
     </div>
 
@@ -18,26 +19,36 @@
     </div>
 </div>
 
-<!-- All Dispatches will be rendered in here -->
-<div class="dispatch" style="background-color: white;">
-    <h2 class="cotractor"></h2>
-    <span class="load_location"></span>
-    <span class="dump_location"></span>
-    <span class="date"></span>
-    <span class="supplier"></span>
-    <span class="reciever"></span>
-    <span class="material"></span>
-
-    <div class="num-trucks">
-        <i class="fas fa-truck"></i>
-        <span class="trucks"></span>
-        <span id="plus" onclick="addOperator()"> + </span>
-        /
-        <span id="minus" onclick="removeOperator()"> - </span>
+<div id="ticket_preview_container">
+    <div id="ticket_preview" style="background-color: white;">
+        <h2 id="contractor"></h2>
+        <span id="date"></span>
+        <div id="load">
+        </div>
+        <div id="dump">
+        </div>
+        <div id="details">
+            <div>
+                <span id="supplier"></span>
+            </div>
+            <div>
+                <span id="reciever"></span>
+            </div>
+            <div>
+                <span id="material"></span>
+            </div>
+            <div id='notes'>
+            </div>
+        </div>
+        <div id="num-trucks" style="font-size: 15pt">
+        </div>
+        <div id="toggles">
+            <i class="down fas fa-angle-down" onclick="toggleDown()"></i>
+            <i class="up fas fa-angle-up" style="display:none" onclick="toggleUp()"></i>
+        </div>
     </div>
-
-    <div class='notes'></div>
 </div>
+
 
 <div id="operators">
 
@@ -73,3 +84,5 @@
 
 
 <script src="js/add_operators.js"></script>
+
+<script src="js/ticket_preview.js"></script>

@@ -1,0 +1,180 @@
+<link rel="stylesheet" href="css/account.css">
+
+<!-- CSS for contractors tabs -->
+<link rel="stylesheet" href="css/contractor_rates.css">
+
+<div id="controls">
+    <a id="exit" href="/contractors">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+</div>
+
+<div id="user-info">
+    <h1>
+        <%= user.company %>
+    </h1>
+    <span>
+        <%= user.name %>
+    </span>
+</div>
+
+<a onclick="toggleContractorRates()">
+    <div class="contractor" onclick="">
+        <h3>
+
+            Contractor Rates
+
+        </h3>
+    </div>
+</a>
+<div id="contractor_rates">
+    <h5>
+        Hourly
+    </h5>
+    <div class="hourly_rate tandem">
+        <span>Tandem</span>
+        <input type="number" value="<%= contRates.t %>" class="rate">
+    </div>
+
+    <div class="hourly_rate tandem_2_pup">
+        <span>Tandem 2-axle Pony</span>
+        <input type="number" value="<%= contRates.t2p %>" class="rate">
+    </div>
+
+    <div class="hourly_rate tandem_3_pup">
+        <span>Tandem 3-axle Pony</span>
+        <input type="number" value="<%= contRates.t3p %>" class="rate">
+    </div>
+
+    <div class="hourly_rate tandem_3_transfer">
+        <span>Tandem 3-axle Transfer</span>
+        <input type="number" value="<%= contRates.t3tf %>" class="rate">
+    </div>
+
+    <div class="hourly_rate tandem_4_transfer">
+        <label>Tandem 4-axle Transfer</label>
+        <input type="number" value="<%= contRates.t4tf %>" class="rate" />
+    </div>
+
+    <div class="hourly_rate tandem_4_end_dump">
+        <label>Tandem 4-axle End Dump</label>
+        <input type="number" value="<%= contRates.t4ed %>" class="rate" />
+    </div>
+
+    <div class="hourly_rate tri">
+        <label>Tri Axle</label>
+        <input type="number" value="<%= contRates.tri %>" class="rate" />
+    </div>
+
+    <div class="hourly_rate tri_2_pony">
+        <label>Tri Axle 2-axle Pony</label>
+        <input type="number" value="<%= contRates.tri2p %>" class="rate" />
+    </div>
+
+    <div class="hourly_rate tri_3_pony">
+        <label>Tri Axle 3-axle Pony</label>
+        <input type="number" value="<%= contRates.tri3p %>" class="rate" />
+    </div>
+
+
+    <div class="hourly_rate tri_4_transfer">
+        <label>Tri Axle 3-axle Transfer</label>
+        <input type="number" value="<%= contRates.tri3tf %>" class="rate" />
+    </div>
+
+    <div class="hourly_rate tri_4_transfer">
+        <label>Tri Axle 4-axle Transfer</label>
+        <input type="number" value="<%= contRates.tri4tf %>" class="rate" />
+    </div>
+
+    <div class="hourly_rate tri_4_end_dumo">
+        <label>Tri Axle 4-axle End Dump</label>
+        <input type="number" value="<%= contRates.tri4ed %>" class="rate" />
+    </div>
+    <button onclick="saveContractorRates()">Save</button>
+</div>
+
+<a onclick="toggleOperatorRates()">
+    <div class="contractor">
+        <h3>
+            Operator Rates
+        </h3>
+    </div>
+</a>
+<div id="operator_rates">
+    <div class="tonnage_rate">
+        <span>Tonnage (Percentage)</span>
+        <input type="number" value="<%= opRates.tonnage %>" class="rate">
+    </div>
+
+    <div class="per_load_rate">
+        <span>Per Load (Percentage)</span>
+        <input type="number" value="<%= opRates.perLoad %>" class="rate">
+    </div>
+    <h5>
+        Hourly
+    </h5>
+    <div class="hourly_rate tandem">
+        <span>Tandem</span>
+        <input type="number" value="<%= opRates.t %>" class="rate">
+    </div>
+
+    <div class="hourly_rate tandem_2_pup">
+        <span>Tandem 2-axle Pony</span>
+        <input type="number" value="<%= opRates.t2p %>" class="rate">
+    </div>
+
+    <div class="hourly_rate tandem_3_pup">
+        <span>Tandem 3-axle Pony</span>
+        <input type="number" value="<%= opRates.t3p %>" class="rate">
+    </div>
+
+    <div class="hourly_rate tandem_3_transfer">
+        <span>Tandem 3-axle Transfer</span>
+        <input type="number" value="<%= opRates.t3tf %>" class="rate">
+    </div>
+
+    <div class="hourly_rate tandem_4_transfer">
+        <label>Tandem 4-axle Transfer</label>
+        <input type="number" value="<%= opRates.t4tf %>" class="rate" />
+    </div>
+
+    <div class="hourly_rate tandem_4_end_dump">
+        <label>Tandem 4-axle End Dump</label>
+        <input type="number" value="<%= opRates.t4ed %>" class="rate" />
+    </div>
+
+    <div class="hourly_rate tri">
+        <label>3-axle</label>
+        <input type="number" value="<%= opRates.tri %>" class="rate" />
+    </div>
+
+    <div class="hourly_rate tri_2_pony">
+        <label>3-axle 2-axle Pony</label>
+        <input type="number" value="<%= opRates.tri2p %>" class="rate" />
+    </div>
+
+    <div class="hourly_rate tri_3_pony">
+        <label>3-axle 3-axle Pony</label>
+        <input type="number" value="<%= opRates.tri3p %>" class="rate" />
+    </div>
+
+    <div class="hourly_rate tri_4_transfer">
+        <label>3-axle 4-axle Transfer</label>
+        <input type="number" value="<%= opRates.tri3tf %>" class="rate" />
+    </div>
+
+    <div class="hourly_rate tri_4_transfer">
+        <label>3-axle 4-axle Transfer</label>
+        <input type="number" value="<%= opRates.tri4tf %>" class="rate" />
+    </div>
+
+    <div class="hourly_rate tri_4_end_dumo">
+        <label>3-axle 4-axle End Dump</label>
+        <input type="number" value="<%= opRates.tri4ed %>" class="rate" />
+    </div>
+    <button onclick="saveOperatorRates()">Save</button>
+</div>
+
+
+<script src="js/contractor.js"></script>

@@ -139,24 +139,3 @@
     line-height: 8vh;
     font-size: 15pt;
 }
-
-#controls {
-    width: 100%;
-    display: grid;
-    grid-template-column: 50% 50%;
-    font-size: 20pt;
-}
-
-#exit {
-    grid-column: 1 / span 1;
-}
-
-#next {
-    text-align: right;
-    grid-column: 2 / span 1;
-}
-
-.error {
-    display: none;
-    color: red;
-}

@@ -12,6 +12,7 @@
  * @version 1.0 
  * @date June 26 2021
  */
+"use_strict";
 
 
 /**
@@ -35,7 +36,7 @@ function confirmJobTicket() {
     const confNo = document.getElementById("confirmation_no");
     const confText = document.getElementById("confirmation_text")
 
-    const status = document.getElementById('status');
+    const dispatchContainer = document.getElementById("ticket_preview")
 
     confYes.addEventListener("click", () => {
         confModal.style.display = "none";
@@ -51,6 +52,8 @@ function confirmJobTicket() {
             console.log(data);
             if (data.status == "success") {
 
+                dispatchContainer.setAttribute("class", "dispatch confirmed");
+
                 confText.innerHTML = "Job has been confirmed";
                 confNo.style.display = "none";
                 confYes.innerText = "Okay";
@@ -58,8 +61,6 @@ function confirmJobTicket() {
 
                 positiveButton.innerHTML = '<button class="new_load_ticket" onclick="activateJobTicket()">Activate</button>';
                 negativeButton.innerHTML = '<button class="new_load_ticket" onclick="cancelJobTicket()">Cancel Job</button>';
-
-                status.innerText = "Status: confirmed";
 
 
             } else if (data.status == "error") {
@@ -93,7 +94,8 @@ function confirmJobTicket() {
  */
 function activateJobTicket() {
 
-    const startTime = document.getElementById("date").innerHTML.trim() + " " + document.getElementById("time").innerHTML.trim();
+    const startTime = document.getElementById("num-trucks").innerHTML.trim();
+
     const timeDiff = Math.abs(new Date() - new Date(startTime))
 
     const queryString = window.location.href;
@@ -106,9 +108,9 @@ function activateJobTicket() {
     const confModal = document.getElementById("confirmation_modal")
     const confYes = document.getElementById("confirmation_yes");
     const confNo = document.getElementById("confirmation_no");
-    const confText = document.getElementById("confirmation_text")
+    const confText = document.getElementById("confirmation_text");
 
-    const status = document.getElementById('status');
+    const dispatchContainer = document.getElementById("ticket_preview")
 
     confYes.addEventListener("click", () => {
         confModal.style.display = "none";
@@ -124,7 +126,7 @@ function activateJobTicket() {
 
             if (data.status == "success") {
 
-                console.log("Success")
+                dispatchContainer.setAttribute("class", "dispatch active");
 
                 confYes.innerHTML = "Okay";
                 confText.innerHTML = "Job has been activated";
@@ -133,8 +135,6 @@ function activateJobTicket() {
 
                 positiveButton.innerHTML = '<button class="new_load_ticket" onclick=openNewLoadModal()>Add Load Ticket</button>';
                 negativeButton.innerHTML = '<button class="new_load_ticket" onclick="openSignOffModal()">Sign Off</button>';
-
-                status.innerHTML = 'Status: active';
 
             } else if (data.status == "error") {
 
@@ -157,21 +157,6 @@ function activateJobTicket() {
     })
 }
 
-/**
- * This function opens a confirmation modal before and attaches an
- * eventListner to both the yes and no buttons
- * 
- * yes button = signOff();
- * no button = closeModals();
- * @author Ravinder Shokar
- * @version 1.0
- * @date July 3 2021
- */
-function openSignOffModal() {
-    const modal = document.getElementById('sign_off_ticket_modal');
-    modal.style.display = "block";
-}
-
 
 /**
  * This function is responsible for finishing a job ticket. This means 
@@ -183,7 +168,7 @@ function openSignOffModal() {
 const signOff = () => {
 
     const signOffTime = document.getElementById("sign_off_time").value.trim();
-    const startTime = document.getElementById("time").innerHTML.trim();
+    const startTime = document.getElementById("num-trucks").innerHTML.trim();
 
     console.log(startTime);
     console.log(signOffTime);
@@ -197,6 +182,8 @@ const signOff = () => {
     const query = new URL(url);
     const jobId = query.searchParams.get('id');
 
+    const dispatchContainer = document.getElementById("ticket_preview")
+
     if (verifySignOff(startTime, signOffTime)) {
         $.ajax({
             url: "/complete_job_ticket",
@@ -206,6 +193,9 @@ const signOff = () => {
             success: (data) => {
                 console.log(data);
                 if (data.status == "success") {
+
+                    dispatchContainer.setAttribute("class", "dispatch complete");
+
                     const editButton = document.querySelectorAll(".edit_load");
 
                     editButton.forEach((edit) => {
@@ -213,11 +203,11 @@ const signOff = () => {
                     })
                     document.getElementById("positive_button_container").remove();
                     document.getElementById("negative_button_container").remove();
-                    document.getElementById("status").innerHTML = "Staus: complete";
 
                     confModal.style.display = "block";
                     confYes.style.display = "none";
                     confNo.innerHTML = "Okay";
+                    confNo.style.display = "block";
                     confText.innerHTML = "Status updated";
 
                     confNo.addEventListener("click", closeModals);
@@ -226,6 +216,7 @@ const signOff = () => {
                     confModal.style.display = "block";
                     confYes.style.display = "none";
                     confNo.innerHTML = "Okay";
+                    confNo.style.display = "block";
                     confText.innerHTML = data.message;
 
                     confNo.addEventListener("click", closeModals);
@@ -238,5 +229,28 @@ const signOff = () => {
 
         })
     }
+}
 
+
+/**
+ * This function is meant for verifying a signoff time
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 3 2021
+ */
+function verifySignOff(startTime, signOffTime) {
+    resetErrors();
+    const signOffError = document.getElementById("sign_off_error");
+    if (signOffTime == "") {
+        signOffError.innerHTML = "Field Cannot be left empty";
+        return false;
+    }
+
+
+    if (signOffTime < startTime) {
+        signOffError.innerHTML = "Canot have signoff time before start time";
+        return false;
+    }
+
+    return true;
 }

@@ -22,8 +22,6 @@ const createDispatch = (req, res, next) => {
       })
     }
 
-    console.log(operators);
-
     let dispatch = new Dispatch({
       dispatcher: {
         id: decodedToken.id,
@@ -39,18 +37,32 @@ const createDispatch = (req, res, next) => {
       material: req.body.material,
       supplier: req.body.supplier,
       reciever: req.body.reciever,
-      status: {}
+      status: {},
+      rates: (req.body.rates == undefined ? {} : req.body.rates),
     })
+
+    console.log(dispatch)
+    console.log(req.body.rates)
 
     createJobTickets(dispatch)
       .then((dispatch) => {
-        dispatch.save();
-        console.log("Successfully created job tickes", dispatch);
-        next()
+        dispatch.save((err) => {
+          if (err) {
+            res.send({
+              status: "error",
+              message: "Error Creating Dispatch"
+            })
+          } else {
+            console.log("Successfully created job tickes", dispatch);
+            next()
+          }
+        });
       })
       .catch(() => {
         console.log("Failed to create job tickets.")
       })
+
+
 
 
   })
@@ -102,6 +114,7 @@ const createJobTickets = (dispatch) => {
         reciever: dispatch.reciever,
         status: spot.status,
         position: index,
+        rates: dispatch.rates
       })
 
       dispatch.operators[index].jobTicket = job._id;
@@ -142,7 +155,6 @@ const confirmJobTicket = (req, res, next) => {
       ticket.status = newStatus;
       updateDispatchStatus(prevStatus, newStatus, ticket)
         .then((dispatch) => {
-          console.log(dispatch);
           dispatch.save();
           ticket.save();
           next();
@@ -224,15 +236,24 @@ const completeJobTicket = (req, res, next) => {
           status: "error",
           message: "Finish Load Ticket Before Signing Off"
         })
+        next();
       } else {
         const prevStatus = ticket.status;
         ticket.status = newStatus;
+        ticket.finishTime = req.body.signOffTime;
+
+        console.log("This is the ticket im looking for", ticket);
 
         updateDispatchStatus(prevStatus, newStatus, ticket)
           .then((dispatch) => {
 
             dispatch.save();
             ticket.save();
+
+            res.send({
+              status: "success",
+              message: "Job status updated"
+            })
 
             next();
           })
@@ -242,6 +263,7 @@ const completeJobTicket = (req, res, next) => {
               status: "error",
               message: "Error finding dispatch"
             })
+            next();
           })
       }
     })
@@ -261,7 +283,6 @@ const updateDispatchStatus = (prevStatus, newStatus, job) => {
   return new Promise((resolve, reject) => {
     Dispatch.findOne({ _id: job.dispatchTicket })
       .then((dispatch) => {
-        console.log(dispatch);
         if (dispatch == null) {
           reject("No dispatch found");
         } else {
@@ -283,13 +304,13 @@ const updateDispatchStatus = (prevStatus, newStatus, job) => {
 }
 
 /**
- * This function is resjob.laodponsible for adding a new load ticket to a job ticket
+ * This function is responsible for adding a new load ticket to a job ticket
  * @author Ravinder Shokar 
  * @version 1.0
  * @date June 30 2021
  */
 const addLoadTicket = (req, res, next) => {
-  console.log(req.body);
+  let tonnage;
   Job.findOne({
     _id: req.body.jobId
   })
@@ -301,6 +322,8 @@ const addLoadTicket = (req, res, next) => {
         })
       }
 
+      tonnage = (req.body.type == "ton" ? req.body.tonnage : getBoxes(job.equipment))
+
       if (job.loadTickets == undefined) {
         job.loadTickets = [];
       }
@@ -309,17 +332,39 @@ const addLoadTicket = (req, res, next) => {
         loadLocation: req.body.loadLocation,
         loadTime: req.body.loadTime,
         material: req.body.material,
-        tonnage: req.body.tonnage,
         status: "active",
+        type: req.body.type,
+        tonnage,
       })
+
+      console.log(job);
 
       job.save();
       res.send({
         status: "success",
         message: "Succesfully added load ticket",
         ticketId: job.loadTickets.length - 1,
+        job
       })
     })
+}
+
+/**
+ * This function is responsible for rturning the correct boxes of material delivered on a 
+ * per load ticket. 
+ *  Eg. a single truck returns 1 
+ *      a truck and trailer returns 2
+ * @param equipment JSON object containing { truck: 'tandem', trailer: '4-axle-end-dump' }
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date July 24 2021
+ */
+function getBoxes(equipment) {
+  if (equipment.trailer == "default") {
+    return 1;
+  } else {
+    return 2;
+  }
 }
 
 /**
@@ -345,11 +390,7 @@ const finishLoadTicket = (req, res, next) => {
       for (let i = 0; i < job.loadTickets.length; i++) {
         if (job.loadTickets[i].status == "active") {
 
-          console.log(req.body.dumpTime);
-          console.log(job.loadTickets[i].loadTime);
-
-
-          if (req.body.dumpTime < job.loadTickets[i].loadTime) {
+          if (new Date(req.body.dumpTime) < new Date(job.loadTickets[i].loadTime)) {
             res.send({
               status: "error",
               type: "past_dump_time",
@@ -394,7 +435,7 @@ const updateLoadTicket = (req, res, next) => {
   const loadTicket = req.body.loadTicket;
 
   Job.findOne({
-    _id: req.body.jobId
+    _id: req.body.id
   })
     .then((job) => {
       if (job == null) {
@@ -403,23 +444,22 @@ const updateLoadTicket = (req, res, next) => {
           message: "Error Finding Job Ticket"
         })
       } else {
-        if (job.loadTickets[req.body.loadId].status == "active") {
-          job.loadTickets[req.body.loadId].loadLocation = loadTicket.loadLocation;
-          job.loadTickets[req.body.loadId].loadTime = loadTicket.loadTime;
-          job.loadTickets[req.body.loadId].material = loadTicket.material;
-          job.loadTickets[req.body.loadId].tonnage = loadTicket.tonnage;
-        } else {
-          job.loadTickets[req.body.loadId].loadLocation = loadTicket.loadLocation;
+        job.loadTickets[req.body.loadId].loadLocation = loadTicket.loadLocation;
+        job.loadTickets[req.body.loadId].loadTime = loadTicket.loadTime;
+        job.loadTickets[req.body.loadId].material = loadTicket.material;
+        job.loadTickets[req.body.loadId].tonnage = (loadTicket.type == "load" ? getBoxes(job.equipment) : loadTicket.tonnage);
+        job.loadTickets[req.body.loadId].type = loadTicket.type;
+
+        if (job.loadTickets[req.body.loadId].status != "active") {
           job.loadTickets[req.body.loadId].dumpLocation = loadTicket.dumpLocation;
-          job.loadTickets[req.body.loadId].loadTime = loadTicket.loadTime;
           job.loadTickets[req.body.loadId].dumpTime = loadTicket.dumpTime;
-          job.loadTickets[req.body.loadId].material = loadTicket.material;
-          job.loadTickets[req.body.loadId].tonnage = loadTicket.tonnage;
         }
+
+        console.log("Job Ticket", job.loadTickets[req.body.loadId]);
+        console.log("Load Ticket", loadTicket);
 
         job.markModified("loadTickets");
 
-        console.log(job);
 
         job.save();
 

@@ -4,7 +4,11 @@
 <!-- Custom CSS for employees -->
 <link rel="stylesheet" href="css/employee.css">
 
-<a href="/account"><i class="fas fa-arrow-left"></i></a>
+<div id="controls">
+  <a id="exit" href="/account">
+    <i class="fas fa-arrow-left"></i>
+  </a>
+</div>
 
 
 <div id="user-info">
@@ -17,25 +21,21 @@
   </span>
 </div>
 
-<span>Employees</span>
 <div id="search">
   <input type="text" placeholder="Search...">
-  <a href="/new_employee"><button><i class="fas fa-plus"></i></button></a>
 </div>
+
+<a href="/new_employee"><button><i class="fas fa-plus"></i></button></a>
 
 <div id="employees">
   <% for (let i=0 ; i < user.employees.length ; i++) { %>
-    <a href="/employee?id=<%= user.employees[i].id %>">
-      <div class="employee">
+    <div class="employee">
+      <a href="/employee?id=<%= user.employees[i].id %>">
         <h3>
           <%= user.employees[i].fName %>
             <%= user.employees[i].lName %>
         </h3>
-        <span>
-          <%= user.employees[i].phone %>
-        </span>
-      </div>
-    </a>
+      </a>
+    </div>
     <% } %>
-
 </div>
