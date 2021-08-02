@@ -837,69 +837,9 @@ app.get("/employee", authenticate, (req, res) => {
  * @version 1.0 
  * @date MAy 23 2021  
  */
-app.post("/update_employee", authenticate, async (req, res) => {
-  let token = req.cookies.jwt;
-  let empId = req.query.id;
-  let empEmail = req.body.email;
-
-  jwt.verify(token, "butternut", (err, decodedToken) => {
-    User.findOne({ _id: empId })
-      .then(emp => {
-        emp.phone = req.body.phone;
-        emp.fName = req.body.fName;
-        emp.lName = req.body.lName;
-        if (empEmail == emp.email) {
-          emp.email = req.body.email;
-        } else {
-          User.exists({ email: empEmail }, function (err, result) {
-            if (err) {
-              res.send({ message: "Error Updating Employee" })
-            } else if (result) {
-              res.send({ message: "Email Already Exist" })
-            } else {
-              emp.email = req.body.email;
-            }
-          })
-        }
-
-        updateEmp(emp, decodedToken);
-
-        if (req.body.secretSauce.trim() == "") {
-          emp.save()
-            .then(() => {
-              res.redirect("/employees");
-            })
-        } else {
-          bcrypt.genSalt(10, function (err, salt) {
-            bcrypt.hash(req.body.secretSauce, salt, function (err, hashedPassword) {
-              console.log("Password", hashedPassword);
-              emp.password = hashedPassword;
-              console.log("Employee", emp);
-              emp.save()
-                .then(() => {
-                  res.redirect("/employees");
-                })
-            })
-          })
-        }
-      })
-  })
+app.post("/update_employee", authenticate, UserController.updateEmployee, (req, res) => {
 })
 
-async function updateEmp(emp, decodedToken) {
-  User.findOne({ _id: decodedToken.id })
-    .then(user => {
-      for (let i = 0; i < user.employees.length; i++) {
-        if (user.employees[i].id.equals(emp._id)) {
-          user.employees[i].fName = emp.fName;
-          user.employees[i].lName = emp.lName;
-          user.employees[i].phone = emp.phone;
-          user.markModified("employees");
-          user.save();
-        }
-      }
-    })
-}
 
 /**
  * This route is responsible for registering new employees
@@ -1010,6 +950,30 @@ app.get("/get_job", (req, res) => {
         })
       }
     })
+})
+
+
+app.get("/invoicing", (req, res) => {
+  let pageName = "Invoicing";
+  let token = req.cookies.jwt;
+  let contractors = []
+
+  jwt.verify(token, "butternut", (err, decodedToken) => {
+    User.findOne({ _id: decodedToken.id })
+      .then((user) => {
+        if (user == null) {
+          res.sendStatus(404);
+        } else {
+
+          res.render("invoice", {
+            page: pageName,
+            user: decodedToken,
+            contractors: user.contractors
+          })
+        }
+      })
+
+  })
 })
 
 //App Listen.

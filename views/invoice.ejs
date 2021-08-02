@@ -1,0 +1,97 @@
+<link rel="stylesheet" href="css/account.css">
+
+<link rel="stylesheet" href="css/tabs.css">
+
+
+
+<div id="user-info">
+    <h1>
+        <%= user.company %>
+    </h1>
+    <span>
+        Invoicing
+    </span>
+</div>
+
+<div id="checkboxs">
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="operator_check" onclick="showOperator()" checked>
+        <label class="form-check-label" for="load_check">
+            Operators
+        </label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="contractor_check" onclick="showContractor()">
+        <label class="form-check-label" for="tonnage_check">
+            Contractors
+        </label>
+    </div>
+</div>
+
+<div id="type">
+    <div id="contractor" class="mb-3" style="display: none;">
+        <label for=" contractor" class="form-label">Contractor</label>
+        <select class="form-select" aria-label="Default select example" id="contractor">
+            <option selected>Select A Contractor</option>
+            <% for (let contractor in contractors) { %>
+                <option value="<%=contractor%>">
+                    <%= contractor %>
+                </option>
+                <% } %>
+        </select>
+    </div>
+    <div id="operator" class="mb-3">
+        <label for="operator" class="form-label">Operator</label>
+        <input type="text" class="form-control" placeholder="Operator" id="operator">
+    </div>
+</div>
+
+
+<div id="date_range">
+    <div id="start" class="mb-3">
+        <label for="start_date" class="form-label">Start</label>
+        <input type="date" class="form-control" id="start_date">
+    </div>
+
+    <div id="finish" class="mb-3">
+        <label for="finish_date" class="form-label">Finish</label>
+        <input type="date" class="form-control" id="finish_date">
+    </div>
+</div>
+
+<button type="button" onclick="submitInvoiceQuery()" id="create_invoice" class="btn btn-primary"
+    style="width: 100%;">Create Invoice</button>
+
+<script>
+    function showOperator() {
+        const cont = document.getElementById("contractor");
+        const oper = document.getElementById("operator");
+
+        const opCheck = document.getElementById("operator_check");
+        const cotCheck = document.getElementById("contractor_check");
+
+        if (opCheck.checked) {
+            oper.style.display = "block";
+            cont.style.display = "none";
+
+            cotCheck.checked = false
+        }
+    }
+
+    function showContractor() {
+        const cont = document.getElementById("contractor");
+        const oper = document.getElementById("operator");
+
+        const opCheck = document.getElementById("operator_check");
+        const cotCheck = document.getElementById("contractor_check");
+
+        if (cotCheck.checked) {
+            oper.style.display = "none";
+            cont.style.display = "block";
+
+            opCheck.checked = false
+        }
+    }
+</script>
+
+<script src="js/invoice.js"></script>

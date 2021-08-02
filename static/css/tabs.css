@@ -27,6 +27,16 @@
     color: black;
 }
 
+.active {
+    background-color: #004065;
+    color: white;
+}
+
+.deactive {
+    background-color: #CFD8DC;
+    color: black;
+}
+
 #single_tab {
     background-color: #004065;
     color: white;
