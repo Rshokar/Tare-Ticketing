@@ -79,18 +79,18 @@ const validateInvoiceQuery = async (q) => {
  * @version 1.0 
  * @date Aug 2 2021
  * @param { Jobs } jobs tickets to be invoices
- * @param { Invoice } inv Invoice to add to
+ * @param { Invoice } inv Invoice to add togit 
  * @param { JSON } q Invoice query
  * @returns { Promise }
  */
 function buildInvoice(jobs, inv) {
-  let total
+  let total = 0
   return new Promise((res, rej) => {
 
     for (let i = 0; i < jobs.length; i++) {
 
       if (jobs[i].rates.hourly !== undefined) {
-        buildHourlyRow(jobs[i]).then((row) => { inv.i.push(row); })
+        buildHourlyRow(jobs[i]).then((row) => { total += inv.i.push(row); })
           .catch((err) => { rej(err) });
       } else {
 
