@@ -12,6 +12,9 @@ const mongoose = require('mongoose').set('debug', true);;
 const ObjectId = require('mongodb').ObjectId;
 const ejsLint = require('ejs-lint');
 
+const sanitize = require("./middleware/sanitize.js");
+
+
 
 
 const app = express();
@@ -36,6 +39,7 @@ app.use(cookieParser());
 const AuthController = require("./controllers/AuthController");
 const TicketController = require("./controllers/TicketController");
 const UserController = require("./controllers/UserController");
+const InvoiceController = require("./controllers/InvoiceController");
 const authenticate = require("./middleware/authenticate");
 const User = require("./models/user");
 const Dispatch = require("./models/dispatch");
@@ -66,10 +70,8 @@ app.get("/dashboard", authenticate, (req, res) => {
   const pageName = "Dashboard";
   const token = req.cookies.jwt;
 
-  console.log(res)
   res.url = "/account";
   jwt.verify(token, "butternut", (err, decodedToken) => {
-    console.log(decodedToken);
 
     if (decodedToken.type == 'dispatcher') {
       Dispatch.find({
@@ -80,7 +82,6 @@ app.get("/dashboard", authenticate, (req, res) => {
           }
         ]
       }).then((result) => {
-        console.log(result)
         res.render("dashboard", { page: pageName, dispatches: result, user: decodedToken })
       })
     } else {
@@ -89,10 +90,8 @@ app.get("/dashboard", authenticate, (req, res) => {
           { "operator.id": decodedToken.id },
           { $or: [{ status: "sent" }, { status: "confirmed" }, { status: "active" }] }
         ]
-
       }).then((jobs) => {
         ejsLint("dashboard")
-
         res.render("dashboard", { page: pageName, jobs: jobs, user: decodedToken })
       })
     }
@@ -110,7 +109,6 @@ app.get("/account", authenticate, (req, res) => {
   let token = req.cookies.jwt;
 
   jwt.verify(token, "butternut", (err, decodedToken) => {
-    console.log(decodedToken)
     res.render("account",
       {
         page: pageName,
@@ -181,7 +179,6 @@ app.get("/contractor", authenticate, (req, res) => {
       .then((user) => {
         for (let cont in user.contractors) {
           if (cont == req.query.contractor) {
-            console.log(user.contractors[cont])
             res.render("contractor", {
               page: pageName,
               user: decodedToken,
@@ -974,6 +971,10 @@ app.get("/invoicing", (req, res) => {
       })
 
   })
+})
+
+
+app.post("/build_invoice", InvoiceController.createInvoice, (req, res) => {
 })
 
 //App Listen.

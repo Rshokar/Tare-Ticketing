@@ -109,7 +109,7 @@ function validateDispatch(data) {
     }
 
     if (data.numTrucks < 0) {
-        const numTrucksError = document.getElementById('num-trucks-error');
+        const numTrucksError = document.getElementById('num_trucks_error');
         numTrucksError.innerHTML = "Number of trucks must be greater or equal than zero";
         isValid = false;
     }
@@ -146,20 +146,6 @@ function validateDispatch(data) {
 
 
     return isValid;
-}
-
-/**
- * THis function resets all erros on the new dispatch form
- * @author Ravinder Shokar 
- * @version 1.0 
- * @date June 16 2021 
- */
-function resetErrors() {
-    const errors = document.querySelectorAll(".error");
-    for (let i = 0; i < errors.length; i++) {
-        errors[i].innerHTML = ""
-    }
-
 }
 
 /**

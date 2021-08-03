@@ -221,53 +221,47 @@ const activateJobTicket = (req, res, next) => {
 const completeJobTicket = (req, res, next) => {
   const jobId = req.body.jobId;
   const newStatus = 'complete';
+  let start;
+  let finish;
+  let prevStatus
 
   Job.findOne({ _id: jobId })
     .then((ticket) => {
-      if (ticket == null) {
-        res.send({
-          status: "error",
-          message: "Error finding job"
-        })
-      }
+      start = new Date(ticket.startTime);
+      finish = new Date(req.body.time);
 
-      if (ticket.loadTickets.length != 0 && ticket.loadTickets[ticket.loadTickets.length - 1].status == "active") {
-        res.send({
-          status: "error",
-          message: "Finish Load Ticket Before Signing Off"
-        })
+      if (ticket == null) {
+        res.send({ status: "error", message: "Error finding job" })
+        next()
+      } else if (ticket.loadTickets.length != 0 && ticket.loadTickets[ticket.loadTickets.length - 1].status == "active") {
+        res.send({ status: "error", message: "Finish Load Ticket Before Signing Off" })
         next();
+      } else if (finish < start) {
+        res.send({ status: "error", message: "Finish Time cannot be before start time" })
+        next()
       } else {
-        const prevStatus = ticket.status;
+        prevStatus = ticket.status;
         ticket.status = newStatus;
         ticket.finishTime = req.body.signOffTime;
 
-        console.log("This is the ticket im looking for", ticket);
-
         updateDispatchStatus(prevStatus, newStatus, ticket)
           .then((dispatch) => {
-
             dispatch.save();
             ticket.save();
 
-            res.send({
-              status: "success",
-              message: "Job status updated"
-            })
-
+            res.send({ status: "success", message: "Job status updated" })
             next();
           })
           .catch((err) => {
             console.log(err)
-            res.send({
-              status: "error",
-              message: "Error finding dispatch"
-            })
+            res.send({ status: "error", message: "Error finding dispatch" })
             next();
           })
       }
     })
 }
+
+
 
 /**
  * This function will changes the status of a dispatch and operator status.
@@ -502,6 +496,51 @@ const deleteLoadTicket = (req, res, next) => {
 }
 
 
+/**
+ * Gets all jobs dependent on query
+ * @author Ravinder Shokar
+ * @verision 1.0 
+ * @date Aug 2 2021
+ * @param { JSON } q { start, finish, customer, type}
+ * @param { String } id Current User id
+ * @param { String } type Current User type
+ * @return { Promise }
+ */
+const getJobTickets = (q, id, userType) => {
+  let customer;
+  let user;
+
+  if (q.type === "contractor") {
+    customer = { contractor: q.customer }
+  } else if (q.type === "operator") {
+    customer = { "operator.name": q.customer };
+  } else if (q.type === "dispatcher") {
+    customer = { "dispatcher.company": q.customer };
+  }
+
+  if (userType === "dispatcher") {
+    user = { "dispatcher.id": id };
+  } else {
+    user = { "operator.id": id };
+  }
+
+  return new Promise((res, rej) => {
+    Job.find({
+      $and: [user, customer,
+        { $and: [{ date: { $gte: q.start }, date: { $lte: q.finish } }] },
+      ]
+    }).then((jobs) => {
+      if (jobs.length === 0) {
+        rej("No job tickets found in date range.");
+      } else {
+        res(jobs);
+      }
+    })
+  })
+}
+
+
+
 module.exports = {
   createDispatch,
   confirmJobTicket,
@@ -511,4 +550,5 @@ module.exports = {
   updateLoadTicket,
   deleteLoadTicket,
   completeJobTicket,
+  getJobTickets,
 }

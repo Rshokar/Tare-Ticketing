@@ -26,14 +26,14 @@
 
 <div id="contractors">
     <% for (let contractor in contractors) { %>
-        <div class="employee">
-            <a href="/contractor?contractor=<%= contractor %>">
-                <h3>
-                    <%= contractor %>
-                </h3>
-            </a>
-        </div>
-        <% } %>
+    <div class="employee">
+        <a href="/contractor?contractor=<%= contractor %>">
+            <h3>
+                <%= contractor %>
+            </h3>
+        </a>
+    </div>
+    <% } %>
 </div>
 
 <div id="new_contractor_modal" class="modal">
@@ -46,5 +46,7 @@
     </div>
 
 </div>
+
+<script src="js/modal.js"></script>
 
 <script src="js/contractors.js"></script>

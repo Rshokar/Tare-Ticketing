@@ -101,18 +101,3 @@ function submitContractor() {
         }
     })
 }
-
-
-
-/**
- * This function is responsible for closing all modals on the page
- * @author Ravinder Shokar 
- * @version 1.0 
- * @date July 1 2021 
- */
-const closeModals = () => {
-    const modals = document.querySelectorAll(".modal");
-    modals.forEach((modal) => {
-        modal.style.display = "none";
-    })
-}

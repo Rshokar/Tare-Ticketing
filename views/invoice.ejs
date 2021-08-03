@@ -28,39 +28,44 @@
     </div>
 </div>
 
-<div id="type">
-    <div id="contractor" class="mb-3" style="display: none;">
-        <label for=" contractor" class="form-label">Contractor</label>
-        <select class="form-select" aria-label="Default select example" id="contractor">
-            <option selected>Select A Contractor</option>
-            <% for (let contractor in contractors) { %>
-                <option value="<%=contractor%>">
-                    <%= contractor %>
-                </option>
-                <% } %>
-        </select>
+<div>
+    <div id="type">
+        <div id="contractor" class="mb-3" style="display: none;">
+            <label for=" contractor" class="form-label">Contractor*</label>
+            <select class="form-select" aria-label="Default select example">
+                <% for (let contractor in contractors) { %>
+                    <option value="<%=contractor%>">
+                        <%= contractor %>
+                    </option>
+                    <% } %>
+            </select>
+        </div>
+        <div id="operator" class="mb-3">
+            <label for="operator" class="form-label">Operator*</label>
+            <input type="text" class="form-control" placeholder="Operator">
+        </div>
+        <div id="type_error" class="form-text error"></div>
     </div>
-    <div id="operator" class="mb-3">
-        <label for="operator" class="form-label">Operator</label>
-        <input type="text" class="form-control" placeholder="Operator" id="operator">
+
+
+    <div id="date_range">
+        <div id="start" class="mb-3">
+            <label for="start_date" class="form-label">Start*</label>
+            <input type="date" class="form-control" id="start_date">
+        </div>
+
+        <div id="finish" class="mb-3">
+            <label for="finish_date" class="form-label">Finish*</label>
+            <input type="date" class="form-control" id="finish_date">
+        </div>
     </div>
+    <div id="form_error" class="form-text error mb-3"></div>
+    <button type="button" onclick="submitInvoiceQuery()" id="create_invoice" class="btn btn-primary"
+        style="width: 100%;">Create Invoice</button>
 </div>
 
 
-<div id="date_range">
-    <div id="start" class="mb-3">
-        <label for="start_date" class="form-label">Start</label>
-        <input type="date" class="form-control" id="start_date">
-    </div>
 
-    <div id="finish" class="mb-3">
-        <label for="finish_date" class="form-label">Finish</label>
-        <input type="date" class="form-control" id="finish_date">
-    </div>
-</div>
-
-<button type="button" onclick="submitInvoiceQuery()" id="create_invoice" class="btn btn-primary"
-    style="width: 100%;">Create Invoice</button>
 
 <script>
     function showOperator() {
@@ -93,5 +98,9 @@
         }
     }
 </script>
+
+<script src="js/modal.js"></script>
+
+<script src="js/reset_errors.js"></script>
 
 <script src="js/invoice.js"></script>

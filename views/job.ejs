@@ -15,10 +15,10 @@
 
 <div id="controls">
   <% if (user.type !="dispatcher" ) { %>
-    <a href="/dashboard"><i class="fas fa-arrow-left"></i></a>
-    <% } else { %>
-      <a href="/dispatch?id=<%= job.dispatchTicket %> "><i class="fas fa-arrow-left"></i></a>
-      <% } %>
+  <a href="/dashboard"><i class="fas fa-arrow-left"></i></a>
+  <% } else { %>
+  <a href="/dispatch?id=<%= job.dispatchTicket %> "><i class="fas fa-arrow-left"></i></a>
+  <% } %>
 </div>
 
 
@@ -46,35 +46,35 @@
 
     <div id="details">
       <% if (job.supplier !="" ) { %>
-        <div>
-          <span id="supplier">Supplier: <%= job.supplier %></span>
-        </div>
-        <% } %>
+      <div>
+        <span id="supplier">Supplier: <%= job.supplier %></span>
+      </div>
+      <% } %>
 
-          <% if (job.reciever !="" ) { %>
-            <div>
-              <span id="reciever">Reciever: <%= job.reciever %></span>
-            </div>
-            <% } %>
+      <% if (job.reciever !="" ) { %>
+      <div>
+        <span id="reciever">Reciever: <%= job.reciever %></span>
+      </div>
+      <% } %>
 
-              <% if (job.material !="" ) { %>
-                <div>
-                  <span id="material">Material:
-                    <span>
-                      <%= job.material %>
-                    </span>
-                  </span>
-                </div>
-                <% } %>
-                  <div id='notes'>
-                    Notes: <%= job.notes %>
-                  </div>
+      <% if (job.material !="" ) { %>
+      <div>
+        <span id="material">Material:
+          <span>
+            <%= job.material %>
+          </span>
+        </span>
+      </div>
+      <% } %>
+      <div id='notes'>
+        Notes: <%= job.notes %>
+      </div>
     </div>
 
 
     <div id="num-trucks">
       <% let d=new Date(job.startTime ) %>
-        <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12: false }) %>
+      <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12: false }) %>
     </div>
     <div id="toggles">
       <i class="down fas fa-angle-down" onclick="toggleDown()"></i>
@@ -84,593 +84,558 @@
 </div>
 
 <% if (user.type !="employee" ) { %>
-  <div id="tabs">
-    <div id="left_tab" onclick="showLoads()">
-      Loads
+<div id="tabs">
+  <div id="left_tab" onclick="showLoads()">
+    Loads
+  </div>
+  <div id="right_tab" onclick="showRates()">
+    Rates
+  </div>
+</div>
+<% } %>
+
+
+<% if (user.type!="dispatcher" ) { %>
+<% if (job.status=="sent" ) { %>
+<div id="positive_button_container">
+  <button class="new_load_ticket" onclick="confirmJobTicket()">Confirm</button>
+</div>
+<% } %>
+<% if ( job.status=="confirmed" ) { %>
+<div id="positive_button_container">
+  <button class="new_load_ticket" onclick="activateJobTicket()">Activate</button>
+</div>
+<% } %>
+
+<% if ( job.status=="active" ) { %>
+<div id="positive_button_container">
+  <% if (job.loadTickets[job.loadTickets.length - 1]!=undefined &&
+                    job.loadTickets[job.loadTickets.length - 1].status=="active" ) { %>
+  <button class="new_load_ticket" onclick="openFinishLoadModal()">Finish Load
+    Ticket</button>
+  <% } else { %>
+  <button class="new_load_ticket" onclick="openNewLoadModal()">Add Load
+    Ticket</button>
+  <% } %>
+</div>
+<% } %>
+<% } %>
+
+<!-- All load tickets will be rendered here-->
+<div id="load_tickets">
+  <% for ( let i=0; i < job.loadTickets.length; i++) { %>
+  <div id="<%= i %>" class="load_ticket <%= job.loadTickets[i].status %>">
+    <div class="times">
+      <div class="load_time">
+        <% d=new Date(job.loadTickets[i].loadTime) %>
+        <span>Load: <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12:
+                                    false }) %>
+        </span>
+      </div>
+      <div class="dump_time">
+        <% if (job.loadTickets[i].dumpTime==undefined) { %>
+        <span>Dump: </span>
+        <% } else { %>
+        <% d=new Date(job.loadTickets[i].dumpTime) %>
+        <span>Dump: <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' ,
+                                        hour12: false }) %>
+        </span>
+        <% } %>
+      </div>
     </div>
-    <div id="right_tab" onclick="showRates()">
-      Rates
+    <div class="weight">
+      <span>
+        <%= job.loadTickets[i].tonnage %>
+      </span>
+      <span>
+        <%= job.loadTickets[i].material %>
+      </span>
+    </div>
+
+    <div class="load_details">
+      <div class="load_location">
+        <span>Load: <%= job.loadTickets[i].loadLocation %></span>
+      </div>
+      <div class="dump_location">
+        <span>Dump: <%= job.loadTickets[i].dumpLocation %></span>
+      </div>
+    </div>
+    <% if (job.status !="complete" && user.type !="dispatcher" ) { %>
+    <div class="edit_load"><a href="/edit_load?id=<%=job._id%>&loadId=<%= i %>"><i class=" fas
+                            fa-edit"></i></a></div>
+    <% } %>
+  </div>
+  <% } %>
+</div>
+
+<% if (user.type !="employee" ) { %>
+
+<!-- All rates will be rendered here -->
+<div id="rates" style="display: none;">
+  <% if (job.rates.hourly !=undefined) { %>
+  <div id="hourly">
+    <div class=" contractor">
+      <h3>
+        Hourly
+      </h3>
+    </div>
+    <div id="hourly_rates" style="display: block;">
+      <div class="hourly_rate tandem">
+        <span>Tandem</span>
+        <span class="rate">
+          <%= job.rates.hourly.t %>
+        </span>
+      </div>
+
+      <div class="hourly_rate tandem_2_pup">
+        <span>Tandem 2-axle Pony</span>
+        <span class="rate">
+          <%= job.rates.hourly.t2p %>
+        </span>
+      </div>
+
+      <div class="hourly_rate tandem_3_pup">
+        <span>Tandem 3-axle Pony</span>
+        <span class="rate">
+          <%= job.rates.hourly.t3p %>
+        </span>
+      </div>
+
+      <div class="hourly_rate tandem_3_transfer">
+        <span>Tandem 3-axle Transfer</span>
+        <span class="rate">
+          <%= job.rates.hourly.t3tf %>
+        </span>
+      </div>
+
+      <div class="hourly_rate tandem_4_transfer">
+        <label>Tandem 4-axle Transfer</label>
+        <span class="rate">
+          <%= job.rates.hourly.t4tf %>
+        </span>
+      </div>
+
+      <div class="hourly_rate tandem_4_end_dump">
+        <label>Tandem 4-axle End Dump</label>
+        <span class="rate">
+          <%= job.rates.hourly.t4ed %>
+        </span>
+      </div>
+
+      <div class="hourly_rate tri">
+        <label>3-axle</label>
+        <span class="rate">
+          <%= job.rates.hourly.tri %>
+        </span>
+      </div>
+
+      <div class="hourly_rate tri_2_pony">
+        <label>3-axle 2-axle Pony</label>
+        <span class="rate">
+          <%= job.rates.hourly.tri2p %>
+        </span>
+      </div>
+
+      <div class="hourly_rate tri_3_pony">
+        <label>3-axle 3-axle Pony</label>
+        <span class="rate">
+          <%= job.rates.hourly.tri3p %>
+        </span>
+      </div>
+
+      <div class="hourly_rate tri_3_transfer">
+        <label>3-axle 4-axle Transfer</label>
+        <span class="rate">
+          <%= job.rates.hourly.tri3tf %>
+        </span>
+      </div>
+
+      <div class="hourly_rate tri_4_transfer">
+        <label>3-axle 4-axle Transfer</label>
+        <span class="rate">
+          <%= job.rates.hourly.tri4tf %>
+        </span>
+      </div>
+
+      <div class="hourly_rate tri_4_end_dumo">
+        <label>3-axle 4-axle End Dump</label>
+        <span class="rate">
+          <%= job.rates.hourly.tri4ed %>
+        </span>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
+  <% if (job.rates.perLoad !=undefined) { %>
+  <div id="per_load">
+    <div class="contractor">
+      <h3>
+        Per Load
+      </h3>
+    </div>
+    <div id="per_load_rates" style="display: block;">
+      <% let fee=(parseFloat(job.rates.perLoad.fee) / 100.00).toFixed(2); %>
+      <% for (let i=0; job.rates.perLoad.rates !=undefined && i <
+                                  job.rates.perLoad.rates.length; i++) { %>
+      <% if (user.type !="dispatcher" ) { %>
+      <div class="per_load_rate input_rate mb-2">
+        <div class="form-control mb-2 rate">
+          <span class="mb-2">Rate: </span>
+          <span>
+            <% let rate=job.rates.perLoad.rates[i].r %>
+            <%= parseFloat(rate) - (parseFloat(rate * fee)).toFixed(2) %>
+          </span>
+        </div>
+      </div>
+      <% } else { %>
+      <div class="per_load_rate operator_rate mb-2">
+        <span>Dispatch Fee (%)</span>
+        <span class="rate">
+          <%= job.rates.perLoad.fee %>
+        </span>
+      </div>
+      <div class="per_load_rate input_rate mb-2">
+        <div class="form-control mb-2 rate">
+          <span class="mb-2">Rate: </span>
+          <span>
+            <%= job.rates.perLoad.rates[i].r %>
+          </span>
+        </div>
+      </div>
+      <% } %>
+      <div class="form-control mb-2 load">
+        <span class="mb-2">Load: </span>
+        <span>
+          <%= job.rates.perLoad.rates[i].l %>
+        </span>
+      </div>
+
+      <div class="form-control mb-2 dump">
+        <span class="mb-2">Dump: </span>
+        <span>
+          <%= job.rates.perLoad.rates[i].d %>
+        </span>
+      </div>
+      <% } %>
     </div>
   </div>
   <% } %>
 
 
-    <% if (user.type!="dispatcher" ) { %>
-      <% if (job.status=="sent" ) { %>
-        <div id="positive_button_container">
-          <button class="new_load_ticket" onclick="confirmJobTicket()">Confirm</button>
+  <% if (job.rates.tonnage !=undefined) { %>
+  <div id="tonnage">
+    <div class="contractor">
+      <h3>
+        Tonnage
+      </h3>
+    </div>
+    <div id="tonnage_rates" style="display: block;">
+      <% let fee=(parseFloat(job.rates.tonnage.fee) / 100.00).toFixed(2); %>
+      <% for (let i=0; job.rates.tonnage.rates !=undefined && i <
+                                                    job.rates.tonnage.rates.length; i++) { %>
+      <% if (user.type === "dispatcher" ) { %>
+      <div class="tonnage_rate operator_rate mb-2">
+        <span>Dispatch Fee (%)</span>
+        <span class="rate">
+          <%= job.rates.tonnage.fee %>
+        </span>
+      </div>
+      <div class="tonnage_rate input_rate mb-2">
+        <div class="form-control mb-2 rate">
+          <span class="mb-2">Rate: </span>
+          <span>
+            <%= job.rates.tonnage.rates[i].r %>
+          </span>
+        </div>
+
+        <% } else { %>
+        <div class="tonnage_rate input_rate mb-2">
+          <div class="form-control mb-2 rate">
+            <span class="mb-2">Rate: </span>
+            <span>
+              <% let rate=job.rates.tonnage.rates[i].r %>
+              <%= parseFloat(rate) - (parseFloat(rate * fee)).toFixed(2)
+                                                                %>
+            </span>
+          </div>
+          <% } %>
+          <div class="form-control mb-2 load">
+            <span class="mb-2">Load: </span>
+            <span>
+              <%= job.rates.tonnage.rates[i].l %>
+            </span>
+          </div>
+          <div class="form-control mb-2 dump">
+            <span class="mb-2">Dump: </span>
+            <span>
+              <%= job.rates.tonnage.rates[i].d %>
+            </span>
+          </div>
         </div>
         <% } %>
-          <% if ( job.status=="confirmed" ) { %>
-            <div id="positive_button_container">
-              <button class="new_load_ticket" onclick="activateJobTicket()">Activate</button>
-            </div>
-            <% } %>
+      </div>
+    </div>
+    <% } %>
+  </div>
+  <% } %>
 
-              <% if ( job.status=="active" ) { %>
-                <div id="positive_button_container">
-                  <% if (job.loadTickets[job.loadTickets.length - 1]!=undefined &&
-                    job.loadTickets[job.loadTickets.length - 1].status=="active" ) { %>
-                    <button class="new_load_ticket" onclick="openFinishLoadModal()">Finish Load
-                      Ticket</button>
-                    <% } else { %>
-                      <button class="new_load_ticket" onclick="openNewLoadModal()">Add Load
-                        Ticket</button>
-                      <% } %>
-                </div>
-                <% } %>
-                  <% } %>
+  <% if (user.type!="dispatcher" ) { %>
+  <% if (job.status=="sent" ) { %>
+  <div id="negative_button_container">
+    <button class="new_load_ticket" onclick="declineJobTicket()">Decline</button>
+  </div>
+  <% } %>
+  <% if ( job.status=="confirmed" ) { %>
+  <div id="negative_button_container">
+    <button class="new_load_ticket" onclick="declineJobTicket()">Cancel
+      Job</button>
+  </div>
+  <% } %>
 
-                    <!-- All load tickets will be rendered here-->
-                    <div id="load_tickets">
-                      <% for ( let i=0; i < job.loadTickets.length; i++) { %>
-                        <div id="<%= i %>" class="load_ticket <%= job.loadTickets[i].status %>">
-                          <div class="times">
-                            <div class="load_time">
-                              <% d=new Date(job.loadTickets[i].loadTime) %>
-                                <span>Load: <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12:
-                                    false }) %>
-                                </span>
-                            </div>
-                            <div class="dump_time">
-                              <% if (job.loadTickets[i].dumpTime==undefined) { %>
-                                <span>Dump: </span>
-                                <% } else { %>
-                                  <% d=new Date(job.loadTickets[i].dumpTime) %>
-                                    <span>Dump: <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' ,
-                                        hour12: false }) %>
-                                    </span>
-                                    <% } %>
-                            </div>
-                          </div>
-                          <div class="weight">
-                            <span>
-                              <%= job.loadTickets[i].tonnage %>
-                            </span>
-                            <span>
-                              <%= job.loadTickets[i].material %>
-                            </span>
-                          </div>
+  <% if ( job.status=="active" ) { %>
+  <div id="negative_button_container">
+    <button class="new_load_ticket" onclick="openSignOffModal()">Sign
+      Off</button>
+  </div>
+  <% } %>
+  <% } %>
+</div>
 
-                          <div class="load_details">
-                            <div class="load_location">
-                              <span>Load: <%= job.loadTickets[i].loadLocation %></span>
-                            </div>
-                            <div class="dump_location">
-                              <span>Dump: <%= job.loadTickets[i].dumpLocation %></span>
-                            </div>
-                          </div>
-                          <% if (job.status !="complete" && user.type !="dispatcher" ) { %>
-                            <div class="edit_load"><a href="/edit_load?id=<%=job._id%>&loadId=<%= i %>"><i class=" fas
-                            fa-edit"></i></a></div>
-                            <% } %>
-                        </div>
-                        <% } %>
-                    </div>
+<div id="new_load_ticket_modal" class="modal">
+  <div id='new_load_ticket' class="modal-content">
+    <h3>Add Load Ticket</h3>
+    <div class="mb-3">
+      <label for="exampleFormControlTextarea1" class="form-label">Load
+        Time*</label>
+      <input type="datetime-local" class="form-control" id="load_time" min="<%= minDate %>">
+      <span class="error" id="load_time_error"></span>
+    </div>
 
-                    <% if (user.type !="employee" ) { %>
-                      <!-- All rates will be rendered here -->
-                      <div id="rates" style="display: none;">
-                        <% if (job.rates.hourly !=undefined) { %>
-                          <div id="hourly">
-                            <div class=" contractor">
-                              <h3>
-                                Hourly
-                              </h3>
-                            </div>
-                            <div id="hourly_rates" style="display: block;">
-                              <div class="hourly_rate tandem">
-                                <span>Tandem</span>
-                                <span class="rate">
-                                  <%= job.rates.hourly.t %>
-                                </span>
-                              </div>
-
-                              <div class="hourly_rate tandem_2_pup">
-                                <span>Tandem 2-axle Pony</span>
-                                <span class="rate">
-                                  <%= job.rates.hourly.t2p %>
-                                </span>
-                              </div>
-
-                              <div class="hourly_rate tandem_3_pup">
-                                <span>Tandem 3-axle Pony</span>
-                                <span class="rate">
-                                  <%= job.rates.hourly.t3p %>
-                                </span>
-                              </div>
-
-                              <div class="hourly_rate tandem_3_transfer">
-                                <span>Tandem 3-axle Transfer</span>
-                                <span class="rate">
-                                  <%= job.rates.hourly.t3tf %>
-                                </span>
-                              </div>
-
-                              <div class="hourly_rate tandem_4_transfer">
-                                <label>Tandem 4-axle Transfer</label>
-                                <span class="rate">
-                                  <%= job.rates.hourly.t4tf %>
-                                </span>
-                              </div>
-
-                              <div class="hourly_rate tandem_4_end_dump">
-                                <label>Tandem 4-axle End Dump</label>
-                                <span class="rate">
-                                  <%= job.rates.hourly.t4ed %>
-                                </span>
-                              </div>
-
-                              <div class="hourly_rate tri">
-                                <label>3-axle</label>
-                                <span class="rate">
-                                  <%= job.rates.hourly.tri %>
-                                </span>
-                              </div>
-
-                              <div class="hourly_rate tri_2_pony">
-                                <label>3-axle 2-axle Pony</label>
-                                <span class="rate">
-                                  <%= job.rates.hourly.tri2p %>
-                                </span>
-                              </div>
-
-                              <div class="hourly_rate tri_3_pony">
-                                <label>3-axle 3-axle Pony</label>
-                                <span class="rate">
-                                  <%= job.rates.hourly.tri3p %>
-                                </span>
-                              </div>
-
-                              <div class="hourly_rate tri_3_transfer">
-                                <label>3-axle 4-axle Transfer</label>
-                                <span class="rate">
-                                  <%= job.rates.hourly.tri3tf %>
-                                </span>
-                              </div>
-
-                              <div class="hourly_rate tri_4_transfer">
-                                <label>3-axle 4-axle Transfer</label>
-                                <span class="rate">
-                                  <%= job.rates.hourly.tri4tf %>
-                                </span>
-                              </div>
-
-                              <div class="hourly_rate tri_4_end_dumo">
-                                <label>3-axle 4-axle End Dump</label>
-                                <span class="rate">
-                                  <%= job.rates.hourly.tri4ed %>
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <% } %>
-
-                            <% if (job.rates.perLoad !=undefined) { %>
-                              <div id="per_load">
-                                <div class="contractor">
-                                  <h3>
-                                    Per Load
-                                  </h3>
-                                </div>
-                                <div id="per_load_rates" style="display: block;">
-                                  <% let fee=(parseFloat(job.rates.perLoad.fee) / 100.00).toFixed(2); %>
-                                    <% for (let i=0; job.rates.perLoad.rates !=undefined && i <
-                                      job.rates.perLoad.rates.length; i++) { %>
-                                      <% if (user.type !="dispatcher" ) { %>
-                                        <div class="per_load_rate input_rate mb-2">
-                                          <div class="form-control mb-2 rate">
-                                            <span class="mb-2">Rate: </span>
-                                            <span>
-                                              <% let rate=job.rates.perLoad.rates[i].r %>
-                                                <%= parseFloat(rate) - (parseFloat(rate * fee)).toFixed(2) %>
-                                            </span>
-                                          </div>
-                                          <% } else { %>
-                                            <div class="per_load_rate operator_rate mb-2">
-                                              <span>Dispatch Fee (%)</span>
-                                              <span class="rate">
-                                                <%= job.rates.perLoad.fee %>
-                                              </span>
-                                            </div>
-                                            <div class="per_load_rate input_rate mb-2">
-                                              <div class="form-control mb-2 rate">
-                                                <span class="mb-2">Rate: </span>
-                                                <span>
-                                                  <%= job.rates.perLoad.rates[i].r %>
-                                                </span>
-                                              </div>
-                                              <% } %>
-                                                <div class="form-control mb-2 load">
-                                                  <span class="mb-2">Load: </span>
-                                                  <span>
-                                                    <%= job.rates.perLoad.rates[i].l %>
-                                                  </span>
-                                                </div>
-
-                                                <div class="form-control mb-2 dump">
-                                                  <span class="mb-2">Dump: </span>
-                                                  <span>
-                                                    <%= job.rates.perLoad.rates[i].d %>
-                                                  </span>
-                                                </div>
-                                            </div>
-                                            <% } %>
-                                        </div>
-                                        <% } %>
-                                          <% if (job.rates.tonnage !=undefined) { %>
-                                            <div id="tonnage">
-                                              <div class="contractor">
-                                                <h3>
-                                                  Tonnage
-                                                </h3>
-                                              </div>
-
-                                              <div id="tonnage_rates" style="display: block;">
-                                                <% let fee=(parseFloat(job.rates.tonnage.fee) / 100.00).toFixed(2); %>
-                                                  <% for (let i=0; job.rates.tonnage.rates !=undefined && i <
-                                                    job.rates.tonnage.rates.length; i++) { %>
-                                                    <% if (user.type !="dispatcher" ) { %>
-                                                      <div class="per_load_rate input_rate mb-2">
-                                                        <div class="form-control mb-2 rate">
-                                                          <span class="mb-2">Rate: </span>
-                                                          <span>
-                                                            <% let rate=job.rates.tonnage.rates[i].r %>
-                                                              <%= parseFloat(rate) - (parseFloat(rate * fee)).toFixed(2)
-                                                                %>
-                                                          </span>
-                                                        </div>
-                                                        <% } else { %>
-                                                          <div class="per_load_rate operator_rate mb-2">
-                                                            <span>Dispatch Fee (%)</span>
-                                                            <span class="rate">
-                                                              <%= job.rates.perLoad.fee %>
-                                                            </span>
-                                                          </div>
-                                                          <div class="per_load_rate input_rate mb-2">
-                                                            <div class="form-control mb-2 rate">
-                                                              <span class="mb-2">Rate: </span>
-                                                              <span>
-                                                                <%= job.rates.tonnage.rates[i].r %>
-                                                              </span>
-                                                            </div>
-                                                            <% } %>
-
-                                                              <div class="form-control mb-2 load">
-                                                                <span class="mb-2">Load: </span>
-                                                                <span>
-                                                                  <%= job.rates.tonnage.rates[i].l %>
-                                                                </span>
-                                                              </div>
-
-                                                              <div class="form-control mb-2 dump">
-                                                                <span class="mb-2">Dump: </span>
-                                                                <span>
-                                                                  <%= job.rates.tonnage.rates[i].d %>
-                                                                </span>
-                                                              </div>
-                                                          </div>
-                                                          <% } %>
-
-                                                            <% } %>
-
-                                                      </div>
-                                              </div>
-                                              <% } %>
-
-                                                <% if (user.type!="dispatcher" ) { %>
-                                                  <% if (job.status=="sent" ) { %>
-                                                    <div id="negative_button_container">
-                                                      <button class="new_load_ticket"
-                                                        onclick="declineJobTicket()">Decline</button>
-                                                    </div>
-                                                    <% } %>
-                                                      <% if ( job.status=="confirmed" ) { %>
-                                                        <div id="negative_button_container">
-                                                          <button class="new_load_ticket"
-                                                            onclick="declineJobTicket()">Cancel
-                                                            Job</button>
-                                                        </div>
-                                                        <% } %>
-
-                                                          <% if ( job.status=="active" ) { %>
-                                                            <div id="negative_button_container">
-                                                              <button class="new_load_ticket"
-                                                                onclick="openSignOffModal()">Sign
-                                                                Off</button>
-                                                            </div>
-                                                            <% } %>
-                                                              <% } %>
-
-                                                                <div id="new_load_ticket_modal" class="modal">
-                                                                  <div id='new_load_ticket' class="modal-content">
-                                                                    <h3>Add Load Ticket</h3>
-                                                                    <div class="mb-3">
-                                                                      <label for="exampleFormControlTextarea1"
-                                                                        class="form-label">Load
-                                                                        Time*</label>
-                                                                      <input type="datetime-local" class="form-control"
-                                                                        id="load_time" min="<%= minDate %>">
-                                                                      <span class="error" id="load_time_error"></span>
-                                                                    </div>
-
-                                                                    <div class="mb-3">
-                                                                      <label for="exampleFormControlInput1"
-                                                                        class="form-label">Load
-                                                                        Location*</label>
-                                                                      <select class="form-select"
-                                                                        aria-label="Default select example"
-                                                                        id="per_load_load_locations">
-                                                                        <% if (job.rates.hourly) { %>
-                                                                          <option value="<%= job.loadLocation %>"
-                                                                            selected>
-                                                                            <%= job.loadLocation %>
-                                                                          </option>
-                                                                          <% } else { %>
-                                                                            <option value="default" selected>
-                                                                              Per Load
-                                                                              Load
-                                                                              Locations
-                                                                            </option>
-                                                                            <% for (let i=0; i <
+    <div class="mb-3">
+      <label for="exampleFormControlInput1" class="form-label">Load
+        Location*</label>
+      <select class="form-select" aria-label="Default select example" id="per_load_load_locations">
+        <% if (job.rates.hourly) { %>
+        <option value="<%= job.loadLocation %>" selected>
+          <%= job.loadLocation %>
+        </option>
+        <% } else { %>
+        <option value="default" selected>
+          Per Load
+          Load
+          Locations
+        </option>
+        <% for (let i=0; i <
                                                                               perLoadLocations.length; i++) { %>
-                                                                              <option
-                                                                                value="<%=  perLoadLocations[i].l %>">
-                                                                                <%= perLoadLocations[i].l %>
-                                                                              </option>
-                                                                              <% } %>
-                                                                                <% } %>
-                                                                      </select>
+        <option value="<%=  perLoadLocations[i].l %>">
+          <%= perLoadLocations[i].l %>
+        </option>
+        <% } %>
+        <% } %>
+      </select>
 
-                                                                      <select class="form-select"
-                                                                        aria-label="Default select example"
-                                                                        id="tonnage_load_locations">
-                                                                        <% if (job.rates.hourly) { %>
-                                                                          <option value="<%= job.loadLocation %>"
-                                                                            selected>
-                                                                            <%= job.loadLocation %>
-                                                                          </option>
-                                                                          <% } else { %>
-                                                                            <option value="default" selected>
-                                                                              Tonnage
-                                                                              Load
-                                                                              Locations
-                                                                            </option>
-                                                                            <% for (let i=0; i <
+      <select class="form-select" aria-label="Default select example" id="tonnage_load_locations">
+        <% if (job.rates.hourly) { %>
+        <option value="<%= job.loadLocation %>" selected>
+          <%= job.loadLocation %>
+        </option>
+        <% } else { %>
+        <option value="default" selected>
+          Tonnage
+          Load
+          Locations
+        </option>
+        <% for (let i=0; i <
                                                                               tonLoadLocations.length; i++) { %>
-                                                                              <option
-                                                                                value="<%=  tonLoadLocations[i].l %>">
-                                                                                <%= tonLoadLocations[i].l %>
-                                                                              </option>
-                                                                              <% } %>
-                                                                                <% } %>
-                                                                      </select>
+        <option value="<%=  tonLoadLocations[i].l %>">
+          <%= tonLoadLocations[i].l %>
+        </option>
+        <% } %>
+        <% } %>
+      </select>
 
-                                                                      <span class="error"
-                                                                        id="load_location_error"></span>
-                                                                    </div>
-                                                                    <div id="checkboxs">
-                                                                      <div class="form-check">
-                                                                        <input class="form-check-input" type="checkbox"
-                                                                          id="load_check"
-                                                                          onclick="disableTonnageInput()" checked>
-                                                                        <label class="form-check-label"
-                                                                          for="load_check">
-                                                                          Load Ticket
-                                                                        </label>
-                                                                      </div>
-                                                                      <div class="form-check">
-                                                                        <input class="form-check-input" type="checkbox"
-                                                                          id="tonnage_check"
-                                                                          onclick="enableTonnageInput()">
-                                                                        <label class="form-check-label"
-                                                                          for="tonnage_check">
-                                                                          Tonnage Ticket
-                                                                        </label>
-                                                                      </div>
-                                                                    </div>
-                                                                    <div class="mb-3">
-                                                                      <label for="material_input"
-                                                                        class="form-label">Material*</label>
-                                                                      <input class="form-control" id="material_input">
-                                                                      <span class="error"
-                                                                        id="load_material_error"></span>
-                                                                    </div>
-                                                                    <div class="mb-3">
-                                                                      <label for="tonnage_input"
-                                                                        class="form-label">Tonnage*</label>
-                                                                      <input type="number" class="form-control"
-                                                                        id="tonnage_input" disabled>
-                                                                      <span class="error" id="tonnage_error"></span>
-                                                                    </div>
-                                                                    <span class="error"
-                                                                      id="create_load_ticket_error"></span>
-                                                                    <button type="button" class="btn btn-secondary mb-3"
-                                                                      onclick="createLoadTicket()">Submit</button>
-                                                                    <button type="button" class="btn btn-danger mb-3"
-                                                                      onclick="closeModals()">Cancel</button>
-                                                                  </div>
-                                                                </div>
+      <span class="error" id="load_location_error"></span>
+    </div>
+    <div id="checkboxs">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="load_check" onclick="disableTonnageInput()" checked>
+        <label class="form-check-label" for="load_check">
+          Load Ticket
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="tonnage_check" onclick="enableTonnageInput()">
+        <label class="form-check-label" for="tonnage_check">
+          Tonnage Ticket
+        </label>
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="material_input" class="form-label">Material*</label>
+      <input class="form-control" id="material_input">
+      <span class="error" id="load_material_error"></span>
+    </div>
+    <div class="mb-3">
+      <label for="tonnage_input" class="form-label">Tonnage*</label>
+      <input type="number" class="form-control" id="tonnage_input" disabled>
+      <span class="error" id="tonnage_error"></span>
+    </div>
+    <span class="error" id="create_load_ticket_error"></span>
+    <button type="button" class="btn btn-secondary mb-3" onclick="createLoadTicket()">Submit</button>
+    <button type="button" class="btn btn-danger mb-3" onclick="closeModals()">Cancel</button>
+  </div>
+</div>
 
-                                                                <div id="finish_load_ticket_modal" class="modal">
-                                                                  <div id='finish_load_ticket' class="modal-content">
-                                                                    <h3>Finish Load Ticket</h3>
-                                                                    <div class="mb-3">
-                                                                      <select class="form-select"
-                                                                        aria-label="Default select example"
-                                                                        id="dump_locations">
-                                                                        <% if (job.rates.hourly) { %>
-                                                                          <option value="<%= job.dumpLocation %>"
-                                                                            selected>
-                                                                            <%= job.dumpLocation %>
-                                                                          </option>
-                                                                          <% } else
+<div id="finish_load_ticket_modal" class="modal">
+  <div id='finish_load_ticket' class="modal-content">
+    <h3>Finish Load Ticket</h3>
+    <div class="mb-3">
+      <select class="form-select" aria-label="Default select example" id="dump_locations">
+        <% if (job.rates.hourly) { %>
+        <option value="<%= job.dumpLocation %>" selected>
+          <%= job.dumpLocation %>
+        </option>
+        <% } else
                                                                             if(job.loadTickets[job.loadTickets.length
                                                                             -1]!=undefined &&
                                                                             job.loadTickets[job.loadTickets.length
                                                                             -1].status=="active" ) { %>
-                                                                            <option value="default" selected>
-                                                                              Dump
-                                                                              Locations
-                                                                            </option>
-                                                                            <% let
+        <option value="default" selected>
+          Dump
+          Locations
+        </option>
+        <% let
                                                                               load=job.loadTickets[job.loadTickets.length
                                                                               -1] %>
-                                                                              <% if (load.type=="ton" ) { %>
-                                                                                <% let tonRates=job.rates.tonnage.rates
+        <% if (load.type=="ton" ) { %>
+        <% let tonRates=job.rates.tonnage.rates
                                                                                   %>
-                                                                                  <% for (let i=0; i < tonRates.length ;
+        <% for (let i=0; i < tonRates.length ;
                                                                                     i++) { %>
-                                                                                    <% if
+        <% if
                                                                                       (tonRates[i].l==load.loadLocation)
                                                                                       { %>
-                                                                                      <option
-                                                                                        value="<%= tonRates[i].d %>">
-                                                                                        <%= tonRates[i].d %>
-                                                                                      </option>
-                                                                                      <% } } %>
-                                                                                        <% } else if( load.type=="load"
+        <option value="<%= tonRates[i].d %>">
+          <%= tonRates[i].d %>
+        </option>
+        <% } } %>
+        <% } else if( load.type=="load"
                                                                                           ) { %>
-                                                                                          <% let
+        <% let
                                                                                             perRates=job.rates.perLoad.rates
                                                                                             %>
-                                                                                            <% for (let i=0; i <
+        <% for (let i=0; i <
                                                                                               perRates.length ; i++) {
                                                                                               %>
-                                                                                              <% if
+        <% if
                                                                                                 (perRates[i].l==load.loadLocation)
                                                                                                 { %>
-                                                                                                <option
-                                                                                                  value="<%= perRates[i].d %>">
-                                                                                                  <%= perRates[i].d %>
-                                                                                                </option>
-                                                                                                <% } } %>
-                                                                                                  <% } %>
-                                                                                                    <% } %>
+        <option value="<%= perRates[i].d %>">
+          <%= perRates[i].d %>
+        </option>
+        <% } } %>
+        <% } %>
+        <% } %>
 
-                                                                      </select>
-                                                                    </div>
-                                                                    <div class="mb-3">
-                                                                      <label for="exampleFormControlTextarea1"
-                                                                        class="form-label">Dump
-                                                                        Time</label>
-                                                                      <input type="datetime-local" class="form-control"
-                                                                        id="dump_time" min="<%= minDate %>">
-                                                                      <span class="error" id="dump_time_error"></span>
-                                                                    </div>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="exampleFormControlTextarea1" class="form-label">Dump
+        Time</label>
+      <input type="datetime-local" class="form-control" id="dump_time" min="<%= minDate %>">
+      <span class="error" id="dump_time_error"></span>
+    </div>
 
-                                                                    <span class="error"
-                                                                      id="finish_load_ticket_error"></span>
-                                                                    <button type="button" class="btn btn-secondary mb-2"
-                                                                      onclick="finishLoadTicket()">Submit</button>
-                                                                    <button type="button" class="btn btn-danger mb-2"
-                                                                      onclick="closeModals()">Cancel</button>
-                                                                  </div>
-                                                                </div>
+    <span class="error" id="finish_load_ticket_error"></span>
+    <button type="button" class="btn btn-secondary mb-2" onclick="finishLoadTicket()">Submit</button>
+    <button type="button" class="btn btn-danger mb-2" onclick="closeModals()">Cancel</button>
+  </div>
+</div>
 
-                                                                <div id="sign_off_ticket_modal" class="modal">
-                                                                  <div id='sign_off' class="modal-content">
-                                                                    <h3>Sign Off</h3>
-                                                                    <div class="mb-3">
-                                                                      <label for="exampleFormControlTextarea1"
-                                                                        class="form-label">Sign
-                                                                        Off Time</label>
-                                                                      <input type="datetime-local" class="form-control"
-                                                                        id="sign_off_time" min="<%= minDate %>">
-                                                                      <span class="error" id="sign_off_error"></span>
-                                                                    </div>
-                                                                    <button type="button" class="btn btn-secondary mb-2"
-                                                                      onclick="signOff()">Submit</button>
-                                                                    <button type="button" class="btn btn-danger mb-2"
-                                                                      onclick="closeModals()">Cancel</button>
-                                                                  </div>
-                                                                </div>
+<div id="sign_off_ticket_modal" class="modal">
+  <div id='sign_off' class="modal-content">
+    <h3>Sign Off</h3>
+    <div class="mb-3">
+      <label for="exampleFormControlTextarea1" class="form-label">Sign
+        Off Time</label>
+      <input type="datetime-local" class="form-control" id="sign_off_time" min="<%= minDate %>">
+      <span class="error" id="sign_off_error"></span>
+    </div>
+    <button type="button" class="btn btn-secondary mb-2" onclick="signOff()">Submit</button>
+    <button type="button" class="btn btn-danger mb-2" onclick="closeModals()">Cancel</button>
+  </div>
+</div>
 
-                                                                <!-- This JS file contains functions that will add new load tickets to job tickets. -->
-                                                                <script src="js/job.js"></script>
+<script src="js/reset_errors.js"></script>
 
-                                                                <script src="js/edit_load.js"></script>
+<script src="js/modal.js"></script>
 
-                                                                <script>
-                                                                  /**
-                                                                   * This function is responsible for showing the rates tab
-                                                                   * @author Ravinder Shokar 
-                                                                   * @verion 1.0 
-                                                                   * @date July 17 2021
-                                                                   */
-                                                                  function showRates() {
+<!-- This JS file contains functions that will add new load tickets to job tickets. -->
+<script src="js/job.js"></script>
+
+<script src="js/edit_load.js"></script>
+
+<script>
+  /**
+   * This function is responsible for showing the rates tab
+   * @author Ravinder Shokar 
+   * @verion 1.0 
+   * @date July 17 2021
+   */
+  function showRates() {
 
 
-                                                                    const loadTab = document.getElementById("left_tab");
-                                                                    const rateTab = document.getElementById("right_tab");
+    const loadTab = document.getElementById("left_tab");
+    const rateTab = document.getElementById("right_tab");
 
-                                                                    const rates = document.getElementById("rates");
-                                                                    const loads = document.getElementById("load_tickets");
+    const rates = document.getElementById("rates");
+    const loads = document.getElementById("load_tickets");
 
-                                                                    if (rates.style.display == "none") {
-                                                                      rateTab.style.backgroundColor = "#004065";
-                                                                      rateTab.style.color = "white";
+    if (rates.style.display == "none") {
+      rateTab.style.backgroundColor = "#004065";
+      rateTab.style.color = "white";
 
-                                                                      loadTab.style.backgroundColor = "#CFD8DC"
-                                                                      loadTab.style.color = "black"
+      loadTab.style.backgroundColor = "#CFD8DC"
+      loadTab.style.color = "black"
 
-                                                                      rates.style.display = "block";
-                                                                      loads.style.display = "none";
-                                                                    }
-                                                                  }
+      rates.style.display = "block";
+      loads.style.display = "none";
+    }
+  }
 
-                                                                  /**
-                                                                   * This function is responsible for showing the rates tab
-                                                                   * @author Ravinder Shokar 
-                                                                   * @verion 1.0 
-                                                                   * @date July 17 2021
-                                                                   */
-                                                                  function showLoads() {
+  /**
+   * This function is responsible for showing the rates tab
+   * @author Ravinder Shokar 
+   * @verion 1.0 
+   * @date July 17 2021
+   */
+  function showLoads() {
 
-                                                                    const loadTab = document.getElementById("left_tab");
-                                                                    const rateTab = document.getElementById("right_tab");
+    const loadTab = document.getElementById("left_tab");
+    const rateTab = document.getElementById("right_tab");
 
-                                                                    const rates = document.getElementById("rates");
-                                                                    const loads = document.getElementById("load_tickets");
+    const rates = document.getElementById("rates");
+    const loads = document.getElementById("load_tickets");
 
 
-                                                                    if (loads.style.display == "none") {
+    if (loads.style.display == "none") {
 
-                                                                      rateTab.style.color = "black";
-                                                                      rateTab.style.backgroundColor = "#CFD8DC";
+      rateTab.style.color = "black";
+      rateTab.style.backgroundColor = "#CFD8DC";
 
-                                                                      loadTab.style.backgroundColor = "#004065"
-                                                                      loadTab.style.color = "white"
+      loadTab.style.backgroundColor = "#004065"
+      loadTab.style.color = "white"
 
-                                                                      rates.style.display = "none";
-                                                                      loads.style.display = "block";
-                                                                    }
-                                                                  }
+      rates.style.display = "none";
+      loads.style.display = "block";
+    }
+  }
 
-                                                                </script>
+</script>
 
-                                                                <!-- This JS file contains functions that will change the status of tickets. -->
-                                                                <script src="js/ticket_status_controller.js"></script>
+<!-- This JS file contains functions that will change the status of tickets. -->
+<script src="js/ticket_status_controller.js"></script>
 
-                                                                <!-- This JS file contains functions that will change the status of tickets. -->
-                                                                <script src="js/ticket_preview.js"></script>
+<!-- This JS file contains functions that will change the status of tickets. -->
+<script src="js/ticket_preview.js"></script>

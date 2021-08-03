@@ -11,7 +11,7 @@ function addOperatorCards() {
     let operators = dispatch.operators;
     const operatorsContainer = document.getElementById("operators");
 
-    let startTime = dispatch.date + "T00:00";
+    let startTime = dispatch.date + "T07:00";
     let name = "Add Operator";
     let status = "empty";
     let id = "";
@@ -184,12 +184,13 @@ function getEquipmentHTML(e) {
 function addOperator() {
     const numberOfTrucks = document.getElementById("number_of_trucks");
     const operatorsContainer = document.getElementById("operators")
-    let startTime = dispatch.date + 'T00:00:00'
+    let startTime = dispatch.date + 'T07:00'
+    console.log(startTime)
     const [truck, trailer] = getEquipmentHTML();
 
     const obj = {
         id: dispatch.numTrucks,
-        start: dispatch.date + "T00:00",
+        start: startTime,
         status: "empty",
         userId: "",
         name: "Add Operator",
