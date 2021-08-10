@@ -17,7 +17,6 @@
 .times {
     grid-column: 1 / span 1;
     grid-row: 1 / span 1;
-    margin-top: .5em;
   margin-bottom: .5em;
     font-size: 15pt;
 }

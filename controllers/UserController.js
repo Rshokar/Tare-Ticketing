@@ -160,4 +160,20 @@ async function updateEmp(emp, decodedToken) {
 }
 
 
-module.exports = { addRates, updateEmployee };
+const getUser = async (id) => {
+  return new Promise((res, rej) => {
+    User.findOne({
+      _id: id
+    })
+      .then(user => {
+        if (user === null) {
+          rej("User not found.");
+        } else {
+          res(user);
+        }
+      })
+  })
+}
+
+
+module.exports = { addRates, updateEmployee, getUser };

@@ -410,14 +410,14 @@ function addRoute(type, i, obj) {
     }
 
     rate.querySelector("button").addEventListener("click", (e) => {
-        const container = e.path[2]
+        const container = e.target.parentElement.parentElement;
         const routes = container.querySelectorAll(".input_rate");
 
         if (routes.length == 2) {
-            e.path[1].remove();
+            e.target.parentElement.remove();
             container.querySelector(".input_rate .remove_rate").style.display = "none"
         } else {
-            e.path[1].remove();
+            e.target.parentElement.remove();
         }
 
     });

@@ -13,6 +13,7 @@ const createInvoice = async (req, res, next) => {
 
   let jobs
   let inv;
+  let invId;
 
   if (status.valid) {
     jwt.verify(token, "butternut", async (err, decodedToken) => {
@@ -22,7 +23,7 @@ const createInvoice = async (req, res, next) => {
         try {
           inv = await getInvoice(query, decodedToken.id);
           jobs = await TicketController.getJobTickets(query, decodedToken.id, decodedToken.type);
-          await buildInvoice(jobs, inv);
+          invId = await buildInvoice(jobs, inv);
         } catch (e) {
           res.send({ staus: "error", message: e })
           next();
@@ -86,9 +87,7 @@ const validateInvoiceQuery = async (q) => {
 function buildInvoice(jobs, inv) {
   let total = 0
   return new Promise((res, rej) => {
-
     for (let i = 0; i < jobs.length; i++) {
-
       if (jobs[i].rates.hourly !== undefined) {
         buildHourlyRow(jobs[i]).then((row) => { total += inv.i.push(row); })
           .catch((err) => { rej(err) });
@@ -115,17 +114,6 @@ function buildInvoice(jobs, inv) {
   })
 }
 
-/**
- * Builds an hourly rows
- * @author Ravinder Shokar 
- * @version 1.0 
- * @date Aug 3 2021
- * @param { Job } job 
- */
-function buildHourlyRow(job) {
-
-}
-
 
 /**
  * Builds tonnage rows
@@ -135,7 +123,6 @@ function buildHourlyRow(job) {
  * @param { [Job] } jobs Job tickets
  */
 function buildTonnageRows(jobs) {
-
 }
 
 
@@ -174,7 +161,6 @@ function getInvoice(q, id) {
         lastIndex: 0,
       })
       res(inv);
-
     } catch (e) {
       rej(e);
     }

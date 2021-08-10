@@ -1,9 +1,6 @@
 .operator {
-    margin-top: 1em;
     padding: .5em .5em .5em .5em;
     display: grid;
-    grid-template-columns: 75% 25%;
-    border-radius: 2%;
 }
 
 
@@ -18,12 +15,12 @@
 .operator_container {
     margin: .1em;
     background-color: white;
+    padding: .4em .4em .4em .4em
     
 }
 
 .operator_name {
     font-size: 15pt;
-    padding: 5px;
     text-decoration: underline;
 }
 

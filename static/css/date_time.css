@@ -1,0 +1,24 @@
+.date_time {
+    display: grid;
+    grid-template-columns: 49% 49%;
+    margin: auto;
+    text-align: left;
+    width: 100%;
+}
+
+.date_time input[type=date] {
+    grid-column: 1 / span 1;
+}
+
+.date_time input[type=time] {
+    grid-column: 2 / span 1;
+}
+
+.date_time label {
+    grid-column: 1 / span 2;
+    width: 100%;
+}
+
+.date_time .error{
+    grid-column: 1 / span 2;
+}

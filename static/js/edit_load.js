@@ -1,111 +1,82 @@
 /**
- * This script is responsible for managing load tickets
- * @author Ravinder Shokar 
- * @version 1.0
- * @date July 2 2021
- */
-'use strict';
-
-
-
-/**
  * This function is responsible for making a post request to the 
  * server with validated data from the html form
  * @author Ravinder Shokar 
- * @version 1.0 
- * @date July 2 2021
+ * @version 1.1 
+ * @date Aug 9 2021
  * @param loadId is the id of the load ticket
- * @param loadStatus is the status of the load ticket. The functions action
- * is dependent on the load status
+ * @param p { Boolean } if job is paid perLoad
+ * @param t { Boolean } if job is paid tonnage
+ * @param h { Boolean } if job is paid hourly
  */
-function editLoadTicket(loadId, loadStatus) {
-
-    const loadTime = document.getElementById("load_time");
-    const material = document.getElementById("material_input");
-    const tonnage = document.getElementById("tonnage_input");
-
-    const isTon = document.getElementById("tonnage_check").checked;
-    const isLoad = document.getElementById("load_check").checked
-
-    const loadLocation = (isTon ? document.getElementById("tonnage_load_locations") : document.getElementById("per_load_load_locations"));
-
-    let obj = {}
-
+function editLoadTicket(loadId, loadStatus, p, t, h) {
+    let m, o, code, message, temp, obj;
     resetErrors();
 
-
     if (loadStatus == "active") {
-        obj = {
-            loadLocation: loadLocation.value,
-            loadTime: loadTime.value,
-            material: material.value,
-            tonnage: parseFloat(tonnage.value).toFixed(2),
-            type: (isTon ? "ton" : "load")
+        obj = getActiveLoadData(h, p, t);
+        obj.status = loadStatus;
+        if (verifyActiveLoadTicket(obj)) {
+            submitEditedLoadTicket(obj)
+                .then(data => {
+                    modalThenRedirect(data.message, 2000, "/job?id=" + obj.jobId);
+                })
+                .catch(e => {
+                    displayErrorMessage(e);
+                })
         }
-
-        if (verifyActiveLoadTIcket(obj)) {
-            submitEditedLoadTicket(obj);
-        }
-    } else {
-        const dumpLocation = document.getElementById('dump_locations');
-        const dumpTime = document.getElementById('dump_time');
-
-        obj = {
-            loadLocation: loadLocation.value,
-            dumpLocation: dumpLocation.value,
-            loadTime: loadTime.value,
-            dumpTime: dumpTime.value,
-            material: material.value,
-            tonnage: parseFloat(tonnage.value).toFixed(2),
-            type: (isTon ? "ton" : "load")
-        }
-
-
-        if (verifyCompleteLoadTicket(obj)) {
-            submitEditedLoadTicket(obj);
+    } else if (loadStatus == "complete") {
+        obj = getLoadData(h, p, t);
+        console.log(obj);
+        obj.status = loadStatus;
+        if (verifyCompleteLoadTicket(obj) && verifyActiveLoadTicket(obj)) {
+            submitEditedLoadTicket(obj)
+                .then(data => {
+                    modalThenRedirect(data.message, 2000, "/job?id=" + obj.jobId);
+                })
+                .catch(e => {
+                    displayErrorMessage(e);
+                })
         }
     }
 }
 
 
 /**
- * This function is responsible for verifying an active load ticket. Making sure it has
- * the corrext values
+ * Gets completed load tickete data
  * @author Ravinder Shokar 
- * @version 1.0 
- * @date July 2 2021
+ * @version 1.0
+ * @date Aug 9 2021
+
  */
-function verifyActiveLoadTIcket(loadTicket) {
-    const formError = document.getElementById('form_error');
-    const loadLocationError = document.getElementById("load_location_error");
-    const loadTimeError = document.getElementById("load_time_error");
-    const materialError = document.getElementById("materail_error");
-    const tonnageError = document.getElementById("tonnage_error");
+function getCompletedLoadData(p, t, h) {
+    const isTon = document.getElementById("tonnage_check").checked;
+    const isLoad = document.getElementById("load_check").checked;
 
-    const date = new Date();
-    let isValid = true;
+    const time = document.getElementById("load_time").value;
+    const date = document.getElementById("load_date").value;
+    const mat = document.getElementById("material_input").value;
+    const ton = document.getElementById("tonnage_input").value;
+    const dumpDate = document.getElementById("dump_date").value;
+    const dumpTime = document.getElementById('dump_time').value;
 
-    // const hours = loadTicket.loadTime.substring(0, 2);
-    // const minutes = loadTicket.loadTime.substring(3, 5);
-
-    if (loadTicket.loadLocation == "" ||
-        loadTicket.loadTime == "" ||
-        loadTicket.material == "" ||
-        (loadTicket.type != "load" && (loadTicket.tonnage == 0 || loadTicket.tonnage == "NaN"))) {
-        isValid = false;
-        formError.innerHTML = "Required fields can not be left empty or on default state";
-    } else if (loadTicket.loadLocation.length < 2) {
-        isValid = false;
-        loadLocationError.innerHTML = "Load Location must be greater than two characters";
-    } else if (loadTicket.type != "load" && loadTicket.tonnage < 10) {
-        isValid = false;
-        tonnageError.innerHTML = "Must be a positive number greater than 10"
+    let loadLocation;
+    if ((!h && !p && t) || (!h && p && !t) || (h && !p && !t)) {
+        loadLocation = document.getElementById("load_locations");
+    } else {
+        loadLocation = (isTon ? document.getElementById("tonnage_load_locations") : document.getElementById("per_load_locations"));
     }
-    // else if (hours < date.getHours() || (hours < date.getHours() && minuets < date.getMinutes())) {
-    //     isValid = false;
-    //     loadTimeError.innerHTML = "Cannot crete load ticket in the past."
-    // }
-    return isValid;
+
+    let obj = {
+        loadLocation: loadLocation.value,
+        loadTime: date.value + "T" + time.value,
+        material: mat.value,
+        tonnage: parseFloat(ton.value).toFixed(2),
+        type: (isTon ? "ton" : "load"),
+        dumpLocation: document.getElementById('dump_locations').value,
+        dumpTime: dumpTime + "T" + dumpDate,
+    }
+    return obj;
 }
 
 
@@ -164,62 +135,33 @@ function verifyCompleteLoadTicket(loadTicket) {
  * @date July 2 2021 
  */
 function submitEditedLoadTicket(loadTicket) {
+    return new Promise((res, rej) => {
+        const query = new URL(window.location.href);
+        const loadId = query.searchParams.get("loadId");
 
-    const confModal = document.getElementById("confirmation_modal");
-    const confText = document.getElementById("confirmation_text");
-    const confYes = document.getElementById("confirmation_yes");
-    const confNo = document.getElementById("confirmation_no");
-
-    const url = window.location.href;
-    const query = new URL(url);
-    const id = query.searchParams.get("id");
-    const loadId = query.searchParams.get("loadId");
-
-    const obj = {
-        loadTicket,
-        id,
-        loadId
-    }
-
-    $.ajax({
-        url: "/edit_load",
-        type: "POST",
-        dataType: "JSON",
-        data: obj,
-        success: (data) => {
-            if (data.status == "success") {
-                confText.innerHTML = data.message;
-                confYes.innerHTML = "Okay";
-                confNo.style.display = "none";
-
-                confModal.style.display = "block";
-
-                confYes.addEventListener("click", () => {
-                    window.location.href = "/job?id=" + id;
-                })
-            } else {
-                confText.innerHTML = "Failed to update load ticket";
-                confYes.innerHTML = "Okay";
-                confNo.style.display = "none";
-
-                confModal.style.display = "block";
-
-                confYes.addEventListener("click", () => {
-                    confModal.style.display = "none"
+        const obj = { loadTicket, loadId }
+        $.ajax({
+            url: "/edit_load",
+            type: "POST",
+            dataType: "JSON",
+            data: obj,
+            success: (data) => {
+                if (data.status == "success") {
+                    res(data);
+                } else {
+                    rej(data);
+                }
+            },
+            error: (err) => {
+                rej({
+                    status: "error",
+                    err: {
+                        code: "request",
+                        message: "Error connecting to server."
+                    }
                 })
             }
-        },
-        error: (err) => {
-            confText.innerHTML = "Error updating load ticket. Try again later";
-            confYes.innerHTML = "Okay";
-            confNo.style.display = "none";
-
-            confModal.style.display = "block";
-
-            confYes.addEventListener("click", () => {
-                confModal.style.display = "none"
-            })
-        }
+        })
     })
 }
 
@@ -297,44 +239,27 @@ function deleteLoadModal() {
     confModal.style.display = "block";
 }
 
+
+
+$(document).ready(() => {
+    const pLoad = document.getElementById("per_load_locations");
+    const tLoad = document.getElementById("tonnage_load_locations");
+    const load = document.getElementById("load_locations");
+
+    if (pLoad) { pLoad.addEventListener("change", (e) => { updateDumpLocationListner(e); }) };
+    if (tLoad) { tLoad.addEventListener("change", (e) => { updateDumpLocationListner(e); }) };
+    if (load) { load.addEventListener("change", (e) => { updateDumpLocationListner(e); }) };
+})
+
+
 /**
- * This function is responsible for getting a job ticket. This function is
- * dependent on the URL
+ * Updates the dump location if the load location has changed. 
  * @author Ravinder Shokar 
  * @version 1.0 
- * @date July 27 2021
+ * @date Aug 8 2021
+ * @param { Evemt } e 
  */
-function getJob() {
-    return new Promise((resolve, reject) => {
-        const query = new URL(window.location.href);
-        const jobId = query.searchParams.get("id");
-
-        console.log(jobId);
-
-        $.ajax({
-            url: "get_job",
-            dataType: "JSON",
-            type: "GET",
-            data: { jobId },
-            success: (data) => {
-                if (data.status == "success") {
-                    resolve(data.job);
-                } else {
-                    reject()
-                }
-            },
-            error: (err) => {
-                reject()
-            }
-        })
-    })
-}
-
-
-/**
- * Thesee event listners are responsble for 
- */
-document.getElementById("per_load_load_locations").addEventListener("change", (event) => {
+const updateDumpLocationListner = (e) => {
     const query = new URL(window.location.href);
     const loadId = query.searchParams.get("loadId");
 
@@ -343,23 +268,6 @@ document.getElementById("per_load_load_locations").addEventListener("change", (e
 
     getJob()
         .then(job => {
-            updateDumpLocations(job, loadId, isTon, isLoad, event.target.value)
+            updateDumpLocations(job, loadId, isTon, isLoad, e.target.value)
         });
-
-
-});
-document.getElementById("tonnage_load_locations").addEventListener("change", (event) => {
-    const query = new URL(window.location.href);
-    const loadId = query.searchParams.get("loadId");
-
-    const isTon = document.getElementById("tonnage_check").checked;
-    const isLoad = document.getElementById("load_check").checked
-
-    getJob()
-        .then(job => {
-            updateDumpLocations(job, loadId, isTon, isLoad, event.target.value)
-        })
-
-
-
-})
+}

@@ -84,12 +84,16 @@ a:link, a:visited, a:hover {
   
   /* Modal Content */
   .modal-content {
-      text-align: center;
+      text-align: left;
     background-color: #fefefe;
     margin: auto;
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
+  }
+
+  .modal-content h3, .modal-content span {
+    text-align: center;
   }
   
   /* The Close Button */
@@ -129,3 +133,10 @@ a:link, a:visited, a:hover {
     background-color: rgb(254, 130, 130);
   }
   
+  label {
+      padding: .5em 0em 0em .5em;  
+  }
+
+  .form-label {
+    text-align: left;
+  }

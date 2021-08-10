@@ -57,7 +57,6 @@ function submitDispatch() {
  * This function is resposible for adding spots to a dispatch.
  */
 function addOperatorCards() {
-
     const dispatch = JSON.parse(sessionStorage.getItem('dispatch'))
 
     let numTrucks = dispatch.numTrucks;
@@ -67,10 +66,12 @@ function addOperatorCards() {
     for (let i = 0; i < numTrucks; i++) {
         let name;
         let id;
-        let startTime = (operators[i].startTime == "" ? "Not Defined" : operators[i].startTime);
+        let start = operators[i].start
         let truck = operators[i].equipment.truck;
         let trailer = (operators[i].equipment.trailer == "default" ? "" : operators[i].equipment.trailer);
         let status;
+
+        console.log(start);
 
         if (operators[i] != undefined && operators[i].id != "") {
             name = operators[i].name;
@@ -99,7 +100,7 @@ function addOperatorCards() {
                     </div>
                     <div class="start_time">
                         <span>
-                        ${new Date(startTime).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}
+                        ${new Date(start).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}
                         </span>
                     </div>
                 </div>
@@ -250,7 +251,6 @@ function addRates(type, rates) {
  * @return HTML with dispatch load and dump filled in. 
  */
 function getRateHTML(rate) {
-    console.log(rate)
     return `
     <div class="form-control mb-2 rate">
         <span class="mb-2">Rate</span>
@@ -269,8 +269,6 @@ function getRateHTML(rate) {
 
 $(document).ready(() => {
     const dispatch = JSON.parse(sessionStorage.getItem('dispatch'))
-
-    console.log(dispatch)
 
     const contractor = document.getElementById("contractor");
     const loadLocation = document.getElementById("load");

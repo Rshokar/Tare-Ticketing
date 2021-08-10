@@ -439,14 +439,14 @@ app.get("/job", authenticate, (req, res) => {
 
   jwt.verify(token, "butternut", (err, decodedToken) => {
     Job.findOne({
-      _id: jobTicket
+      _id: new ObjectId(jobTicket)
     })
       .then((job) => {
         if (job == null) {
           res.send("Job ticket not found");
         } else {
           const [perLoadLocations, tonLoadLocations] = getLoadLocations(job);
-          res.render("job", { page: pageName, job, user: decodedToken, perLoadLocations, tonLoadLocations, minDate: job.date + "T00:00" });
+          res.render("job", { page: pageName, job, user: decodedToken, perLoadLocations, tonLoadLocations });
         }
       })
   })
@@ -466,11 +466,11 @@ function getLoadLocations(job) {
   let perLst = [];
   let tonLst = []
 
-  if (job.rates.perLoad != undefined && job.rates.perLoad.rates != undefined) {
+  if (job.rates.perLoad !== undefined && job.rates.perLoad.rates !== undefined) {
     perLst = [...job.rates.perLoad.rates]
   }
 
-  if (job.rates.tonnage != undefined && job.rates.tonnage.rates != undefined) {
+  if (job.rates.tonnage !== undefined && job.rates.tonnage.rates !== undefined) {
     tonLst = [...job.rates.tonnage.rates];
   }
 
@@ -489,8 +489,8 @@ function getLoadLocations(job) {
   return [perLst, tonLst]
 }
 
+
 var remLoadLocationDuplicates = (lst) => {
-  //Remove Duplicates
   for (let i = lst.length - 1; i > 0; i--) {
     for (let j = 0; j < i; j++) {
       if (lst[i].l == lst[j].l) {
@@ -522,18 +522,18 @@ function getDumpLocations(job, id) {
   const per = "load";
   const ton = "ton";
 
-  const perRates = [...job.rates.perLoad.rates];
-  const tonRates = [...job.rates.tonnage.rates];
+  const perRates = (job.rates.perLoad === undefined ? [] : [...job.rates.perLoad.rates]);
+  const tonRates = (job.rates.tonnage === undefined ? [] : [...job.rates.tonnage.rates]);
 
   let dumpLocations = []
 
-  if (load.type == ton) {
+  if (load.type === ton) {
     for (let i = 0; i < tonRates.length; i++) {
       if (tonRates[i].l == load.loadLocation) {
         dumpLocations.push(tonRates[i].d)
       }
     }
-  } else if (load.type == per) {
+  } else if (load.type === per) {
     for (let i = 0; i < perRates.length; i++) {
       if (perRates[i].l == load.loadLocation) {
         dumpLocations.push(perRates[i].d)
@@ -588,7 +588,7 @@ app.post("/complete_job_ticket", TicketController.completeJobTicket, (req, res) 
  * @version 1.0
  * @date June 30 2021
  */
-app.post("/add_load_ticket", TicketController.addLoadTicket, (req, res) => { })
+app.post("/submit_load_ticket", TicketController.submitLoadTicket, (req, res) => { })
 
 /**
  * This route is responsible for finishing a load ticket. 
@@ -610,31 +610,49 @@ app.post("/finish_load_ticket", TicketController.finishLoadTicket, (req, res) =>
 app.get("/edit_load", authenticate, (req, res) => {
   const pageName = "Edit Load Ticket";
   const token = req.cookies.jwt;
+  let job, perLoc, tonLoc, dumpLoc, load;
 
   jwt.verify(token, "butternut", (err, decodedToken) => {
-    Job.findOne({
-      _id: req.query.id
-    })
+    TicketController.getJob(req.query.id)
       .then((job) => {
-        if (job == null) {
-          res.sendStatus(404)
-        } else {
-          const [perLoadLocations, tonLoadLocations] = getLoadLocations(job);
-          const dumpLocations = getDumpLocations(job, req.query.loadId);
-          res.render("edit_load", {
-            job: job,
-            loadId: req.query.loadId,
-            page: pageName,
-            user: decodedToken,
-            perLoadLocations,
-            tonLoadLocations,
-            dumpLocations,
-            minDate: job.date + "T00:00",
-          });
-        }
+        [perLoc, tonLoc] = getLoadLocations(job);
+        dumpLoc = getDumpLocations(job, req.query.loadId);
+        load = job.loadTickets[req.query.loadId];
+        res.render("edit_load", {
+          loadId: req.query.loadId,
+          page: pageName,
+          user: decodedToken,
+          minDate: job.date + "T00:00",
+          job,
+          load,
+          perLoc,
+          tonLoc,
+          dumpLoc,
+          rateBools: getRateTypeObj(job),
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.sendStatus(404)
       })
   })
 })
+
+
+/**
+ * Get a JSON object that defines a job tickets type of rates
+ * @author Ravinder Shokar
+ * @version 1.0 
+ * @date Aug 9 2021
+ * @param { JSON } j job ticket
+ */
+const getRateTypeObj = (j) => {
+  return {
+    p: j.rates.perLoad !== undefined,
+    t: j.rates.tonnage !== undefined,
+    h: j.rates.hourly !== undefined
+  }
+}
 
 /**
  * This route is responsible for editing a load ticket. 
@@ -643,10 +661,6 @@ app.get("/edit_load", authenticate, (req, res) => {
  * @date July 2 2021
  */
 app.post("/edit_load", TicketController.updateLoadTicket, (req, res) => {
-  res.send({
-    status: "success",
-    message: "Successfully update load ticket."
-  })
 })
 
 /**

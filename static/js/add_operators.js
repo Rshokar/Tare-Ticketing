@@ -2,19 +2,21 @@
 
 const dispatch = JSON.parse(sessionStorage.getItem('dispatch'))
 
-console.log(dispatch)
 /**
  * This function is resposible for displaying saved operators to the html.
  */
 function addOperatorCards() {
+    const operatorsContainer = document.getElementById("operators");
+    const time = "07:00"
     let numTrucks = dispatch.numTrucks;
     let operators = dispatch.operators;
-    const operatorsContainer = document.getElementById("operators");
 
-    let startTime = dispatch.date + "T07:00";
+
+    let start = { date: dispatch.date, time: time }
     let name = "Add Operator";
     let status = "empty";
     let id = "";
+    let minDate = dispatch.date;
 
     let truck;
     let trailer;
@@ -24,44 +26,49 @@ function addOperatorCards() {
             if (operators[i] != undefined && operators[i].id != "") {
                 name = operators[i].name;
                 id = operators[i].id;
-                startTime = (operators[i].startTime == undefined ? startTime : operators[i].startTime);
                 [truck, trailer] = getEquipmentHTML(operators[i].equipment)
-                status = "filled"
+                status = "filled";
+                if (operators[i].start !== undefined) {
+                    start.date = operators[i].start.split("T")[0];
+                    start.time = operators[i].start.split("T")[1];
+                }
             } else if (operators[i] != undefined) {
-                startTime = (operators[i].startTime == undefined ? startTime : operators[i].startTime);
                 [truck, trailer] = getEquipmentHTML(operators[i].equipment);
+                if (operators[i].start !== undefined) {
+                    start.date = operators[i].start.split("T")[0];
+                    start.time = operators[i].start.split("T")[1];
+                }
             } else {
                 [truck, trailer] = getEquipmentHTML();
             }
 
             let obj = {
                 id: i,
-                start: startTime,
                 status: status,
                 userId: id,
                 name: name,
                 truck,
                 trailer,
+                start,
+                minDate,
             }
-
-
 
             const operatorCardHTML = buildOperatorCard(obj);
 
             operatorsContainer.insertAdjacentHTML('beforeend', operatorCardHTML);
         }
     } else {
-
         [truck, trailer] = getEquipmentHTML();
         for (let i = 0; i < numTrucks; i++) {
             let obj = {
                 id: i,
-                start: startTime,
                 status: status,
                 userId: id,
                 name: name,
                 truck,
                 trailer,
+                start,
+                minDate
             }
             const operatorCardHTML = buildOperatorCard(obj);
 
@@ -97,7 +104,7 @@ function getEquipmentHTML(e) {
 `
 
     if (e != undefined) {
-        if (e.truck != "Tandem" && e.trailer == "default") {
+        if (e.truck !== "Tandem" || e.trailer !== "default") {
             if (e.truck == "Tandem") {
                 html[0] = `
             <option value="Tandem" selected>Tandem</option>
@@ -174,7 +181,6 @@ function getEquipmentHTML(e) {
     return html
 }
 
-
 /**
  * THis function will add an operator card to the html with the appropriate id.
  * @author Ravinder Shokar
@@ -184,18 +190,20 @@ function getEquipmentHTML(e) {
 function addOperator() {
     const numberOfTrucks = document.getElementById("number_of_trucks");
     const operatorsContainer = document.getElementById("operators")
-    let startTime = dispatch.date + 'T07:00'
-    console.log(startTime)
     const [truck, trailer] = getEquipmentHTML();
+
+    let start = { date: dispatch.date, time: '07:00' }
+    let minDate = dispatch.date;
 
     const obj = {
         id: dispatch.numTrucks,
-        start: startTime,
         status: "empty",
         userId: "",
         name: "Add Operator",
         truck,
         trailer,
+        start,
+        minDate
     }
 
     const operatorCardHTML = buildOperatorCard(obj);
@@ -213,7 +221,6 @@ function addOperator() {
  * @param obj A JSON object containing card details
  */
 function buildOperatorCard(obj) {
-    console.log(obj);
     return `
     <div id="${obj.id}"class="operator ${obj.status}">
         <div class="operator_container">
@@ -221,20 +228,19 @@ function buildOperatorCard(obj) {
         </div>
         <div class="equipment">
             <div class="truck">
-                <label></label>
-                <select class="truck">
+                <select class="truck form-select">
                     ${obj.truck}
                 </select>
             </div>
             <div class="trailer">
-                <label></label>
-                <select class="truck">
+                <select class="truck form-select">
                     ${obj.trailer}
                 </select>
             </div>
         </div>
-        <div class="start_time">
-            <input type="datetime-local" value="${obj.start}" min="${obj.start}"}>
+        <div class="start date_time">
+            <input type="date" class="date form-control" value="${obj.start.date}" min="${obj.minDate}"}>
+            <input type="time" class="time form-control" value="${obj.start.time}"}>
         </div>
         <span class="user_id">${obj.userId}</span>
         <span class="error"></span>
@@ -518,14 +524,13 @@ function getOperators() {
             status = "empty";
         }
 
-
         obj[i] = {
             id: userId,
             equipment: {
                 truck: spot.querySelector('.equipment .truck select').value,
                 trailer: spot.querySelector('.equipment .trailer select').value,
             },
-            startTime: spot.querySelector('.start_time input').value,
+            start: spot.querySelector('.start .date').value + "T" + spot.querySelector('.start .time').value,
             name: spot.querySelector('.operator_container .operator_name').innerHTML,
             status
         }
@@ -547,8 +552,6 @@ function next(url) {
     if (verifyOperators(dispatch.operators)) {
         sessionStorage.setItem('dispatch', JSON.stringify(dispatch))
         window.location.href = url;
-    } else {
-        console.log("error")
     }
 }
 
@@ -562,30 +565,47 @@ function next(url) {
  */
 function verifyOperators(operators) {
     let isValid = true
+    let dispDate = new Date(dispatch.date);
+    let start
 
     for (let i = 0; i < dispatch.numTrucks; i++) {
         const spot = document.getElementById(i);
         const error = spot.querySelector(".error")
         error.innerHTML = "";
 
-        if (operators[i].id != "") {
+        start = new Date(operators[i].start);
+
+        if (Object.prototype.toString.call(start) === "[object Date]") {
+            // it is a date
+            if (isNaN(start.getTime())) {  // d.valueOf() could also work
+                error.innerHTML += " Must select a start date and time.";
+                error.style.display = "block"
+                return false;
+            }
+        } else {
+            error.innerHTML += " Must select a start date and time.";
+            error.style.display = "block"
+            return false;
+        }
+
+        if (start < dispDate) {
+            error.innerHTML += "Start time cannot be before dispatch date";
+            error.style.display = "block"
+            returnfalse;
+        }
+
+        if (operators[i].id !== "") {
             if (operators[i].equipment.truck == "default") {
                 error.innerHTML += "Truck type must be selected.";
                 error.style.display = "block"
-                isValid = false;
-            }
-
-            if (operators[i].startTime == "") {
-                error.innerHTML += " Must select a start time.";
-                error.style.display = "block"
-                isValid = false;
+                return false;
             }
         }
 
         for (let j = i + 1; j < dispatch.numTrucks; j++) {
-            if (operators[i].id != "" && operators[i].id == operators[j].id) {
+            if (operators[i].id != "" && operators[i].id === operators[j].id) {
                 error.innerHTML = "Operator has already been selected."
-                isValid = false;
+                return false;
             }
         }
 

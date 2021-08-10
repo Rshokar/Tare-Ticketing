@@ -23,7 +23,6 @@ function newModal(obj) {
     const yes = document.getElementById("confirmation_yes");
     const no = document.getElementById("confirmation_no");
 
-
     txt.style.color = (obj.txtColor === undefined ? "black" : obj.txtColor);
 
     yes.style.display = (obj.buttons.y || obj.buttons === undefined ? "block" : "none");
@@ -41,6 +40,32 @@ function newModal(obj) {
         no
     }
 
+}
+
+
+/**
+ * Pops up a modal with no buttons, and then redirects after inputes milliseconds
+ * @author Ravinder Shokar 
+ * @vesrion 1.0 
+ * @date Aug 9 2021
+ * @param { String } txt text to be displayed
+ * @param { Number } ms milliseconds
+ * @param { String } url url to be redirected to.
+ */
+function modalThenRedirect(txt, ms, url) {
+    o = {
+        txtColor: "green",
+        text: txt,
+        buttons: {
+            y: false,
+            n: false
+        },
+    }
+    m = newModal(o);
+    m.modal.style.display = "block";
+    setTimeout(() => {
+        window.location.href = url;
+    }, ms)
 }
 
 /**
