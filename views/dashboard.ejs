@@ -26,7 +26,6 @@
   <input type="text" placeholder="Search...">
 </div>
 
-<!-- Tabs to switch between ticket status -->
 <div id="tickets">
   <% if (user.type=="dispatcher" && dispatches.length !=0) { %>
   <% for(let i=0; i < dispatches.length; i++) { %>
@@ -87,7 +86,7 @@
           </h1>
           <span>
 
-            <a href="/new_dispatch">
+            <a href="/new_dispatch?new=true">
               <button type="button" class="btn btn-primary">
                 Create Dispatch
               </button>

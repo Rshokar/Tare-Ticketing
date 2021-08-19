@@ -119,12 +119,10 @@ a:link, a:visited, a:hover {
     background-color: #E2E8D8;
   }
     
-    
   .confirmed {
     background-color: #D8E0E8;
   }
-    
-    
+     
   .sent {
     background-color: #f0e0c3;
   }

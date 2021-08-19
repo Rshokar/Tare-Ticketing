@@ -38,24 +38,6 @@
  display: inline-block;
 }
 
-.done {
-  background-color: #FAF6D8;
-}
-
-.active {
-  background-color: #E2E8D8;
-}
-
-
-.confirmed, .filled {
-  background-color: #D8E0E8;
-}
-
-
-.sent, .empty {
-  background-color: #e1aaaa;
-}
-
 #operators_modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */

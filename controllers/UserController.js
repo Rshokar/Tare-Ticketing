@@ -167,7 +167,7 @@ const getUser = async (id) => {
     })
       .then(user => {
         if (user === null) {
-          rej("User not found.");
+          rej({ code: "user", message: "Error finding user" });
         } else {
           res(user);
         }

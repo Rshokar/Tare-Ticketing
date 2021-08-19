@@ -15,7 +15,6 @@ const jwt = require("jsonwebtoken");
  */
 const createDispatch = (req, res, next) => {
   const token = req.cookies.jwt
-
   let rates = req.body.rates;
   let user;
 
@@ -29,110 +28,550 @@ const createDispatch = (req, res, next) => {
     }
 
     try {
-      if (rates.hourly !== undefined) {
+      if (rates.hourly) {
         user = await UserController.getUser(decodedToken.id);
         rates["hourly"] = { cont: rates.hourly, oper: user.contractors[req.body.contractor].operatorRates }
       }
+      console.log("Operators", req.body.operators)
+      let dispatch = new Dispatch({
+        dispatcher: {
+          id: decodedToken.id,
+          company: decodedToken.company,
+        },
+        operators: req.body.operators,
+        date: req.body.date + "T00:00",
+        dumpLocation: req.body.dumpLocation,
+        loadLocation: req.body.loadLocation,
+        contractor: req.body.contractor,
+        numTrucks: req.body.numTrucks,
+        notes: req.body.notes,
+        material: req.body.material,
+        supplier: req.body.supplier,
+        reciever: req.body.reciever,
+        status: {},
+        rates,
+      })
+
+      dispatch = await createJobTickets(dispatch.operators, dispatch);
+      console.log("Dispatch Ticket", dispatch);
+      dispatch.save();
+      res.send({ status: "success", message: "Succesfull Ajax call" })
+      next();
     } catch (e) {
-      res.send({ status: "error", message: e })
+      res.send({ status: "error", err: e })
       next()
     }
+  })
+}
 
-    let dispatch = new Dispatch({
-      dispatcher: {
-        id: decodedToken.id,
-        company: decodedToken.company,
-      },
-      operators: req.body.operators,
-      date: req.body.date + "T00:00",
-      dumpLocation: req.body.dumpLocation,
-      loadLocation: req.body.loadLocation,
-      contractor: req.body.contractor,
-      numTrucks: req.body.numTrucks,
-      notes: req.body.notes,
-      material: req.body.material,
-      supplier: req.body.supplier,
-      reciever: req.body.reciever,
-      status: {},
-      rates,
-    })
 
-    createJobTickets(dispatch)
-      .then((dispatch) => {
-        dispatch.save((err) => {
-          if (err) {
-            res.send({
-              status: "error",
-              message: "Error Creating Dispatch"
-            })
-          } else {
-            console.log("Successfully created job tickes", dispatch);
-            next()
-          }
-        });
-      })
-      .catch(() => {
-        console.log("Failed to create job tickets.")
-      })
+
+/**
+ * Updates a dispatch ticket and job tickets. 
+ */
+const editDispatch = async (req, res, next) => {
+  const DATA = req.body;
+  DATA.date = DATA.date.split("T")[0] + "T00:00";
+  let dispatch;
+  try {
+    dispatch = await getDispatch(DATA._id);
+    dispatch = await updateDspatchDetails(DATA, dispatch);
+    dispatch = await updateOperators(DATA, dispatch);
+    dispatch = await updateRates(DATA, dispatch);
+    dispatch.save();
+    res.send({ status: "success", message: "Succesfully updated dispatch" })
+  } catch (e) {
+    console.log(e);
+    res.send({ status: "error", err: e });
+    next();
+  }
+}
+
+/**
+ * This function updates the base dispatch details. Contractor, 
+ * Date, Load Location, Dump Location, Reciever, Supplier, Materail, 
+ * and notes
+ * @author Ravinder Shokar
+ * @version 1.0 
+ * @date Aug 16 2021
+ * @param { JSON } data New dispatch data
+ * @param { JSON } disp Old dispatch ticket 
+ * @returns Promise resolves if a valid update
+ */
+function updateDspatchDetails(data, disp) {
+  const STATUS = disp.status
+  return new Promise(async (res, rej) => {
+    try {
+      await validateDispatchDetails(data);
+      if ((STATUS.sent > 0 || STATUS.confirmed > 0) && STATUS.active === 0 && STATUS.complete === 0) {
+        disp.dumpLocation = data.dumpLocation;
+        disp.loadLocation = data.loadLocation;
+        disp.notes = data.notes;
+        disp.numTrucks = data.numTrucks;
+        disp.material = data.material;
+        disp.supplier = data.supplier;
+        disp.reciever = data.reciever;
+      } else if (STATUS.active > 0) {
+        disp.notes = data.notes;
+        disp.numTrucks = data.numTrucks;
+        disp.material = data.material;
+        disp.supplier = data.supplier;
+        disp.reciever = data.reciever;
+      }
+      res(disp)
+    } catch (e) {
+      rej(e);
+    }
+  })
+}
+
+/** 
+ * This function will validate the dispatch
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date Aug 16 2021 
+ * @return Promise. Resolves if valid
+ */
+function validateDispatchDetails(data) {
+  let isValid = true;
+  return new Promise((res, rej) => {
+    if (data.contractor == ""
+      || data.date == ""
+      || data.dumpLocation == ""
+      || data.loadLocation == ""
+    ) {
+      rej({ code: "form", message: "Rerquired Fields must not be left empty" })
+      return false;
+    }
+
+    if (data.numTrucks < 0) {
+      rej({ code: "num_trucks", message: "Number of trucks must be greater or equal than zero" });
+      isValid = false;
+    }
+
+    if (data.loadLocation.length < 2) {
+      rej({ code: "load", message: "Load Location must be longer than two characters" });
+      isValid = false;
+    }
+
+    if (data.dumpLocation.length < 2) {
+      rej({ code: "dump", message: "Dump Location must be longer than two characters" });
+      isValid = false;
+    }
+
+    if (data.reciever.length > 0 && data.reciever.length < 2) {
+      rej({ code: "reciever", message: "Reciever must be longer than two characters" });
+      isValid = false;
+    }
+
+    if (data.supplier.length > 0 && data.supplier.length < 2) {
+      rej({ code: "supplier", message: "Supplier must be longer than two characters" });
+      isValid = false;
+    }
+
+    if (data.material.length > 0 && data.material.length < 2) {
+      rej({ code: "material", message: "Material must be longer than two characters" });
+      isValid = false;
+    }
+
+    if (isValid) {
+      res();
+    }
   })
 }
 
 /**
- * This function is responsible for creating job tickets depending on a dispatch tickets 
- * requirements. This function will also update the dispatch status. 
- * @author Ravinder Shokar 
- * @version 1.0
- * @param {} dispatch a dispatch ticket 
- * @returns an dispatch with updated statuses
+ * This function updates operators of a dispatch ticket. 
+ * It makes sure no operator with status of active or complete is removed. 
+ * @param { JSON } data New dispatch data
+ * @param { JSON } disp Old dispatch ticket 
+ * @returns Promise resolves if everything is valid and job 
+ * tickets are saved properly. 
  */
-const createJobTickets = (dispatch) => {
-  return new Promise((resolve, reject) => {
-    const jobTickets = []
-    const dispatchStatus = {
-      empty: 0,
-      sent: 0,
-      confirmed: 0,
-      active: 0,
-      complete: 0
+function updateOperators(data, disp) {
+  return new Promise(async (res, rej) => {
+    const ACTIVE = "active";
+    const COMPLETE = "complete"
+
+    let dispOps = disp.operators;
+    let dataOps = data.operators;
+
+    // Make sure active and complete operators cannot be removed.
+    for (let i = 0; i < dispOps.length; i++) {
+      if (dispOps[i].status === ACTIVE || dispOps[i].status === COMPLETE) {
+        if (!isOpInDispatch(dispOps[i], data)) {
+          rej({ code: "operators", message: "Active or Complete operator has been removed from dispaatch.", result: dispOps[i] })
+        }
+      }
     }
 
-    dispatch.operators.forEach((spot, index) => {
-      if (spot.id == "") {
-        dispatchStatus.empty += 1;
-      } else {
-        dispatchStatus.sent += 1;
+    //Make sure operator data is valid. 
+    for (let i = 0; i < dataOps.length; i++) {
+      if (!validateOperator(dataOps[i], data)) {
+        rej({ code: "operators", message: "Operator could not be validated.", result: dataOps[j] })
+      }
+    }
+
+    //Check for duplicate operators. 
+    for (let i = 0; i < data.numTrucks; i++) {
+      for (let j = i + 1; j < data.numTrucks; j++) {
+        if (dataOps[i].id === dataOps[j]) {
+          rej({ code: "operators", message: "Duplicate operators found", result: dataOps[j] })
+        }
+      }
+    }
+
+    try {
+      for (let i = 0; i < dataOps.length; i++) {
+        for (let j = 0; j < dispOps.length; j++) {
+          if (dispOps[j].id && dispOps[j].id.equals(dataOps[i].id)) {
+            dataOps[i]["jobId"] = dispOps[j].jobId;
+            await updateJobTicket(dataOps[i].jobId, data, dataOps[i]);
+            dispOps.splice(j, 1);
+            j = dispOps.length;
+          }
+        }
       }
 
-      let job = new Job({
-        dispatcher: dispatch.dispatcher,
-        dispatchTicket: dispatch._id,
-        operator: {
-          id: spot.id,
-          name: spot.name,
-        },
-        date: dispatch.date,
-        start: dispatch.operators[index].start,
-        dumpLocation: dispatch.dumpLocation,
-        loadLocation: dispatch.loadLocation,
-        contractor: dispatch.contractor,
-        equipment: spot.equipment,
-        notes: dispatch.notes,
-        material: dispatch.material,
-        supplier: dispatch.supplier,
-        reciever: dispatch.reciever,
-        status: spot.status,
-        position: index,
-        rates: dispatch.rates
-      })
+      for (let i = 0; i < dispOps.length; i++) {
+        console.log(dispOps[i]);
+        if (dispOps[i].jobId !== undefined) {
+          await deleteJobTicket(dispOps[i].jobId);
+        }
+      }
 
-      dispatch.operators[index].jobId = job._id;
 
+      disp.operators = data.operators
+      disp = await createJobTickets(disp.operators, disp);
+    } catch (e) {
+      rej(e);
+    }
+
+    res(disp);
+  })
+}
+
+/**
+ * Updatess a dispatches rates
+ * @author Ravinder Shokar
+ * @version 1.0 
+ * @date Aug 18 2021
+ * @param { JSON } data new dispatch data
+ * @param { Dispatch } disp old dispatch data
+ * @return Promise. Resolves if rates are valid. 
+ */
+function updateRates(data, disp) {
+  return new Promise((res, rej) => {
+    const DATAR = data.rates;
+    const DISPR = disp.rates;
+
+    let areRoutesValid;
+
+    if (DATAR.hourly && (DATAR.perLoad || DATAR.tonnage)) {
+      rej({ code: "rates", message: "Invalid Rate fomat. Cannot have hourly and perload or tonnage rate." })
+    }
+
+    if (disp.status.active > 0 || disp.status.complete > 0) {
+      if (!DATAR.hourly && DISPR.hourly) {
+        rej({ code: "rates", message: "Dispatch is active or complete, cannot change rate type. Must be hourly." });
+      } else if (!DATAR.perLoad && DISPR.perload) {
+        rej({ code: "rates", message: "Dispatch is active or complete, cannot change rate type. Must include per load." });
+      } else if (!DATAR.tonnage && DISPR.tonnage) {
+        rej({ code: "rates", message: "Dispatch is active or complete, cannot change rate type. Must include tonnage." });
+      }
+
+      if (DATAR.tonnage && DISPR.tonnage && !hasRoutes(DATAR.tonnage.rates, DISPR.tonnage.rates)) {
+        rej({ code: "rates", message: "Missing tonnage route. Active or Complete dispatch cannot have routes removed." });
+      };
+
+      if (DATAR.perLoad && DISPR.perLoad && !hasRoutes(DATAR.perLoad.rates, DISPR.perLoad.rates)) {
+        rej({ code: "rates", message: "Missing per load route. Active or Complete dispatch cannot have routes removed." });
+      };
+    }
+
+    if (!DATAR.hourly) {
+      if (DATAR.perLoad && DATAR.tonnage) { areRoutesValid = validateRoutes([...DATAR.perLoad.rates, ...DATAR.tonnage.rates]) }
+      else if (DATAR.perload) { areRoutesValid = validateRoutes(DATAR.perLoad.rates) }
+      else if (DATAR.tonnage) { areRoutesValid = validateRoutes(DATAR.tonnage.rates) }
+    }
+
+    if (DATAR.hourly || areRoutesValid) {
+      disp.rates = data.rates;
+      res(disp);
+    }
+  })
+}
+
+
+/**
+ * Validate multiple routes. 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date Aug 18 2021 
+ * @param { Array } routes each element is a JSON object { l: loadLocation, d: dumpLocation, r: rate} 
+ * @returns True if all routes are valid.
+ */
+function validateRoutes(routes) {
+  let isValid = true;
+  for (let i = 0; i < routes.length; i++) {
+    isValid = validateRoute(routes[i]);
+    if (!isValid) { return isValid }
+  }
+  return isValid
+}
+
+/**
+ * Validates a single route
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date Aug 18 2021 
+ * @param { JSON } route { l: loadLocation, d: dumpLocation, r: rate}
+ * @return True is route is valid
+ */
+function validateRoute(route) {
+  if (route.r < 0) {
+    console.log("Rate less than zero");
+    return false;
+  } else if (route.l.trim() === "" || route.d.trim() === "") {
+    console.log("Dump and load locations cannot be left empty")
+    return false;
+  }
+  return true;
+}
+
+
+/**
+ * compares two array of routes { l, d, r }. It checks to see if all of x 
+ * routes are in y routes
+ * l: loadLocation { String },
+ * d: dumpLocation { String }, 
+ * r: rate { Number }
+ * @param {*} x 
+ * @param {*} y 
+ * @return Boolean. True if x is in y
+ */
+function hasRoutes(x, y) {
+  let isValid = false;
+  for (let i = 0; i < x.length; i++) {
+    for (let j = 0; j < y.length; j++) {
+      if (x[i].l === y[i].l && x[i].d === y[i].d) {
+        isValid = true;
+      }
+    }
+    if (!isValid) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Checks to see if a operators is located in a dispatch. 
+ * @param { JSON } op operator spot data
+ * @param { JSON } disp dispatch ticket
+ * @return True if operators is in dispatch 
+ */
+function isOpInDispatch(op, disp) {
+  const OPS = disp.operators;
+  for (let i = 0; i < OPS.length; i++) {
+    if (op.id.equals(OPS[i].id)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Verifies operator data
+ * @author Ravinder Shokar 
+ * @vesrion 1.0 
+ * @date Aug 16 2021
+ * @param { JSON } op spot data.  
+ * @returns true if valid
+ */
+function validateOperator(op, disp) {
+  const DISPDATE = new Date(disp.date);
+  const START = new Date(op.start);
+
+  if (Object.prototype.toString.call(START) === "[object Date]") {
+    // it is a date
+    if (isNaN(START.getTime())) {  // d.valueOf() could also work
+      console.log(" Must select a start date and time.");
+      return false;
+    }
+  } else {
+    console.log("Must select a start date and time.");
+    return false;
+  }
+
+  if (START < DISPDATE) {
+    console.log("Start time cannot be before dispatch date");
+    return false;
+  }
+
+  if (op.id !== "" && op.equipment.truck == "default") {
+    console.log("Truck type must be selected.");
+    return false;
+  }
+  return true;
+}
+
+/**
+ * This function is responsible for creating job tickets.
+ * @author Ravinder Shokar 
+ * @version 1.1
+ * @param { JSON } ops a dispatch tickets spot data. 
+ * @param { Job, Dispatch } data if dispatch ticket is passed in, status's of job tickets will
+ * be tracked and updated on dispatch.  
+ * @returns an dispatch with updated statuses
+ */
+const createJobTickets = (ops, data) => {
+  const EMPTY = "empty";
+  const SENT = 'sent';
+  const CONFIRMED = 'confirmed';
+  const ACTIVE = 'active';
+  const COMPLETE = 'complete';
+
+  let empty = sent = confirmed = active = complete = 0;
+  let job;
+
+  return new Promise((resolve, reject) => {
+    const jobTickets = []
+    const dispatchStatus = { empty, sent, confirmed, active, complete }
+    ops.forEach(async (spot, index) => {
+      if (data instanceof Dispatch) {
+        if (spot.status === EMPTY) { dispatchStatus.empty += 1; }
+        else if (spot.status === SENT) { dispatchStatus.sent += 1 }
+        else if (spot.status === CONFIRMED) { dispatchStatus.confrimed += 1 }
+        else if (spot.status === ACTIVE) { dispatchStatus.active += 1 }
+        else if (spot.status === COMPLETE) { dispatchStatus.complete += 1 }
+      }
+      if ((spot.id === undefined || spot.id === "") || spot.jobId !== undefined) { return }
+
+      try {
+        job = await createJobTicket(spot, data);
+      } catch (e) {
+        console.log(e);
+        res(e)
+      }
+
+      if (data instanceof Dispatch) { data.operators[index].jobId = job._id; }
+      // console.log("Job Ticket", job)
       job.save();
-
     })
-    dispatch.status = dispatchStatus
+    if (data instanceof Dispatch) { data.status = dispatchStatus }
+    resolve(data);
+  })
 
-    resolve(dispatch);
+
+}
+
+
+/**
+ * Creates a single Job ticket
+ * @author Ravinder Shokar
+ * @version 1.0 
+ * @date AUg 17 2021
+ * @param { JSON } op operator spot Data
+ * @param { JSON, Dispatch } data job data. If data is a dispatch adds dispatcher 
+ * and dispatch ticket data. 
+ */
+const createJobTicket = (op, data) => {
+  return new Promise(res => {
+    let dispatcher, dispatchTicket;
+    if (data instanceof Dispatch) {
+      dispatcher = { id: data.dispatcher.id, company: data.dispatcher.company };
+      dispatchTicket = data._id;
+    } else {
+      dispatcher = {};
+    }
+    res(new Job({
+      dispatcher,
+      dispatchTicket,
+      operator: { id: op.id, name: op.name },
+      date: data.date,
+      start: op.start,
+      dumpLocation: data.dumpLocation,
+      loadLocation: data.loadLocation,
+      contractor: data.contractor,
+      equipment: { truck: op.equipment.truck, trailer: op.equipment.trailer },
+      notes: data.notes,
+      material: data.material,
+      supplier: data.supplier,
+      reciever: data.reciever,
+      status: op.status,
+      rates: data.rates,
+    }))
+  })
+}
+
+
+
+
+
+
+/**
+ * Updates a single job ticket
+ * @param { String } jobId 
+ * @param { JSON } jobData dispatch ticket or job ticket can be passed in
+ * @param { JSON } op operator information { eqipment, name, status, id, start }  
+ * @returns Promise Resolves if job ticket is updated.
+ */
+const updateJobTicket = (jobId, jobData, op) => {
+  return new Promise(async (res, rej) => {
+    let job;
+
+    try {
+      job = await getJob(jobId);
+      job.operator = { id: op.id, name: op.name };
+      job.date = jobData.date;
+      job.start = op.start;
+      job.dumpLocation = jobData.dumpLocation;
+      job.loadLocation = jobData.loadLocation;
+      job.contractor = jobData.contractor;
+      job.equipment = { truck: op.equipment.truck, trailer: op.equipment.trailer };
+      job.notes = jobData.notes;
+      job.material = jobData.material;
+      job.supplier = jobData.supplier;
+      job.reciever = jobData.reciever;
+      job.status = op.status;
+      job.rates = jobData.rates;
+
+      job.save()
+        .then(() => {
+          res()
+        })
+        .catch((e) => {
+          res({ status: "error", e: { code: "operators", message: "error saving job ticket" }, result: job })
+        })
+    } catch (e) {
+      rej({ code: "operators", message: "error updating job ticket", result: job })
+    }
+  })
+}
+
+/**
+ * Deletes a single job ticket
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date Aug 17 2021
+ * @param {*} jobId 
+ * @return Promise Resolves if job ticket is deleted
+ */
+const deleteJobTicket = (jobId) => {
+  return new Promise((res, rej) => {
+    Job.deleteOne({ _id: ObjectId(jobId) })
+      .then(data => {
+        if (data.deletedCount < 1) {
+          rej({ code: "operators", message: "Error deleting job ticket" })
+        } else {
+          res();
+        }
+      })
+      .catch(e => {
+        console.log(e);
+        rej({ code: "operators", message: "Error deleting job ticket" })
+      })
   })
 }
 
@@ -157,8 +596,6 @@ const confirmJobTicket = (req, res, next) => {
         })
       }
       const prevStatus = ticket.status;
-
-      console.log(ticket);
 
       ticket.status = newStatus;
       updateDispatchStatus(prevStatus, newStatus, ticket)
@@ -202,9 +639,6 @@ const activateJobTicket = (req, res, next) => {
 
       updateDispatchStatus(prevStatus, newStatus, ticket)
         .then((dispatch) => {
-          console.log(dispatch);
-          console.log(ticket)
-
           dispatch.save();
           ticket.save();
           next();
@@ -250,13 +684,11 @@ const completeJobTicket = (req, res, next) => {
       } else {
         prevStatus = ticket.status;
         ticket.status = newStatus;
-        ticket.finishTime = req.body.signOffTime;
-
+        ticket["finish"] = req.body.signOffTime;
         updateDispatchStatus(prevStatus, newStatus, ticket)
           .then((dispatch) => {
             dispatch.save();
             ticket.save();
-
             res.send({ status: "success", message: "Job status updated" })
             next();
           })
@@ -289,7 +721,7 @@ const updateDispatchStatus = (prevStatus, newStatus, job) => {
           reject("No dispatch found");
         } else {
           for (let i = 0; i < dispatch.operators.length; i++) {
-            if (dispatch.operators[i].jobTicket == job.id) {
+            if (dispatch.operators[i].jobId == job.id) {
               dispatch.operators[i].status = newStatus;
             }
           }
@@ -675,31 +1107,32 @@ const deleteLoadTicket = (req, res, next) => {
  * @return { Promise }
  */
 const getJobTickets = (q, id, userType) => {
-  let customer;
-  let user;
-
-  if (q.type === "contractor") {
-    customer = { contractor: q.customer }
-  } else if (q.type === "operator") {
-    customer = { "operator.name": q.customer };
-  } else if (q.type === "dispatcher") {
-    customer = { "dispatcher.company": q.customer };
-  }
-
-  if (userType === "dispatcher") {
-    user = { "dispatcher.id": id };
-  } else {
-    user = { "operator.id": id };
-  }
-
   return new Promise((res, rej) => {
+    let customer;
+    let user;
+
+    if (q.type === "contractor") {
+      customer = { contractor: q.customer }
+    } else if (q.type === "operator") {
+      customer = { "operator.name": q.customer };
+    } else if (q.type === "dispatcher") {
+      customer = { "dispatcher.company": q.customer };
+    }
+
+    if (userType === "dispatcher") {
+      user = { "dispatcher.id": id };
+    } else {
+      user = { "operator.id": id };
+    }
+
+
     Job.find({
       $and: [user, customer,
-        { $and: [{ date: { $gte: q.start }, date: { $lte: q.finish } }] },
+        { $and: [{ date: { $gte: q.start, $lte: q.finish } }] },
       ]
     }).then((jobs) => {
-      if (jobs.length === 0) {
-        rej("No job tickets found in date range.");
+      if (jobs.length === 0 || jobs === null) {
+        rej({ code: "form", message: "No jobs found." });
       } else {
         res(jobs);
       }
@@ -728,6 +1161,30 @@ const getJob = async (id) => {
   })
 }
 
+/**
+ * Gets a dispatch ticket
+ * @author Ravidner Shokar 
+ * @version 1.0 
+ * @date Aug 13 2021
+ * @param { String } id Dispatch id
+ * @returns { Promise } resolves if dispatch found rej if not dispatch exist or error 
+ * occures 
+ */
+const getDispatch = (id) => {
+  return new Promise((res, rej) => {
+    Dispatch.findOne({
+      _id: ObjectId(id)
+    })
+      .then(ticket => {
+        if (ticket === null) {
+          rej({ code: "form", message: "Error finding dispatch ticket" })
+        } else {
+          res(ticket);
+        }
+      })
+  })
+}
+
 
 
 module.exports = {
@@ -740,5 +1197,7 @@ module.exports = {
   deleteLoadTicket,
   completeJobTicket,
   getJobTickets,
-  getJob
+  getJob,
+  getDispatch,
+  editDispatch,
 }

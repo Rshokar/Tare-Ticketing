@@ -33,7 +33,6 @@ const jobSchema = new Schema({
     status: String,
     loadTickets: [loadSchema],
     rates: subModels.ratesSchema,
-    position: Number,
 }, { timestamps: true })
 
 const Job = mongoose.model("Job", jobSchema);

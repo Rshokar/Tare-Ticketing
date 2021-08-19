@@ -11,17 +11,17 @@
 
 <div id="tabs">
     <% if (user.type=="dispatcher" ) { %>
-        <div id="left_tab">
-            <span>Dispatches</span>
-        </div>
-        <div id="right_tab">
-            <span>Jobs</span>
-        </div>
-        <% } else { %>
-            <div id="single_tab" style="width: 100%;">
-                <span>Jobs</span>
-            </div>
-            <% } %>
+    <div id="left_tab">
+        <span>Dispatches</span>
+    </div>
+    <div id="right_tab">
+        <span>Jobs</span>
+    </div>
+    <% } else { %>
+    <div id="single_tab" style="width: 100%;">
+        <span>Jobs</span>
+    </div>
+    <% } %>
 </div>
 
 
@@ -30,143 +30,141 @@
 </div>
 
 <% if (user.type=="dispatcher" ) { %>
-    <!-- All Dispatches will be rendered in here -->
-    <div id="dispatch_container">
-        <% if (dispatches.length==0) { %>
-            <h3>No Dispatches Found</h3>
-            <% } else { %>
-                <% for(let i=0; i < dispatches.length; i++) { %>
-                    <div class="dispatch complete">
-                        <a href="/dispatch?id=<%= dispatches[i].id %>">
-                            <h2>
-                                <%= dispatches[i].contractor %>
-                            </h2>
-                        </a>
-                        <span class="address">
-                            <%= dispatches[i].loadLocation %>
-                        </span>
+<!-- All Dispatches will be rendered in here -->
+<div id="dispatch_container">
+    <% if (dispatches.length==0) { %>
+    <h3>No Dispatches Found</h3>
+    <% } else { %>
+    <% for(let i=0; i < dispatches.length; i++) { %>
+    <div class="dispatch complete">
+        <a href="/dispatch?id=<%= dispatches[i].id %>">
+            <h2>
+                <%= dispatches[i].contractor %>
+            </h2>
+        </a>
+        <span class="address">
+            <%= dispatches[i].loadLocation %>
+        </span>
 
-                        <div class="status">
-                            <div>
-                                <i class="fas fa-exclamation-circle"></i>
-                                <%= dispatches[i].status.empty %>
-                            </div>
-                            <div>
-                                <i class="far fa-paper-plane"></i>
-                                <%= dispatches[i].status.sent %>
-                            </div>
-                            <div>
-                                <i class="far fa-calendar-check"></i>
-                                <%= dispatches[i].status.confirmed %>
-                            </div>
-                            <div>
-                                <i class="fas fa-spinner"></i>
-                                <%= dispatches[i].status.active %>
-                            </div>
-                            <div>
-                                <i class="fas fa-calendar-check"></i>
-                                <%= dispatches[i].status.complete %>
-                            </div>
-                        </div>
-                        <div class="num-trucks">
-                            <i class="fas fa-truck"></i>
-                            <%= dispatches[i].numTrucks %>
-                        </div>
-                    </div>
-                    <% } %>
-                        <% } %>
+        <div class="status">
+            <div>
+                <i class="fas fa-exclamation-circle"></i>
+                <%= dispatches[i].status.empty %>
+            </div>
+            <div>
+                <i class="far fa-paper-plane"></i>
+                <%= dispatches[i].status.sent %>
+            </div>
+            <div>
+                <i class="far fa-calendar-check"></i>
+                <%= dispatches[i].status.confirmed %>
+            </div>
+            <div>
+                <i class="fas fa-spinner"></i>
+                <%= dispatches[i].status.active %>
+            </div>
+            <div>
+                <i class="fas fa-calendar-check"></i>
+                <%= dispatches[i].status.complete %>
+            </div>
+        </div>
+        <div class="num-trucks">
+            <i class="fas fa-truck"></i>
+            <%= dispatches[i].numTrucks %>
+        </div>
     </div>
     <% } %>
+    <% } %>
+</div>
+<% } %>
 
-        <!-- All job tickets will be rendered here -->
-        <div id="job_container">
-            <% if (jobs.length==0) { %>
-                <h3>No jobs found</h3>
-                <% } else { %>
-                    <% for (let i=0; i < jobs.length; i++) { %>
+<!-- All job tickets will be rendered here -->
+<div id="job_container">
+    <% if (jobs.length==0) { %>
+    <h3>No jobs found</h3>
+    <% } else { %>
+    <% for (let i=0; i < jobs.length; i++) { %>
 
-                        <div class="job <%= jobs[i].status %>">
-                            <a href="/job?id=<%=jobs[i]._id %>">
-                                <h2>
-                                    <%= jobs[i].contractor %>
-                                </h2>
-                            </a>
-                            <% if (user.type !="dispatcher" ) { %>
-                                <h5>
-                                    <%= jobs[i].dispatcher.company %>
-                                </h5>
-                                <% } else { %>
-                                    <h5>
-                                        <%= jobs[i].operator.name %>
-                                    </h5>
-                                    <% } %>
-                                        <div class="equipment">
-                                            <div id="truck">
-                                                <span>
-                                                    <%= jobs[i].equipment.truck %>
-                                                </span>
-                                            </div>
-                                            <div id="trailer">
-                                                <% if (jobs[i].equipment.trailer !="default" ) { %>
-                                                    <span>
-                                                        <%= jobs[i].equipment.trailer %>
-                                                    </span>
-                                                    <% } %>
-                                            </div>
-                                        </div>
-                                        <div class="start_time">
-                                            <span>
-                                                <% let d=new Date(jobs[i].startTime) %>
-                                                    <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit'
-                                                        }) %>
-                                            </span>
-                                        </div>
-                        </div>
-                        <% } %>
-                            <% } %>
-        </div>
-
-        <% if(user.type=="dispatcher" ) { %>
-            <script>
-                const disp = document.getElementById("left_tab");
-                const job = document.getElementById("right_tab");
-
-
-                const dispatch_container = document.getElementById("dispatch_container");
-                const job_container = document.getElementById("job_container");
-
-                disp.addEventListener("click", (e) => {
-                    //Change tab colors
-                    job.style.backgroundColor = "#CFD8DC";
-                    job.style.color = "black";
-
-                    disp.style.backgroundColor = "#004065";
-                    disp.style.color = "white";
-
-                    //Change visible cards with CSS
-                    job_container.style.display = "none";
-                    dispatch_container.style.display = "block";
-                })
-
-                job.addEventListener("click", (e) => {
-                    //Change tab colors
-                    job.style.backgroundColor = "#004065";
-                    job.style.color = "white";
-
-                    disp.style.backgroundColor = "#CFD8DC";
-                    disp.style.color = "black";
-
-                    //Change visible cards with CSS
-                    job_container.style.display = "block";
-                    dispatch_container.style.display = "none";
-                })
-            </script>
-            <% } else { %>
-                <script>
-                    const job = document.getElementById("job");
-
-                    const job_container = document.getElementById("job_container");
-                    job_container.style.display = "block";
-                    job.style.gridColumn = "1 / span 2";
-                </script>
+    <div class="job <%= jobs[i].status %>">
+        <a href="/job?id=<%=jobs[i]._id %>">
+            <h2>
+                <%= jobs[i].contractor %>
+            </h2>
+        </a>
+        <% if (user.type !="dispatcher" ) { %>
+        <h5>
+            <%= jobs[i].dispatcher.company %>
+        </h5>
+        <% } else { %>
+        <h5>
+            <%= jobs[i].operator.name %>
+        </h5>
+        <% } %>
+        <div class="equipment">
+            <div id="truck">
+                <span>
+                    <%= jobs[i].equipment.truck %>
+                </span>
+            </div>
+            <div id="trailer">
+                <% if (jobs[i].equipment.trailer !="default" ) { %>
+                <span>
+                    <%= jobs[i].equipment.trailer %>
+                </span>
                 <% } %>
+            </div>
+        </div>
+        <div class="start_time">
+            <span>
+                <%= jobs[i].start.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit', hour12: false }) %>
+            </span>
+        </div>
+    </div>
+    <% } %>
+    <% } %>
+</div>
+
+<% if(user.type=="dispatcher" ) { %>
+<script>
+    const disp = document.getElementById("left_tab");
+    const job = document.getElementById("right_tab");
+
+
+    const dispatch_container = document.getElementById("dispatch_container");
+    const job_container = document.getElementById("job_container");
+
+    disp.addEventListener("click", (e) => {
+        //Change tab colors
+        job.style.backgroundColor = "#CFD8DC";
+        job.style.color = "black";
+
+        disp.style.backgroundColor = "#004065";
+        disp.style.color = "white";
+
+        //Change visible cards with CSS
+        job_container.style.display = "none";
+        dispatch_container.style.display = "block";
+    })
+
+    job.addEventListener("click", (e) => {
+        //Change tab colors
+        job.style.backgroundColor = "#004065";
+        job.style.color = "white";
+
+        disp.style.backgroundColor = "#CFD8DC";
+        disp.style.color = "black";
+
+        //Change visible cards with CSS
+        job_container.style.display = "block";
+        dispatch_container.style.display = "none";
+    })
+</script>
+<% } else { %>
+<script>
+    const job = document.getElementById("job");
+
+    const job_container = document.getElementById("job_container");
+    job_container.style.display = "block";
+    job.style.gridColumn = "1 / span 2";
+</script>
+<% } %>

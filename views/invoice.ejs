@@ -13,31 +13,32 @@
     </span>
 </div>
 
-<div id="checkboxs">
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="operator_check" onclick="showOperator()" checked>
-        <label class="form-check-label" for="load_check">
-            Operators
-        </label>
-    </div>
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="contractor_check" onclick="showContractor()">
-        <label class="form-check-label" for="tonnage_check">
-            Contractors
-        </label>
-    </div>
-</div>
+
 
 <div>
+    <div id="checkboxs">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="operator_check" onclick="showOperator()" checked>
+            <label class="form-check-label" for="load_check">
+                Operators
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="contractor_check" onclick="showContractor()">
+            <label class="form-check-label" for="tonnage_check">
+                Contractors
+            </label>
+        </div>
+    </div>
     <div id="type">
         <div id="contractor" class="mb-3" style="display: none;">
             <label for=" contractor" class="form-label">Contractor*</label>
             <select class="form-select" aria-label="Default select example">
                 <% for (let contractor in contractors) { %>
-                    <option value="<%=contractor%>">
-                        <%= contractor %>
-                    </option>
-                    <% } %>
+                <option value="<%=contractor%>">
+                    <%= contractor %>
+                </option>
+                <% } %>
             </select>
         </div>
         <div id="operator" class="mb-3">
@@ -59,13 +60,36 @@
             <input type="date" class="form-control" id="finish_date">
         </div>
     </div>
+
+
+
     <div id="form_error" class="form-text error mb-3"></div>
     <button type="button" onclick="submitInvoiceQuery()" id="create_invoice" class="btn btn-primary"
         style="width: 100%;">Create Invoice</button>
 </div>
 
-
-
+<div id="file_type_modal" class="modal">
+    <div id='file_type' class="modal-content">
+        <span id='text'></span>
+        <div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="csv_check" checked>
+                <label class="form-check-label" for="load_check">
+                    CSV File
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="pdf_check">
+                <label class="form-check-label" for="tonnage_check">
+                    PDF File
+                </label>
+            </div>
+            <div id="file_format_error" class="form-text error mb-3"></div>
+        </div>
+        <button id='yes' onclick="downloadInvoice()">Submit</button>
+        <button id='no'>Cancel</button>
+    </div>
+</div>
 
 <script>
     function showOperator() {
@@ -80,6 +104,9 @@
             cont.style.display = "none";
 
             cotCheck.checked = false
+        } else if (!opCheck.checked && !cotCheck.checked) {
+            cotCheck.checked = true;
+            showContractor();
         }
     }
 
@@ -95,6 +122,9 @@
             cont.style.display = "block";
 
             opCheck.checked = false
+        } else if (!opCheck.checked && !cotCheck.checked) {
+            opCheck.checked = true;
+            showOperator();
         }
     }
 </script>

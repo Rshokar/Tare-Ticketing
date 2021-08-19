@@ -11,11 +11,8 @@ const { readFile } = require('fs');
 const mongoose = require('mongoose').set('debug', true);;
 const ObjectId = require('mongodb').ObjectId;
 const ejsLint = require('ejs-lint');
-
-const sanitize = require("./middleware/sanitize.js");
-
-
-
+const ObjectsToCsv = require("objects-to-csv");
+const zip = require('express-zip');
 
 const app = express();
 
@@ -522,12 +519,15 @@ function getDumpLocations(job, id) {
   const per = "load";
   const ton = "ton";
 
+  let dumpLocations = []
+
   const perRates = (job.rates.perLoad === undefined ? [] : [...job.rates.perLoad.rates]);
   const tonRates = (job.rates.tonnage === undefined ? [] : [...job.rates.tonnage.rates]);
 
-  let dumpLocations = []
 
-  if (load.type === ton) {
+  if (job.rates.hourly) {
+    return [job.dumpLocation];
+  } else if (load.type === ton) {
     for (let i = 0; i < tonRates.length; i++) {
       if (tonRates[i].l == load.loadLocation) {
         dumpLocations.push(tonRates[i].d)
@@ -683,8 +683,9 @@ app.post("/delete_load_ticket", TicketController.deleteLoadTicket, (req, res) =>
  * @date May 22 2021
  */
 app.get("/new_dispatch", authenticate, (req, res) => {
+  console.log(req.query)
   const token = req.cookies.jwt;
-  let pageName = "New Dispatch";
+  let pageName = (req.query.edit ? "Edit Dispatch" : "New Dispatch");
 
   jwt.verify(token, "butternut", (err, decodedToken) => {
     User.findOne({ _id: decodedToken.id })
@@ -704,7 +705,7 @@ app.get("/new_dispatch", authenticate, (req, res) => {
  */
 app.get("/add_operators", authenticate, (req, res) => {
   const token = req.cookies.jwt;
-  let pageName = "Add Operators";
+  const pageName = (req.query.edit ? "Edit Operators" : "Add Operators")
 
   jwt.verify(token, "butternut", (err, decodedToken) => {
     res.render("add_operators", { page: pageName, user: decodedToken });
@@ -719,7 +720,7 @@ app.get("/add_operators", authenticate, (req, res) => {
  */
 app.get("/add_rates", authenticate, (req, res) => {
   const token = req.cookies.jwt;
-  const pageName = "Add Rates";
+  const pageName = (req.query.edit ? "Edit Rates" : "Add Rates")
   console.log(req.query);
 
   jwt.verify(token, "butternut", (err, decodedToken) => {
@@ -728,6 +729,7 @@ app.get("/add_rates", authenticate, (req, res) => {
     } else {
       User.findOne({ _id: decodedToken.id })
         .then((user) => {
+          console.log(req.query.contractor);
           const opRates = user.contractors[req.query.contractor].operatorRates;
           const contRates = user.contractors[req.query.contractor].contractorRates;
           res.render("add_rates", { page: pageName, user: decodedToken, opRates, contRates });
@@ -763,9 +765,17 @@ app.get("/dispatch_preview", authenticate, (req, res) => {
  * @version 1.0 
  * @date June 21 2021
  */
-app.post("/submit_dispatch", authenticate, TicketController.createDispatch, (req, res) => {
-  res.send({ status: "success", message: "Succesfull Ajax call" })
-})
+app.post("/submit_dispatch", authenticate, TicketController.createDispatch, (req, res) => { })
+
+
+/**
+ * This route is responsible for updating a dispatch ticket and the 
+ * corresponding job ticket 
+ * @author Ravinder Shokar 
+ * @vesrion 1.0 
+ * @date Aug 16 2021
+ */
+app.post("/edit_dispatch", TicketController.editDispatch, (req, res) => { })
 
 /**
  * This route will return the appropriate HTML for the employee page. 
@@ -963,32 +973,92 @@ app.get("/get_job", (req, res) => {
     })
 })
 
+app.get("/get_dispatch", authenticate, async (req, res) => {
+  let disp;
 
-app.get("/invoicing", (req, res) => {
+  console.log(req.query);
+  try {
+    disp = await TicketController.getDispatch(req.query.id);
+    res.send({
+      status: "success",
+      result: disp,
+    })
+  } catch (e) {
+    console.log(e)
+    res.send({
+      status: "error",
+      err: e
+    })
+  }
+})
+
+
+app.get("/invoicing", authenticate, (req, res) => {
   let pageName = "Invoicing";
   let token = req.cookies.jwt;
   let contractors = []
 
   jwt.verify(token, "butternut", (err, decodedToken) => {
-    User.findOne({ _id: decodedToken.id })
-      .then((user) => {
-        if (user == null) {
-          res.sendStatus(404);
-        } else {
+    if (err) {
+      res.sendStatus(404);
+    } else {
+      User.findOne({ _id: decodedToken.id })
+        .then((user) => {
+          if (user == null) {
+            res.sendStatus(404);
+          } else {
 
-          res.render("invoice", {
-            page: pageName,
-            user: decodedToken,
-            contractors: user.contractors
-          })
-        }
-      })
+            res.render("invoice", {
+              page: pageName,
+              user: decodedToken,
+              contractors: user.contractors
+            })
+          }
+        })
 
+    }
   })
 })
 
-
 app.post("/build_invoice", InvoiceController.createInvoice, (req, res) => {
+})
+
+
+app.get("/download", async (req, res) => {
+  const CSVPATH = __dirname + "/invoices/csv/invoice.csv";
+  const PDFPATH = __dirname + "/invoices/pdf/invoice.pdf";
+
+  let inv, rows, csvInvoice;
+  let csv = req.query.csv;
+  let pdf = req.query.pdf;
+  let csvName, pdfName;
+
+  try {
+    inv = await InvoiceController.getInvoice(req.query.id);
+    rows = InvoiceController.convertToJSON(inv.i)
+
+
+    if (csv === 'true') {
+      csvInvoice = new ObjectsToCsv(rows);
+      await csvInvoice.toDisk(CSVPATH);
+      csvName = inv.customer + "_" + inv.dateRange.start.toLocaleDateString() + "_" + inv.dateRange.finish.toLocaleDateString() + ".csv";
+    }
+    if (pdf === "true") {
+      await InvoiceController.buildPDFInvoice(rows, inv, PDFPATH);
+      pdfName = inv.customer + "-_" + inv.dateRange.start.toLocaleDateString() + "_" + inv.dateRange.finish.toLocaleDateString() + ".pdf";
+    }
+
+    if (csv === "true" && pdf === "true") {
+      console.log("Send PDF and CSV");
+      return res.zip([{ path: CSVPATH, name: csvName }, { path: PDFPATH, name: pdfName }])
+    } else if (pdf === "true") {
+      return res.download(PDFPATH, pdfName);
+    } else if (csv === "true") {
+      return res.download(CSVPATH, csvName);
+    }
+  } catch (e) {
+    console.log({ status: "error", err: e });
+  }
 })
 
 //App Listen.

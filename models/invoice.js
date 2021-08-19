@@ -8,16 +8,18 @@ const dateRangeSchema = new Schema({
 }, { _id: false })
 
 const rowSchema = new Schema({
-    operator: String,
+    truck: String,
     load: String,
     dump: String,
     rate: Number,
-    qty: Number,
+    amount: Number,
     total: Number,
+    date: String,
 }, { _id: false })
 
 const inovoiceSchema = new Schema({
     lastIndex: Number,
+    total: Number,
     user: ObjectId,
     customer: String,
     dateRange: dateRangeSchema,

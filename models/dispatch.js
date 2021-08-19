@@ -6,7 +6,7 @@ const subModels = require("../models/subModels");
 
 
 const operatorSchema = new Schema({
-    id: ObjectId,
+    id: { type: ObjectId, required: false, default: undefined },
     equipment: subModels.equipmentSchema,
     start: Date,
     name: String,

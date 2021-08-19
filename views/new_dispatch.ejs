@@ -3,7 +3,7 @@
 
 
 <div id="controls">
-    <div id="exit" onclick="exit()">
+    <div id="exit" onclick="exit('/dashboard')">
         <i class="fas fa-times"></i>
     </div>
 
@@ -12,7 +12,7 @@
     </div>
 </div>
 
-<h1>New Dispatch</h1>
+<h1 id="title">New Dispatch</h1>
 
 <form>
     <div class="mb-3">
@@ -20,13 +20,14 @@
         <select class="form-select" aria-label="Default select example" id="contractor">
             <option selected>Select A Contractor</option>
             <% for (let contractor in contractors) { %>
-                <option value="<%=contractor%>">
-                    <%= contractor %>
-                </option>
-                <% } %>
+            <option value="<%=contractor%>">
+                <%= contractor %>
+            </option>
+            <% } %>
         </select>
         <div id="contractor-error" class="form-text error"></div>
-        <a href="/contractors"><button type="button" class="btn btn-secondary">Add Contractor</button></a>
+        <a href="/contractors" id="add_contractor"><button type="button" class="btn btn-secondary">Add
+                Contractor</button></a>
     </div>
     <div class="mb-3">
         <label for="date" class="form-label">Date *</label>
@@ -106,41 +107,11 @@
         + "-" + (today.getDate() < 10 ? "0" : "") + today.getDate();
 
     document.querySelector("#date").setAttribute('min', dateMath);
-
-    function showReciever() {
-        let checkReciever = document.getElementById("reciever_check");
-        let reciever = document.getElementById("reciever");
-
-        change(reciever, checkReciever.checked)
-    }
-
-    function showSupplier() {
-        let checkSupplier = document.getElementById("supplier_check");
-        let supplier = document.getElementById("supplier");
-
-        change(supplier, checkSupplier.checked)
-    }
-
-    function showMaterial() {
-        let checkMaterial = document.getElementById("material_check");
-        let material = document.getElementById("material");
-
-        change(material, checkMaterial.checked)
-
-    }
-
-    const change = (div, bool) => {
-        if (bool) {
-            div.style.display = 'block';
-            div.scrollIntoView()
-            div.focus();
-        } else {
-            div.style.display = "none"
-        }
-    }
 </script>
 
 <script src="js/reset_errors.js"></script>
+
+<script src="js/ticket_controller.js"></script>
 
 <script src="js/new_dispatch.js"></script>
 

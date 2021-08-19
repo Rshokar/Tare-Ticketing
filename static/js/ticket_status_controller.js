@@ -167,8 +167,10 @@ function activateJobTicket() {
  */
 const signOff = () => {
 
-    const signOffTime = document.getElementById("sign_off_time").value.trim();
+    const time = document.getElementById("sign_off_time").value.trim();
+    const date = document.getElementById("sign_off_date").value.trim();
 
+    const signOffTime = date + "T" + time;
     const url = window.location.href;
     const query = new URL(url);
     const jobId = query.searchParams.get('id');
@@ -185,7 +187,7 @@ const signOff = () => {
  * @param { String } jobId job ticket Id
  * @param { Date } time job finish time
  */
-function submitSignOff(jobId, time) {
+function submitSignOff(jobId, signOffTime) {
     const options = { yText: "Okay", buttons: { y: false, n: false }, txt: "Updating Status....." }
     const modal = newModal(options);
 
@@ -196,7 +198,7 @@ function submitSignOff(jobId, time) {
         url: "/complete_job_ticket",
         type: "POST",
         dataType: "JSON",
-        data: { jobId, time },
+        data: { jobId, signOffTime },
         success: (data) => {
             if (data.status == "success") {
                 const dispatchContainer = document.getElementById("ticket_preview");
@@ -234,11 +236,13 @@ function submitSignOff(jobId, time) {
  * @author Ravinder Shokar 
  * @version 1.0 
  * @date July 3 2021
+ * @param { String } dateTime yyyy-mm-ddThh:mm:ss
  */
-function verifySignOff(signOffTime) {
+function verifySignOff(dateTime) {
+    [date, time] = dateTime.split("T");
     resetErrors();
     const signOffError = document.getElementById("sign_off_error");
-    if (signOffTime == "") {
+    if (date === "" || time === "") {
         signOffError.innerHTML = "Field Cannot be left empty";
         return false;
     }

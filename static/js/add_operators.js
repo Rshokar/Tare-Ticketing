@@ -6,10 +6,13 @@ const dispatch = JSON.parse(sessionStorage.getItem('dispatch'))
  * This function is resposible for displaying saved operators to the html.
  */
 function addOperatorCards() {
+    const ACTIVE = "active";
+    const COMPLETE = "complete";
     const operatorsContainer = document.getElementById("operators");
     const time = "07:00"
     let numTrucks = dispatch.numTrucks;
     let operators = dispatch.operators;
+    let disable = false;
 
 
     let start = { date: dispatch.date, time: time }
@@ -23,14 +26,20 @@ function addOperatorCards() {
 
     if (operators != undefined) {
         for (let i = 0; i < numTrucks; i++) {
+            start = { date: dispatch.date, time: time }
+            name = "Add Operator";
+            status = "empty";
+            id = "";
+            disable = false;
             if (operators[i] != undefined && operators[i].id != "") {
                 name = operators[i].name;
                 id = operators[i].id;
                 [truck, trailer] = getEquipmentHTML(operators[i].equipment)
-                status = "filled";
+                status = operators[i].status;
+                if (operators[i].status === ACTIVE || operators[i].status === COMPLETE) { disable = true }
                 if (operators[i].start !== undefined) {
                     start.date = operators[i].start.split("T")[0];
-                    start.time = operators[i].start.split("T")[1];
+                    start.time = new Date(operators[i].start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
                 }
             } else if (operators[i] != undefined) {
                 [truck, trailer] = getEquipmentHTML(operators[i].equipment);
@@ -51,6 +60,7 @@ function addOperatorCards() {
                 trailer,
                 start,
                 minDate,
+                disable,
             }
 
             const operatorCardHTML = buildOperatorCard(obj);
@@ -68,7 +78,8 @@ function addOperatorCards() {
                 truck,
                 trailer,
                 start,
-                minDate
+                minDate,
+                disable
             }
             const operatorCardHTML = buildOperatorCard(obj);
 
@@ -76,6 +87,9 @@ function addOperatorCards() {
         }
     }
 }
+
+
+
 addOperatorCards();
 
 /**
@@ -194,6 +208,7 @@ function addOperator() {
 
     let start = { date: dispatch.date, time: '07:00' }
     let minDate = dispatch.date;
+    let disable = false;
 
     const obj = {
         id: dispatch.numTrucks,
@@ -203,7 +218,8 @@ function addOperator() {
         truck,
         trailer,
         start,
-        minDate
+        minDate,
+        disable,
     }
 
     const operatorCardHTML = buildOperatorCard(obj);
@@ -221,33 +237,63 @@ function addOperator() {
  * @param obj A JSON object containing card details
  */
 function buildOperatorCard(obj) {
-    return `
-    <div id="${obj.id}"class="operator ${obj.status}">
+    const DISABLE = (obj.disable ? "disabled" : "");
+    const ONCLICK = (obj.disable ? "" : `openOperatorModal(${obj.id})`)
+
+    html = `
+    <div id="${obj.id}"class="operator mb-3 ${obj.status}">
         <div class="operator_container">
-        <span class="operator_name" onclick="openOperatorModal(${obj.id})">${obj.name}</span>
+        <span class="operator_name" onclick="${ONCLICK}">${obj.name}</span>
         </div>
         <div class="equipment">
             <div class="truck">
-                <select class="truck form-select">
+                <select class="truck form-select" ${DISABLE}>
                     ${obj.truck}
                 </select>
             </div>
             <div class="trailer">
-                <select class="truck form-select">
+                <select class="truck form-select" ${DISABLE}>
                     ${obj.trailer}
                 </select>
             </div>
         </div>
         <div class="start date_time">
-            <input type="date" class="date form-control" value="${obj.start.date}" min="${obj.minDate}"}>
-            <input type="time" class="time form-control" value="${obj.start.time}"}>
+            <input type="date" class="date form-control" value="${obj.start.date}" min="${obj.minDate}" ${DISABLE}>
+            <input type="time" class="time form-control" value="${obj.start.time}" ${DISABLE}>
         </div>
         <span class="user_id">${obj.userId}</span>
         <span class="error"></span>
-    </div>
 `
+    if (!obj.disable) {
+        html += `<button type="button" class="btn btn-danger" onclick="deleteSpot(${obj.id})">Delete Operator</button>`
+    }
+    html += "</div>"
+
+    return html;
 }
 
+
+/**
+ * Deletes a spot and decrements all after it by 1
+ * @param { Number } i spot index  
+ */
+function deleteSpot(index) {
+    let spot;
+
+    document.getElementById(index).remove();
+
+    document.getElementById("number_of_trucks").innerHTML = dispatch.numTrucks - 1;
+    dispatch.numTrucks--;
+
+    for (let i = index; i < dispatch.numTrucks; i++) {
+        spot = document.getElementById(i + 1)
+        if (!(spot.classList.contains("active") || spot.classList.contains("complete"))) {
+            spot.querySelector("button").setAttribute("onclick", `deleteSpot(${i})`);
+        }
+        document.getElementById(i + 1).setAttribute("id", i)
+    }
+
+}
 
 /**
  * This fucntion will remove an oeprator card with the largest integers ID
@@ -347,6 +393,7 @@ getEmployees();
  */
 const fillSpot = (id, fName, lName, type, company) => {
     const index = document.getElementById("spot_index").innerHTML;
+    console.log(index);
     const spot = document.getElementById(index);
 
     console.log(type);
@@ -356,13 +403,13 @@ const fillSpot = (id, fName, lName, type, company) => {
     if (type == "employee") {
         spot.querySelector(".operator_name").innerHTML = fName + " " + lName;
         spot.querySelector(".user_id").innerHTML = id;
-        spot.className = "operator filled";
+        spot.className = "operator sent";
     }
 
     if (type == "operator") {
         spot.querySelector(".operator_name").innerHTML = company;
         spot.querySelector(".user_id").innerHTML = id;
-        spot.className = "operator filled";
+        spot.className = "operator sent";
     }
 
     closeModal();
@@ -488,21 +535,11 @@ ownerOpSearch.addEventListener('keyup', (event) => {
  * @date June 21 2021
  */
 function back(url) {
-    let dispatch = getDispatch();
+    const edit = new URL(window.location.href).searchParams.get("edit");
+    url += (edit ? "&edit=true&dispId=" + dispatch._id : "");
+    dispatch["operators"] = getOperators();
     sessionStorage.setItem('dispatch', JSON.stringify(dispatch));
     window.location.href = url;
-}
-
-
-/**
- * This function will get all dispatch data and return a JSON obj
- * @author Ravinder Shokar 
- * @version 1.0 
- * @date June 21 2021
- */
-function getDispatch() {
-    dispatch["operators"] = getOperators();
-    return dispatch
 }
 
 
@@ -514,30 +551,62 @@ function getDispatch() {
  * @date June 21 2021
  */
 function getOperators() {
+    const SENT = "sent";
+    const EMPTY = "empty";
+
     const obj = {}
     for (let i = 0; i < dispatch.numTrucks; i++) {
         const spot = document.getElementById(i);
         const userId = spot.querySelector('.user_id').innerHTML;
-        var status = "sent";
-
-        if (userId == "") {
-            status = "empty";
-        }
 
         obj[i] = {
-            id: userId,
             equipment: {
                 truck: spot.querySelector('.equipment .truck select').value,
                 trailer: spot.querySelector('.equipment .trailer select').value,
             },
             start: spot.querySelector('.start .date').value + "T" + spot.querySelector('.start .time').value,
             name: spot.querySelector('.operator_container .operator_name').innerHTML,
-            status
+            status: getSpotStatus(spot)
+        }
+
+        if (userId !== "") {
+            obj[i]["id"] = userId
         }
     }
     return obj;
 }
 
+
+/**
+ * Gets the status of the spot. 5 possible options.
+ * Empty, Sent, Confirmed, Active, Complete
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date Aug 17 2021 
+ * @param { HTML Element } spot 
+ */
+function getSpotStatus(spot) {
+    const SENT = 'sent';
+    const CONFIRMED = 'confirmed';
+    const ACTIVE = 'active';
+    const COMPLETE = 'complete';
+    const EMPTY = "empty";
+
+    let status;
+
+    if (spot.classList.contains(SENT)) {
+        status = SENT;
+    } else if (spot.classList.contains(CONFIRMED)) {
+        status = CONFIRMED;
+    } else if (spot.classList.contains(ACTIVE)) {
+        status = ACTIVE;
+    } else if (spot.classList.contains(COMPLETE)) {
+        status = COMPLETE;
+    } else if (spot.classList.contains(EMPTY)) {
+        status = EMPTY;
+    }
+    return status;
+}
 
 /**
  * This function collects dispatch data, verifies it , saves it to session storage
@@ -547,9 +616,12 @@ function getOperators() {
  * @date June 21 2021 
  */
 function next(url) {
-    let dispatch = getDispatch();
-    console.log(dispatch)
+    dispatch["operators"] = getOperators();
+    const edit = new URL(window.location.href).searchParams.get("edit");
+    url += (edit ? "?edit=true&dispId=" + dispatch._id : "");
     if (verifyOperators(dispatch.operators)) {
+        console.log(url)
+        console.log(dispatch.operators)
         sessionStorage.setItem('dispatch', JSON.stringify(dispatch))
         window.location.href = url;
     }
@@ -624,7 +696,7 @@ $(document).ready(() => {
     const numTrucks = document.getElementById("num-trucks");
     const notes = document.getElementById("notes");
 
-    document.getElementById("exit").setAttribute("onclick", `back('/add_rates?contractor=${dispatch.contractor}')`);
+    document.getElementById("exit").setAttribute("onclick", `back('/add_rates?contractor=${dispatch.contractor.replace("&", "%26")}')`);
 
 
     contractor.innerHTML = dispatch.contractor;
@@ -634,6 +706,6 @@ $(document).ready(() => {
     supplier.innerHTML = "Supplier: " + dispatch.supplier;
     reciever.innerHTML = "Reciever: " + dispatch.reciever;
     material.innerHTML = "Material: " + dispatch.material;
-    numTrucks.innerHTML = "<i class='fas fa-truck'></i><span id='number_of_trucks'>" + dispatch.numTrucks + "</span><span id='plus' onclick='addOperator()'> + </span>/<span id='minus' onclick='removeOperator()'> - </span>";
+    numTrucks.innerHTML = "<i class='fas fa-truck'></i><span id='number_of_trucks'>" + dispatch.numTrucks + "</span><span id='plus' onclick='addOperator()'> + </span>";
     notes.innerHTML = dispatch.notes;
 })

@@ -11,20 +11,24 @@
  * @returns DateTime string YYYY-MM-DDTHH:MM
  */
 const now = (type) => {
+  var getDate = (d) => {
+    return d.getFullYear() + "-" + (d.getMonth() + 1 < 10 ? "0" : "") + (d.getMonth() + 1) + "-" + (d.getDate() < 10 ? "0" : "") + d.getDate()
+  }
+
   const date = new Date();
 
   let x;
 
   if (type === "date_time") {
-    x = date.toLocaleDateString({ weekday: 'numeric', year: 'numeric', day: 'numeric' }).replace(/\//g, "-")
-      + "T" + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    x = getDate(date) + "T" + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
   } else if (type === "date") {
-    x = date.toLocaleDateString({ weekday: 'numeric', year: 'numeric', day: 'numeric' })
+    x = getDate(date)
   } else if (type === "time") {
     x = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
   }
   console.log(x);
   return x
+
 
 }
 
@@ -102,10 +106,10 @@ function createLoadTicket(h, p, t) {
   if (verifyActiveLoadTicket(obj)) {
     submitActiveLoadTicket(obj)
       .then((data) => {
-        console.log(data);
         updateDumpLocations(
           data.job,
-          data.loadId, data.job.loadTickets[data.loadId].type === "ton",
+          data.loadId,
+          data.job.loadTickets[data.loadId].type === "ton",
           data.job.loadTickets[data.loadId].type === "load",
           data.job.loadTickets[data.loadId].loadLocation)
         successModal(data.message);
@@ -591,14 +595,15 @@ function updateDumpLocations(job, id, isTon, isLoad, loadLocation) {
   let dumpLocations = [];
 
   if (selectField !== undefined) {
-    if (isTon) {
+    if (job.rates.hourly) {
+      dumpLocations.push(job.dumpLocation)
+    } else if (isTon) {
       rates = job.rates.tonnage.rates;
       for (let i = 0; i < rates.length; i++) {
         if (rates[i].l == load || load == "default") {
           dumpLocations.push(rates[i].d);
         }
       }
-
     } else if (isLoad) {
       rates = job.rates.perLoad.rates;
       for (let i = 0; i < rates.length; i++) {
@@ -646,38 +651,6 @@ function resetLoadTicketForm() {
 
   tonnage.value = "0";
   material.value = "";
-}
-
-/**
- * Gets a job ticket from DB. Get Job id from 
- * URL
- * @author Ravinder Shokar 
- * @version 1.0 
- * @date July 27 2021
- * @returns { Promise } res if gets a ticket, rej if error
- */
-function getJob() {
-  return new Promise((resolve, reject) => {
-    const query = new URL(window.location.href);
-    const jobId = query.searchParams.get("id");
-
-    $.ajax({
-      url: "get_job",
-      dataType: "JSON",
-      type: "GET",
-      data: { jobId },
-      success: (data) => {
-        if (data.status == "success") {
-          resolve(data.job);
-        } else {
-          reject()
-        }
-      },
-      error: (err) => {
-        reject()
-      }
-    })
-  })
 }
 
 
