@@ -17,25 +17,47 @@
   </h1>
   <span>
     <%= user.fName %>
-      <%= user.lName %>
+    <%= user.lName %>
   </span>
 </div>
 
-<div id="search">
+<div id="search_button">
   <input type="text" placeholder="Search...">
+  <button onclick="toNewEmployee()"><i class="fas fa-plus"></i></button>
 </div>
 
-<a href="/new_employee"><button><i class="fas fa-plus"></i></button></a>
 
-<div id="employees">
+
+<div id="users">
   <% for (let i=0 ; i < user.employees.length ; i++) { %>
-    <div class="employee">
-      <a href="/employee?id=<%= user.employees[i].id %>">
-        <h3>
-          <%= user.employees[i].fName %>
-            <%= user.employees[i].lName %>
-        </h3>
-      </a>
-    </div>
-    <% } %>
+  <div class="employee">
+    <a href="/employee?id=<%= user.employees[i].id %>">
+      <h3>
+        <%= user.employees[i].fName %>
+        <%= user.employees[i].lName %>
+      </h3>
+    </a>
+  </div>
+  <% } %>
 </div>
+
+<script src="js/search_tickets.js"></script>
+
+<script>
+  function toNewEmployee() {
+    window.location.href = "/new_employee"
+  }
+</script>
+
+
+<script>
+
+  $(document).ready(() => {
+    const search = document.querySelector("#search_button input");
+    search.addEventListener("keyup", (e) => {
+      const TYPE = "employee";
+      searchTickets(e.target.value, TYPE);
+    })
+  })
+
+</script>

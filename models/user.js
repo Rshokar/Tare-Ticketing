@@ -1,6 +1,32 @@
 
 const mongoose = require("mongoose");
+const subModels = require("../models/subModels");
 const Schema = mongoose.Schema;
+
+const operatorRates = new Schema({
+    t: Number,
+    t2p: Number,
+    t3p: Number,
+    t3tf: Number,
+    t4tf: Number,
+    t4ed: Number,
+    tri: Number,
+    tri2p: Number,
+    tri3p: Number,
+    tri3tf: Number,
+    tri4tf: Number,
+    tri4ed: Number,
+    tonnage: Number,
+    perLoad: Number,
+})
+
+
+const contractor = new Schema({
+    billingAddress: subModels.billingAdress,
+    contractorRates: subModels.hourSchema,
+    operatorRates,
+})
+
 
 const userSchema = new Schema({
     fName: {
@@ -28,9 +54,8 @@ const userSchema = new Schema({
     employees: {
         type: Array
     },
-    contractors: {
-        type: Object
-    }
+    contractors: { contractor },
+    address: subModels.billingAdress,
 }, { timestamps: true })
 
 const User = mongoose.model("User", userSchema);

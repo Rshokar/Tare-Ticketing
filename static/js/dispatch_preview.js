@@ -1,67 +1,135 @@
-
 /**
  * This function is responsible for submiting a dispatch by 
  * making a post request to the Server
  * @author Ravinder Shokar 
- * @version 1.0 
+ * @version 1.1 
  * @date June 21 2021
  */
 function submitDispatch() {
-    const confirmation = document.getElementById("confirmation_modal");
-    const confYes = document.getElementById("confirmation_yes");
-    const confNo = document.getElementById("confirmation_no");
-    const confText = document.getElementById("confirmation_text");
+    const URLPARAMS = new URL(window.location.href);
+    const EDIT = URLPARAMS.searchParams.get("edit");
+    const DISPATCH = JSON.parse(sessionStorage.getItem("dispatch"));
 
-    confYes.style.display = "none";
-    confNo.style.display = "none";
-    confText.innerHTML = "Submiting dispatch....";
+    let confirmation = document.getElementById("confirmation_modal");
+    let confYes = document.getElementById("confirmation_yes");
+    let confNo = document.getElementById("confirmation_no");
+    let confText = document.getElementById("confirmation_text");
 
     confirmation.style.display = "block";
+    confYes.style.display = "none";
+    confNo.style.display = "none";
 
-    $.ajax({
-        url: "/submit_dispatch",
-        type: "POST",
-        dataType: "JSON",
-        data: JSON.parse(sessionStorage.getItem('dispatch')),
-        success: (data) => {
-
-            console.log(data);
-            if (data.status == "success") {
-                confText.innerHTML = "Created Dispatch."
+    if (EDIT) {
+        confText.innerHTML = "Updating dispatch....";
+        editDispatch(DISPATCH)
+            .then(data => {
+                confText.innerHTML = "Dispatch has been updated."
                 confText.style.color = "green";
                 sessionStorage.setItem('dispatch', "");
                 setTimeout(() => {
-                    window.location.href = "/dashboard";
+                    window.location.href = "/dispatch?id=" + DISPATCH._id;
                 }, 2000);
-            } else if (data.status == "error") {
-                confText.innerText = data.message;
+            })
+            .catch(err => {
+                console.log(err);
+                confText.innerText = err.err.message;
                 confText.style.color = "red";
                 confYes.style.display = "block";
                 confYes.innerHTML = "Okay";
                 confYes.addEventListener("click", closeModals);
-            }
-        },
-        error: (err) => {
-            confText.innerHTML = "Error Creating Dispatch. Try agina later.";
-            setTimeout(() => {
-                confirmation.style = "none";
-            }, 2000)
-            console.log(err);
-        }
-    })
+            })
+    } else {
+        confText.innerHTML = "Submiting dispatch....";
+        createDispatch(DISPATCH)
+            .then(data => {
+                confText.innerHTML = "Created Dispatch."
+                confText.style.color = "green";
+                console.log(DISPATCH)
+                sessionStorage.setItem('dispatch', "");
+                setTimeout(() => {
+                    window.location.href = "/dashboard";
+                }, 2000);
+            })
+            .catch(err => {
+                confText.innerText = err.err.message;
+                confText.style.color = "red";
+                confYes.style.display = "block";
+                confYes.innerHTML = "Okay";
+                confYes.addEventListener("click", closeModals);
+            })
+    }
+
 
 }
 
 /**
- * This function is responsible for closing all modals on the page
+ * Submits a dispatch to be created 
+ * @author Ravinder Shokar 
+ * @version 1.0
+ * @date Aug 16 2021
+ * @param { JSON } d 
+ * @returns promise. Resolves if dispatch is successfully created.
+ */
+function createDispatch(d) {
+    return new Promise((res, rej) => {
+        $.ajax({
+            url: "/submit_dispatch",
+            type: "POST",
+            dataType: "JSON",
+            data: d,
+            success: (data) => {
+                if (data.status == "success") {
+                    res(data);
+                } else if (data.status == "error") {
+                    rej(data);
+                }
+            },
+            error: (err) => {
+                rej({
+                    status: "error",
+                    err: {
+                        code: "request",
+                        message: "Error connecting to server. Try again later."
+                    }
+                })
+            },
+        })
+    })
+}
+
+/**
+ * Submits a dispatch to be edited
  * @author Ravinder Shokar 
  * @version 1.0 
- * @date July 1 2021 
+ * @date Aug 16 2021 
+ * @param {*} d dispatch 
+ * @returns Promise. Resolves if dispatch is successfully edited
  */
-const closeModals = () => {
-    const modals = document.querySelectorAll(".modal");
-    modals.forEach((modal) => {
-        modal.style.display = "none";
+function editDispatch(d) {
+    return new Promise((res, rej) => {
+        $.ajax({
+            url: "/edit_dispatch",
+            type: "POST",
+            dataType: "JSON",
+            data: d,
+            success: data => {
+                console.log(data)
+                if (data.status === "success") {
+                    res(data);
+                } else {
+                    rej(data);
+                }
+            },
+            error: err => {
+                rej({
+                    status: "error",
+                    err: {
+                        code: "request",
+                        message: "Error connecting to server. Try again later.",
+                    }
+                })
+            }
+        })
     })
 }
 
@@ -70,7 +138,6 @@ const closeModals = () => {
  * This function is resposible for adding spots to a dispatch.
  */
 function addOperatorCards() {
-
     const dispatch = JSON.parse(sessionStorage.getItem('dispatch'))
 
     let numTrucks = dispatch.numTrucks;
@@ -80,15 +147,17 @@ function addOperatorCards() {
     for (let i = 0; i < numTrucks; i++) {
         let name;
         let id;
-        let startTime = (operators[i].startTime == "" ? "Not Defined" : operators[i].startTime);
+        let start = operators[i].start
         let truck = operators[i].equipment.truck;
         let trailer = (operators[i].equipment.trailer == "default" ? "" : operators[i].equipment.trailer);
         let status;
 
+        console.log(start);
+
         if (operators[i] != undefined && operators[i].id != "") {
             name = operators[i].name;
             id = operators[i].id;
-            status = "filled"
+            status = operators[i].status
         } else {
             name = "Add Operator";
             id = "";
@@ -112,7 +181,7 @@ function addOperatorCards() {
                     </div>
                     <div class="start_time">
                         <span>
-                        ${new Date(startTime).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}
+                        ${new Date(start).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}
                         </span>
                     </div>
                 </div>
@@ -179,6 +248,16 @@ function showRates() {
     }
 }
 
+/**
+ * Redirects user to url passed in.  
+ * @param {*} url 
+ */
+function back(url) {
+    const DISPATCH = JSON.parse(sessionStorage.getItem('dispatch'))
+    const EDIT = new URL(window.location.href).searchParams.get("edit");
+    url += (EDIT ? "?edit=true&dispId=" + DISPATCH._id : "");
+    window.location.href = url;
+}
 
 /**
  * This function is responsible for populating the hourly rates 
@@ -263,7 +342,6 @@ function addRates(type, rates) {
  * @return HTML with dispatch load and dump filled in. 
  */
 function getRateHTML(rate) {
-    console.log(rate)
     return `
     <div class="form-control mb-2 rate">
         <span class="mb-2">Rate</span>
@@ -282,8 +360,6 @@ function getRateHTML(rate) {
 
 $(document).ready(() => {
     const dispatch = JSON.parse(sessionStorage.getItem('dispatch'))
-
-    console.log(dispatch)
 
     const contractor = document.getElementById("contractor");
     const loadLocation = document.getElementById("load");

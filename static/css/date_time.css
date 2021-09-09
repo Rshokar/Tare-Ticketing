@@ -1,0 +1,40 @@
+.date_time, .date_date {
+    display: grid;
+    grid-template-columns: 49% 49%;
+    margin: auto;
+    text-align: left;
+    width: 100%;
+}
+
+.date_date {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.date_date label {
+    display: inline-block;
+    width: 100%;
+}
+
+
+.date_date input[type=date] {
+    width: 49%;
+}
+
+.date_time input[type=date] {
+    grid-column: 1 / span 1;
+}
+
+.date_time input[type=time] {
+    grid-column: 2 / span 1;
+}
+
+.date_time label {
+    grid-column: 1 / span 2;
+    width: 100%;
+}
+
+.date_time .error{
+    grid-column: 1 / span 2;
+}

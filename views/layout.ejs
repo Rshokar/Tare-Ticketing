@@ -35,24 +35,24 @@
             <a class="nav-link" aria-current="page" href="/dashboard">Dash Board</a>
           </li>
           <% if (user.type=="dispatcher" ) { %>
-            <li class="nav-item">
-              <a class="nav-link" href="/new_dispatch">New Dispatch</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/invoicing">Invoicing</a>
-            </li>
-            <% } %>
-              <% if (user.type=="operator" ) { %>
-                <li class="nav-item">
-                  <a class="nav-link" href="/invoicing">Invoicing</a>
-                </li>
-                <% } %>
-                  <li class="nav-item">
-                    <a class="nav-link" href="/account">Account</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="/tickets">Tickets</a>
-                  </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/new_dispatch?new=true">New Dispatch</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/invoicing">Invoicing</a>
+          </li>
+          <% } %>
+          <% if (user.type=="operator" ) { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/invoicing">Invoicing</a>
+          </li>
+          <% } %>
+          <li class="nav-item">
+            <a class="nav-link" href="/account">Account</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/tickets">Tickets</a>
+          </li>
         </ul>
       </div>
     </div>

@@ -1,5 +1,5 @@
 #tabs {
-    margin-top: 2em;
+    margin-top: 1em;
     margin-bottom: 1em;
     width: 100%;
     background-color: #EFEFEf;
@@ -27,16 +27,6 @@
     color: black;
 }
 
-.active {
-    background-color: #004065;
-    color: white;
-}
-
-.deactive {
-    background-color: #CFD8DC;
-    color: black;
-}
-
 #single_tab {
     background-color: #004065;
     color: white;
@@ -57,9 +47,5 @@
 }
 
 #job_container {
-    display: none;
-}
-
-#fuel_container {
     display: none;
 }

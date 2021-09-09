@@ -7,147 +7,148 @@
 <!-- CUstome CSS for /dashboard -->
 <link rel="stylesheet" href="css/dashboard.css">
 
+<!-- CSS for when there are no tickets -->
+<link rel="stylesheet" href="css/no_ticket.css">
+
 <div id="details">
   <% if (user.type=="dispatcher" ) { %>
-    <span class="number">
-      <%= dispatches.length %>
-        <span class="number-def">Dispatches</span>
-    </span>
-    <% } else { %>
-      <span id="num_active_jobs" class="number">
-        <%= jobs.length %>
-          <span class="number-def">Jobs</span>
-      </span>
-      <% } %>
+  <span class="number">
+    <%= dispatches.length %>
+    <span class="number-def">Dispatches</span>
+  </span>
+  <% } else { %>
+  <span id="num_active_jobs" class="number">
+    <%= jobs.length %>
+    <span class="number-def">Jobs</span>
+  </span>
+  <% } %>
 </div>
 
 
-<div id="search">
+<div id="search" class="<%= user.type %> html_search">
   <input type="text" placeholder="Search...">
 </div>
 
-<!-- Tabs to switch between ticket status -->
 <div id="tickets">
   <% if (user.type=="dispatcher" && dispatches.length !=0) { %>
-    <% for(let i=0; i < dispatches.length; i++) { %>
-      <% if (dispatches[i].status.empty> 0 && dispatches[i].status.sent == 0 && dispatches[i].status.confirmed == 0 &&
+  <% for(let i=0; i < dispatches.length; i++) { %>
+  <% if (dispatches[i].status.empty> 0 && dispatches[i].status.sent == 0 && dispatches[i].status.confirmed == 0 &&
         dispatches[i].status.active == 0) { %>
-        <div class="dispatch empty">
-          <% } else if (dispatches[i].status.sent> 0 && dispatches[i].status.confirmed == 0 &&
+  <div class="dispatch empty">
+    <% } else if (dispatches[i].status.sent> 0 && dispatches[i].status.confirmed == 0 &&
             dispatches[i].status.active == 0)
             {
             %>
-            <div class="dispatch sent">
-              <% } else if (dispatches[i].status.confirmed> 0 && dispatches[i].status.active == 0) { %>
-                <div class="dispatch confirmed">
-                  <% } else { %>
-                    <div class="dispatch active">
-                      <% } %>
-                        <a href="/dispatch?id=<%= dispatches[i].id %>">
-                          <h2>
-                            <%= dispatches[i].contractor %>
-                          </h2>
-                        </a>
-                        <span class="address">
-                          <%= dispatches[i].loadLocation %>
-                        </span>
+    <div class="dispatch sent">
+      <% } else if (dispatches[i].status.confirmed> 0 && dispatches[i].status.active == 0) { %>
+      <div class="dispatch confirmed">
+        <% } else { %>
+        <div class="dispatch active">
+          <% } %>
+          <a href="/dispatch?id=<%= dispatches[i].id %>">
+            <h2>
+              <%= dispatches[i].contractor %>
+            </h2>
+          </a>
+          <span class="address">
+            <%= dispatches[i].loadLocation %>
+          </span>
 
-                        <div class="status">
-                          <div>
-                            <i class="fas fa-exclamation-circle"></i>
-                            <%= dispatches[i].status.empty %>
-                          </div>
-                          <div>
-                            <i class="far fa-paper-plane"></i>
-                            <%= dispatches[i].status.sent %>
-                          </div>
-                          <div>
-                            <i class="far fa-calendar-check"></i>
-                            <%= dispatches[i].status.confirmed %>
-                          </div>
-                          <div>
-                            <i class="fas fa-spinner"></i>
-                            <%= dispatches[i].status.active %>
-                          </div>
-                          <div>
-                            <i class="fas fa-calendar-check"></i>
-                            <%= dispatches[i].status.complete %>
-                          </div>
-                        </div>
-                        <div class="num-trucks">
-                          <i class="fas fa-truck"></i>
-                          <%= dispatches[i].numTrucks %>
-                        </div>
-                    </div>
-                    <% } %>
-                      <% } else if (user.type=="dispatcher" && dispatches.length==0) { %>
-                        <div id="tickets_empty">
-                          <h1>
-                            No Active Dispathces
-                          </h1>
-                          <span>
-
-                            <a href="/new_dispatch">
-                              <button type="button" class="btn btn-primary">
-                                Create Dispatch
-                              </button>
-                            </a>
-                          </span>
-                        </div>
-                        <% } else if (user.type !="dispatcher" && jobs.length> 0) { %>
-                          <% for (let i=0; i < jobs.length; i++) { %>
-                            <div>
-                              <div class="job <%= jobs[i].status %>">
-                                <a href="/job?id=<%=jobs[i]._id %>">
-                                  <h2>
-                                    <%= jobs[i].contractor %>
-                                  </h2>
-                                  <h5>
-                                    <%= jobs[i].dispatcher.company %>
-                                  </h5>
-                                </a>
-                                <div class="equipment">
-                                  <div id="truck">
-                                    <span>
-                                      <%= jobs[i].equipment.truck %>
-                                    </span>
-                                  </div>
-                                  <div id="trailer">
-                                    <% if (jobs[i].equipment.trailer !="default" ) { %>
-                                      <span>
-                                        <%= jobs[i].equipment.trailer %>
-                                      </span>
-                                      <% } %>
-                                  </div>
-                                </div>
-                                <div class="start_time">
-                                  <span>
-                                    <% let d=new Date(jobs[i].startTime ) %>
-                                      <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12: false
+          <div class="status">
+            <div>
+              <i class="fas fa-exclamation-circle"></i>
+              <%= dispatches[i].status.empty %>
+            </div>
+            <div>
+              <i class="far fa-paper-plane"></i>
+              <%= dispatches[i].status.sent %>
+            </div>
+            <div>
+              <i class="far fa-calendar-check"></i>
+              <%= dispatches[i].status.confirmed %>
+            </div>
+            <div>
+              <i class="fas fa-spinner"></i>
+              <%= dispatches[i].status.active %>
+            </div>
+            <div>
+              <i class="fas fa-calendar-check"></i>
+              <%= dispatches[i].status.complete %>
+            </div>
+          </div>
+          <div class="num-trucks">
+            <i class="fas fa-truck"></i>
+            <%= dispatches[i].numTrucks %>
+          </div>
+        </div>
+        <% } %>
+        <% } else if (user.type=="dispatcher" && dispatches.length==0) { %>
+        <div class="no_tickets">
+          <h1>
+            No New Dispatch Tickets
+          </h1>
+          <span>
+            <a href="/new_dispatch">
+              <button type="button" class="btn btn-primary">
+                Create dispatch ticket
+              </button>
+            </a>
+          </span>
+        </div>
+        <% } else if (user.type !="dispatcher" && jobs.length> 0) { %>
+        <% for (let i=0; i < jobs.length; i++) { %>
+        <div>
+          <div class="job <%= jobs[i].status %>">
+            <a href="/job?id=<%=jobs[i]._id %>">
+              <h2>
+                <%= jobs[i].contractor %>
+              </h2>
+              <h5>
+                <%= jobs[i].dispatcher.company %>
+              </h5>
+            </a>
+            <div class="equipment">
+              <div id="truck">
+                <span>
+                  <%= jobs[i].equipment.truck %>
+                </span>
+              </div>
+              <div id="trailer">
+                <% if (jobs[i].equipment.trailer !="default" ) { %>
+                <span>
+                  <%= jobs[i].equipment.trailer %>
+                </span>
+                <% } %>
+              </div>
+            </div>
+            <div class="start_time">
+              <span>
+                <% let d=new Date(jobs[i].start) %>
+                <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12: false
                                         }) %>
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <% } %>
-                              <% } else if (user.type=="operator" && jobs.length==0) { %>
-                                <div id="tickets_empty">
-                                  <h1>
-                                    No New Job Tickets
-                                  </h1>
-                                  <span>
-                                    <a href="/new_job">
-                                      <button type="button" class="btn btn-primary">
-                                        Create Job ticket
-                                      </button>
-                                    </a>
-                                  </span>
-                                </div>
-                                <% } else { %>
-                                  <div id="tickets_empty">
-                                    <h1>
-                                      No New Job Tickets
-                                    </h1>
-                                  </div>
-                                  <% } %>
-                </div>
+              </span>
+            </div>
+          </div>
+        </div>
+        <% } %>
+        <% } else if (user.type=="operator" && jobs.length==0) { %>
+        <div class="no_tickets">
+          <h1>
+            No New Job Tickets
+          </h1>
+        </div>
+        <% } else { %>
+        <div class="no_tickets">
+          <h1>
+            No New Job Tickets
+          </h1>
+        </div>
+        <% } %>
+      </div>
+
+
+
+
+      <script src="js/search_tickets.js"></script>
+
+      <script src="js/dashboard.js"></script>

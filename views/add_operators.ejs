@@ -7,6 +7,15 @@
 <!-- Custome CSS for Ticket preview -->
 <link rel="stylesheet" href="css/ticket_preview.css">
 
+<!-- Custome CSS for date_time input -->
+<link rel="stylesheet" href="css/date_time.css">
+
+<!-- Custome CSS for Tabs -->
+<link rel="stylesheet" href="css/tabs.css">
+
+<!-- CSS for when there are no tickets -->
+<link rel="stylesheet" href="css/no_ticket.css">
+
 
 
 <div id="controls">
@@ -58,12 +67,13 @@
     <div id="modal_content">
         <span class="close" onclick="closeModal()">&times;</span>
         <span id="spot_index"></span>
-        <div id="modal_tabs">
-            <div id="employee_tab" onclick="showEmployees()">
-                <span>Employees</span>
+
+        <div id="tabs">
+            <div id="left_tab" onclick="showEmployees()">
+                Employees
             </div>
-            <div id="operator_tab" onclick="showOwnerOps()">
-                <span>Operators</span>
+            <div id="right_tab" onclick="showOwnerOps()">
+                Operators
             </div>
         </div>
         <div id="owner_operator">
@@ -71,7 +81,7 @@
                 <input id="operator_search" type="text" placeholder="Search">
             </div>
             <div id="empty_search">
-                Search an operator by Company Name
+                Search an operator by company name
             </div>
             <div id="query_results">
 

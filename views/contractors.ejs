@@ -18,33 +18,34 @@
     </span>
 </div>
 
-<div id="search">
+<div id="search_button">
     <input type="text" placeholder="Search...">
+    <button onclick="submitContractor()"><i class="fas fa-plus"></i></button>
 </div>
-
-<button onclick="addContractor()"><i class="fas fa-plus"></i></button>
 
 <div id="contractors">
     <% for (let contractor in contractors) { %>
-        <div class="employee">
-            <a href="/contractor?contractor=<%= contractor %>">
-                <h3>
-                    <%= contractor %>
-                </h3>
-            </a>
-        </div>
-        <% } %>
-</div>
-
-<div id="new_contractor_modal" class="modal">
-    <div id="new_contractor" class="modal-content">
-        <div id="text">Add Contractor</div>
-        <input type="text" placeholder="Contractor Name">
-        <button id="submit" onclick="submitContractor()">Submit</button>
-        <button id="cancel" onclick="closeAddContractorModal()">Cancel</button>
-
+    <div class="employee">
+        <a href="/contractor?contractor=<%= contractor.replace("&", "%26") %>">
+            <h3>
+                <%= contractor %>
+            </h3>
+        </a>
     </div>
-
+    <% } %>
 </div>
 
+<script src="js/modal.js"></script>
+<script src="js/search_tickets.js"></script>
 <script src="js/contractors.js"></script>
+
+<script>
+    $(document).ready(() => {
+        const search = document.querySelector("#search_button input");
+        search.addEventListener("keyup", (e) => {
+            const TYPE = "employee";
+            searchTickets(e.target.value, TYPE);
+        })
+    })
+
+</script>

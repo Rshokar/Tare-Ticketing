@@ -8,6 +8,9 @@ const dispatch = JSON.parse(sessionStorage.getItem('dispatch'));
  * @date June 21 2021
  */
 function back(url) {
+    const edit = new URL(window.location.href).searchParams.get("edit");
+    url += (edit ? "?edit=true&dispId=" + dispatch._id : "");
+    console.log(url);
     window.location.href = url;
 }
 
@@ -55,6 +58,7 @@ function next(url) {
                     if (rates) {
                         fee = (fee == "NaN" ? 0.00 : (100 * fee).toFixed(0) / 100.00);
                         dispatch.rates["perLoad"] = { fee, rates, }
+                        console.log(dispatch.rates["perLoad"])
                     } else {
                         return
                     }
@@ -80,7 +84,8 @@ function next(url) {
 
             }
         }
-
+        const edit = new URL(window.location.href).searchParams.get("edit");
+        url += (edit ? "?edit=true&dispId=" + dispatch._id : "");
         sessionStorage.setItem("dispatch", JSON.stringify(dispatch));
         window.location.href = url;
     }
@@ -159,7 +164,6 @@ function getRatesList(type) {
 
 
     for (let i = 0; i < elements.length; i++) {
-        console.log(elements[i]);
         rate = parseFloat(elements[i].querySelector(".rate input").value.trim()).toFixed(2);
         obj = {
             r: (rate == "NaN" ? 0.00 : rate),
@@ -386,8 +390,10 @@ function updateHourlyRates(rates) {
  * @param { integer } i number of routes. If i is 1 then button is not added. if it is  
  * not then it shows the all routes remove route button. 
  * @param {JSON} obj optional variable with rate data.
+ * @param { Boolean } disable disables the ability to remove route, edit load and dump
+ * locations. 
  */
-function addRoute(type, i, obj) {
+function addRoute(type, i, obj, disable) {
     const ton = document.getElementById("tonnage_rates");
     const per = document.getElementById("per_load_rates");
     const rate = document.createElement("div");
@@ -399,28 +405,30 @@ function addRoute(type, i, obj) {
     if (type == "per_load") {
         const button = document.querySelector("#per_load_rates .add_rate");
         rate.setAttribute("class", "per_load_rate input_rate");
-        rate.innerHTML = getRouteHTML(obj, i);
+        rate.innerHTML = getRouteHTML(obj, i, disable);
         per.insertBefore(rate, button);
-
     } else {
         const button = document.querySelector("#tonnage_rates .add_rate");
         rate.setAttribute("class", "tonnage_rate input_rate");
-        rate.innerHTML = getRouteHTML(obj, i);
+        rate.innerHTML = getRouteHTML(obj, i, disable);
+        console.log(rate.innerHTML)
         ton.insertBefore(rate, button);
     }
 
-    rate.querySelector("button").addEventListener("click", (e) => {
-        const container = e.path[2]
-        const routes = container.querySelectorAll(".input_rate");
+    if (!disable) {
+        rate.querySelector("button").addEventListener("click", (e) => {
+            const container = e.target.parentElement.parentElement;
+            const routes = container.querySelectorAll(".input_rate");
 
-        if (routes.length == 2) {
-            e.path[1].remove();
-            container.querySelector(".input_rate .remove_rate").style.display = "none"
-        } else {
-            e.path[1].remove();
-        }
+            if (routes.length == 2) {
+                e.target.parentElement.remove();
+                container.querySelector(".input_rate .remove_rate").style.display = "none"
+            } else {
+                e.target.parentElement.remove();
+            }
 
-    });
+        });
+    }
 }
 
 /**
@@ -430,9 +438,10 @@ function addRoute(type, i, obj) {
  * @date July 20 2021
  * @param {JSON} route data
  * @param  {number} i passed in to see if remove rate button is to to shown or hidden. 
+ * @param { Boolean } disable disables laod and dump input and removes "Remove route button".
  * @return HTML with dispatch load and dump filled in. 
  */
-function getRouteHTML(route, i) {
+function getRouteHTML(route, i, disable) {
     let html;
 
     if (route == undefined) {
@@ -462,19 +471,19 @@ function getRouteHTML(route, i) {
 
         <div class="mb-2 load">
             <span class="mb-2">Load</span>
-            <input type="text" class="form-control mb-2"value="${route.l}">
+            <input type="text" class="form-control mb-2"value="${route.l}" ${(disable ? 'disabled' : '')}>
         </div>
 
         <div class="mb-2 dump">
             <span class="mb-2">Dump</span>
-            <input type="text" class="form-control mb-2"value="${route.d}">
+            <input type="text" class="form-control mb-2"value="${route.d}" ${(disable ? 'disabled' : '')}>
         </div>    
         `
     }
 
-    if (i === 1) {
+    if (i === 1 && !disable) {
         html += `<button type="button" class="btn btn-danger remove_rate" style="display: none;">Remove Rate</button>`
-    } else {
+    } else if (!disable) {
         html += '<button type="button" class="btn btn-danger remove_rate">Remove Rate</button>'
     }
 
@@ -496,7 +505,7 @@ function showRouteButtons(type) {
     })
 }
 
-$(document).ready(() => {
+$(document).ready(async () => {
     const contractor = document.getElementById("contractor");
     const loadLocation = document.getElementById("load");
     const dumpLocation = document.getElementById("dump");
@@ -517,35 +526,123 @@ $(document).ready(() => {
     numTrucks.innerHTML = "<i class='fas fa-truck'></i><span id='number_of_trucks'>" + dispatch.numTrucks + "</span>";
     notes.innerHTML = dispatch.notes;
 
+
+    //Check if editing dispatch ticket
+    const edit = new URL(window.location.href).searchParams.get("edit");
+    let disp;
+
+    if (edit) {
+        try {
+            disp = await getDispatch(dispatch._id);
+            if (disp.status.active === 0 && disp.status.complete === 0) {
+                renderRates();
+            } else {
+                renderRates(disp, true);
+            }
+        } catch (e) {
+            console.log("error getting dispatch", e)
+        }
+    } else {
+        renderRates()
+    }
+
+
+
+
+})
+
+/**
+ * Updates the rates in the HTML
+ * @author Ravinder Shokar 
+ * @vesrion 1.1
+ * @date Aug 13 2021 
+ * @param { JSON } disp
+ * @param { Boolean } edit if the dispatch is being edited. If true rates are restricted
+ */
+const renderRates = (disp, edit) => {
+    const PERLOAD = "per_load";
+    const TONNAGE = "tonnage";
+
     //Update rates
     const hourly = document.getElementById("hourly_check");
     const perLoad = document.getElementById("per_load_check");
     const tonnage = document.getElementById("tonnage_check");
 
-    if (dispatch.rates != undefined || dispatch.rates == {}) {
-        if (dispatch.rates.hourly != undefined) {
+    let rates;
+
+    if (disp && disp.rates.hourly) {
+        perLoad.disabled = true
+        perLoad.setAttribute("onclick", "")
+        tonnage.disabled = true
+        tonnage.setAttribute("onclick", "")
+        hourly.disabled = true
+        hourly.setAttribute("onclick", "")
+    } else if (disp && (disp.rates.perLoad || disp.rates.tonnage)) {
+        if (disp.rates.perLoad) {
+            hourly.disabled = true
+            hourly.setAttribute("onclick", "")
+            perLoad.disabled = true
+            perLoad.setAttribute("onclick", "")
+        }
+        if (disp.rates.tonnage) {
+            hourly.disabled = true
+            hourly.setAttribute("onclick", "")
+            tonnage.disabled = true
+            tonnage.setAttribute("onclick", "")
+        }
+    }
+
+    if (dispatch.rates !== undefined || dispatch.rates != {}) {
+        if (dispatch.rates.hourly) {
             hourly.checked = true;
             updateHourlyRates(dispatch.rates.hourly);
             toggleHourlyRates()
         } else {
-            if (dispatch.rates.perLoad != undefined) {
+            if (dispatch.rates.perLoad) {
                 perLoad.checked = true;
                 document.querySelector("#per_load_rates .operator_rate input").value = dispatch.rates.perLoad.fee;
-                dispatch.rates.perLoad.rates.forEach((rate, i, lst) => {
-                    addRoute("per_load", (lst.length > 1 ? -1 : 1), rate)
-                })
+                if (edit && disp.rates.perLoad) {
+                    rates = disp.rates.perLoad.rates;
+                    dispatch.rates.perLoad.rates.forEach((rate) => {
+                        for (let i = 0; i < rates.length; i++) {
+                            if (rates[i].l === rate.l && rates[i].d === rate.d && rates[i].r == rate.r) {
+                                addRoute(PERLOAD, 1, rate, true)
+                                rates.splice(i, 1);
+                                return
+                            }
+                        }
+                        addRoute(PERLOAD, (rates.length > 1 || dispatch.rates.perLoad.rates.length > 1 ? -1 : 1), rate, false);
+                    })
+                } else {
+                    dispatch.rates.perLoad.rates.forEach((rate) => {
+                        addRoute(TONNAGE, (dispatch.rates.perLoad.rates.length > 1 ? -1 : 1), rate, false);
+                    })
+                }
                 togglePerLoadRates()
             }
 
-            if (dispatch.rates.tonnage != undefined) {
+            if (dispatch.rates.tonnage) {
                 tonnage.checked = true;
                 document.querySelector("#tonnage_rates .operator_rate input").value = dispatch.rates.tonnage.fee;
-                dispatch.rates.tonnage.rates.forEach((rate, i, lst) => {
-                    console.log()
-                    addRoute("tonnage", (lst.length > 1 ? -1 : 1), rate)
-                })
+                if (edit && disp.rates.tonnage) {
+                    rates = disp.rates.tonnage.rates;
+                    dispatch.rates.tonnage.rates.forEach((rate) => {
+                        for (let i = 0; i < rates.length; i++) {
+                            if (rates[i].l === rate.l && rates[i].d === rate.d && rates[i].r == rate.r) {
+                                addRoute(TONNAGE, 1, rate, true)
+                                rates.splice(i, 1);
+                                return
+                            }
+                        }
+                        addRoute(TONNAGE, (rates.length > 1 || dispatch.rates.tonnage.rates.length > 1 ? -1 : 1), rate, false);
+                    })
+                } else {
+                    dispatch.rates.tonnage.rates.forEach((rate) => {
+                        addRoute(TONNAGE, (dispatch.rates.tonnage.rates.length > 1 ? -1 : 1), rate, false);
+                    })
+                }
                 toggleTonnageRates()
             }
         }
     }
-})
+}

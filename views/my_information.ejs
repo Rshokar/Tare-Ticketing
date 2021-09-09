@@ -1,0 +1,183 @@
+<link rel="stylesheet" href="css/account.css">
+
+<link rel="stylesheet" href="css/account_info.css">
+
+<div id="controls">
+    <a id="exit" href="/account">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+</div>
+
+<div id="user-info">
+    <h1>
+        <%= user.company %>
+    </h1>
+    <span>
+        <%= user.fName + " " + user.lName %>
+    </span>
+</div>
+
+<h3>My Information</h3>
+<div class="user user_information">
+    <div class="user_details">
+        <h4 class="user_name"><%= user.fName + " " + user.lName %></h4>
+        <span class="user_phone"><%= user.phone %></span>
+        <span class="user_email"><%= user.email %></span>
+        <% if (user.type === "employee") { %>
+    </div>
+</div>
+<% } else { %>
+<div class="edit" onclick="toggleUserInformation()">
+    <i class="fas fa-edit"></i>
+</div>
+</div>
+
+<div class='edit_user_form'>
+    <legend>Edits Profile</legend>
+
+    <div class="form-group">
+        <label>First Name*</label>
+        <input type="text" class="form-control fName" name="fName" placeholder="First Name" value="<%= user.fName %>">
+        <p class="fName-error error"></p>
+    </div>
+    <div class="form-group">
+        <label>Last Name*</label>
+        <input type="text" class="form-control lName" name="lName" placeholder="Last Name" value="<%= user.lName %>">
+        <p class="lName-error error"></p>
+    </div>
+    <div class="form-group">
+        <label for="exampleInputEmail1">Email address*</label>
+        <input type="email" class="form-control email" name="email" placeholder="Email" value="<%= user.email %>">
+        <p class="email-error error"></p>
+    </div>
+    <div class="form-group">
+        <label>Phone*</label>
+        <input type="phone" class="form-control phone" name="phone" placeholder="Phone" value="<%= user.phone %>">
+        <p class="phone-error error"></p>
+    </div>
+    <div class="form-group">
+        <label>Password</label>
+        <input type="password" class="form-control password" name="secretSauce" placeholder="Passowrd">
+        <small class="form-text text-muted">Password must include one number,
+            upper case letter and lower case letters.</small>
+        <p class="password-error error"></p>
+    </div>
+
+    <p class="form-error error"></p>
+    <button type="button" class="submit btn btn-primary" onclick="editUser()">Submit</button>
+    <button type="button" class="cancel btn btn-danger" onclick="toggleUserInformation()">Cancel</button>
+</div>
+</div>
+
+<h3>Billing address</h3>
+<div class="user billing_information">
+    <div class="user_details_billing">
+        <% if (billingAddress !== undefined) { %>
+        <h3 class="user_address"><%= billingAddress.address %></h3>
+        <div class="prov_country_zip">
+            <span class="user_city"><%= billingAddress.city %></span>
+            <span class="user_prov"><%= billingAddress.province %></span>
+            <span class="user_country"><%= billingAddress.country %></span>
+            <span class="user_zip"><%= billingAddress.postal %></span>
+        </div>
+        <% } else { %>
+        <h3 class="user_address">None</h3>
+        <div class="prov_country_zip">
+            <span class="user_city"></span>
+            <span class="user_prov"></span>
+            <span class="user_country"></span>
+            <span class="user_zip"></span>
+        </div>
+        <% } %>
+        <div class="edit" onclick="toggleBillingAdress()">
+            <i class="fas fa-edit"></i>
+        </div>
+    </div>
+
+    <div class='edit_address_form'>
+        <div class="col-md-8 order-md-1">
+            <form class="needs-validation" novalidate="">
+                <% let address, country, province, city, postal %>
+                <% if (billingAddress) { %>
+                <% address = billingAddress.address %>
+                <% country = billingAddress.country %>
+                <% province = billingAddress.province %>
+                <% city = billingAddress.city %>
+                <% postal = billingAddress.postal %>
+                <% } %>
+                <div class="mb-3">
+                    <label for="address">Address*</label>
+                    <input type="text" class="form-control" id="autocomplete" placeholder="Enter Address" required=""
+                        value="<%= address %>">
+                    <div class="form-text">Please enter address to fill form.</div>
+                </div>
+                <div class="row">
+                    <div class=" mb-3">
+                        <label for="country">Country*</label>
+                        <input type="text" class="form-control" id="country" placeholder="country" required=""
+                            value="<%= country %>" disabled>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="state">Province*</label>
+                        <input type="text" class="form-control" id="province" placeholder="province" required=""
+                            value="<%= province %>" disabled>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="state">City*</label>
+                        <input type="text" class="form-control" id="city" placeholder="city" required=""
+                            value="<%= city %>" disabled>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="post">Postal Code</label>
+                        <input type="text" class="form-control" id="post" placeholder="postal code" required=""
+                            value="<%= postal %>" disabled>
+                        <div class="invalid-feedback"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <p class="address-form-error error"></p>
+        <button type="button" class="submit btn btn-primary" onclick="editBillingAddress('user')">Submit</button>
+        <button type="button" class="cancel btn btn-danger" onclick="toggleBillingAdress()">Cancel</button>
+    </div>
+</div>
+
+
+<h3>Company Information</h3>
+<div class="user company_information">
+    <div class="user_details">
+        <h3 class="user_company"><%= user.company %></h3>
+        <div class="edit">
+            <i class="fas fa-edit"></i>
+        </div>
+    </div>
+
+    <div class='edit_form'>
+        <div class="col-md-8 order-md-1">
+            <div class="mb-3">
+                <label for="address">Compny Name</label>
+                <input type="text" class="form-control" id="address" placeholder="1234 Main St" required="">
+                <div class="invalid-feedback"> Please enter your shipping address. </div>
+            </div>
+        </div>
+        <p class="form-error error"></p>
+        <button type="button" class="submit" class="btn btn-primary" onclick="editEmp()">Submit</button>
+        <button type="button" class="cancel" class="btn btn-danger">Cancel</button>
+    </div>
+</div>
+<% } %>
+
+<script src="js/toggles.js"></script>
+
+<script src="js/reset_errors.js"></script>
+
+<script async
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBw_orl37OX48-9bmzkItQ-DH-l-66CK2E&libraries=places&callback=initMap"
+    defer></script>
+
+<script src="js/address_auto_complete.js"></script>
+
+<script src="js/user_controller.js"></script>

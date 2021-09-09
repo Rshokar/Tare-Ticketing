@@ -167,69 +167,68 @@ function activateJobTicket() {
  */
 const signOff = () => {
 
-    const signOffTime = document.getElementById("sign_off_time").value.trim();
-    const startTime = document.getElementById("num-trucks").innerHTML.trim();
+    const time = document.getElementById("sign_off_time").value.trim();
+    const date = document.getElementById("sign_off_date").value.trim();
 
-    console.log(startTime);
-    console.log(signOffTime);
-
-    const confModal = document.getElementById("confirmation_modal");
-    const confYes = document.getElementById("confirmation_yes");
-    const confText = document.getElementById("confirmation_text");
-    const confNo = document.getElementById("confirmation_no");
-
+    const signOffTime = date + "T" + time;
     const url = window.location.href;
     const query = new URL(url);
     const jobId = query.searchParams.get('id');
 
-    const dispatchContainer = document.getElementById("ticket_preview")
-
-    if (verifySignOff(startTime, signOffTime)) {
-        $.ajax({
-            url: "/complete_job_ticket",
-            type: "POST",
-            dataType: "JSON",
-            data: { jobId, signOffTime },
-            success: (data) => {
-                console.log(data);
-                if (data.status == "success") {
-
-                    dispatchContainer.setAttribute("class", "dispatch complete");
-
-                    const editButton = document.querySelectorAll(".edit_load");
-
-                    editButton.forEach((edit) => {
-                        edit.remove();
-                    })
-                    document.getElementById("positive_button_container").remove();
-                    document.getElementById("negative_button_container").remove();
-
-                    confModal.style.display = "block";
-                    confYes.style.display = "none";
-                    confNo.innerHTML = "Okay";
-                    confNo.style.display = "block";
-                    confText.innerHTML = "Status updated";
-
-                    confNo.addEventListener("click", closeModals);
-
-                } else {
-                    confModal.style.display = "block";
-                    confYes.style.display = "none";
-                    confNo.innerHTML = "Okay";
-                    confNo.style.display = "block";
-                    confText.innerHTML = data.message;
-
-                    confNo.addEventListener("click", closeModals);
-
-                }
-            },
-            error: (err) => {
-                console.log(err);
-            }
-
-        })
+    if (verifySignOff(signOffTime)) {
+        submitSignOff(jobId, signOffTime);
     }
 }
+
+/**
+ * Changes tickets status to complete
+ * @author Ravinder Shokar
+ * @date Aug 2 2021
+ * @param { String } jobId job ticket Id
+ * @param { Date } time job finish time
+ */
+function submitSignOff(jobId, signOffTime) {
+    const options = { yText: "Okay", buttons: { y: false, n: false }, txt: "Updating Status....." }
+    const modal = newModal(options);
+
+    modal.modal.style.display = "block";
+    modal.yes.addEventListener("click", closeModals);
+
+    $.ajax({
+        url: "/complete_job_ticket",
+        type: "POST",
+        dataType: "JSON",
+        data: { jobId, signOffTime },
+        success: (data) => {
+            if (data.status == "success") {
+                const dispatchContainer = document.getElementById("ticket_preview");
+                const editButton = document.querySelectorAll(".edit_load");
+
+                dispatchContainer.setAttribute("class", "dispatch complete");
+
+                editButton.forEach((edit) => {
+                    edit.remove();
+                })
+                document.getElementById("positive_button_container").remove();
+                document.getElementById("negative_button_container").remove();
+
+                modal.txt.innerHTML = "Status has been updated.";
+                modal.yes.style.display = "block";
+            } else {
+                modal.txt.innerHTML = data.message;
+                modal.txt.style.color = "red"
+                modal.yes.style.display = "block";
+            }
+        },
+        error: (err) => {
+            modal.txt.innerHTML = "Error calling server";
+            modal.txt.style.color = "red"
+            modal.yes.style.display = "block";
+        }
+
+    })
+}
+
 
 
 /**
@@ -237,18 +236,14 @@ const signOff = () => {
  * @author Ravinder Shokar 
  * @version 1.0 
  * @date July 3 2021
+ * @param { String } dateTime yyyy-mm-ddThh:mm:ss
  */
-function verifySignOff(startTime, signOffTime) {
+function verifySignOff(dateTime) {
+    [date, time] = dateTime.split("T");
     resetErrors();
     const signOffError = document.getElementById("sign_off_error");
-    if (signOffTime == "") {
+    if (date === "" || time === "") {
         signOffError.innerHTML = "Field Cannot be left empty";
-        return false;
-    }
-
-
-    if (signOffTime < startTime) {
-        signOffError.innerHTML = "Canot have signoff time before start time";
         return false;
     }
 

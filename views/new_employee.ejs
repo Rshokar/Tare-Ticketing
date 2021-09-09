@@ -1,49 +1,47 @@
-<!-- Customer CSS for register/login html-->
-<link href="css/login-register.css" rel="stylesheet">
-
-<div id="back">
-  <a href="/employees"><i class="fas fa-arrow-left"></i></a>
+<div id="controls">
+  <a id="exit" href="/employees">
+    <i class="fas fa-arrow-left"></i>
+  </a>
 </div>
 
-<div id="login">
-  <legend>New Employee</legend>
-  <div class="input">
-    <label>First Name</label>
-    <input type='text' name="fName" id="fName" required placeholder="First Name">
-    <p id="fName-error" class="error"></p>
-  </div>
-  <div class="input">
-    <label>Last Name</label>
-    <input type='text' name="lName" id="lName" required placeholder="Last Name">
-    <p id="lName-error" class="error"></p>
-  </div>
-  <div class="input">
-    <label>Email</label>
-    <input type='email' name="email" id="email" required>
-    <p id="email-error" class="error"></p>
-  </div>
-  <div class="input">
-    <label>Phone</label>
-    <input type='phone' name="phone" id="phone" required>
-    <p id="phone-error" class="error"></p>
-  </div>
-  <div class="input employees_form">
-    <input type='hidden' name="company" id="company" required value="<%=user.company %>">
-    <p id="company-error" class="error"></p>
-  </div>
-  <div class="input">
-    <label>Password</label>
-    <input type='password' name="secretSauce" id="password" required placeholder="Password">
-    <p id="password-error" class="error"></p>
-    <p class="hint">
-      Password must include one special character, number, upper case letter and lower case letters.
-    </p>
+<h1 id="title">New Employee</h1>
 
-  </div>
-
-  <p id="error" class="error"></p>
-  <input id="submit" type="submit">
+<div class="form-group">
+  <label>First Name</label>
+  <input type="text" class="form-control fName" name="fName" placeholder="First Name">
+  <p class="fName-error error"></p>
 </div>
+<div class="form-group">
+  <label>Last Name</label>
+  <input type="text" class="form-control lName" name="lNamee" placeholder="Last Name">
+  <p class="lName-error error"></p>
+</div>
+<div class="form-group">
+  <label for="exampleInputEmail1">Email address</label>
+  <input type="email" class="form-control email" name="email" placeholder="Email">
+  <p class="email-error error"></p>
+</div>
+<div class="form-group">
+  <label>Phone</label>
+  <input type="phone" class="form-control phone" name="phone" placeholder="Phone">
+  <p class="phone-error error"></p>
+</div>
+<div class="form-group">
+  <label>Password</label>
+  <input type="password" class="form-control password" name="secretSauce" placeholder="Passowrd">
+  <small class="form-text text-muted">Password must include one special character, number,
+    upper case letter and lower case letters.</small>
+  <p class="password-error error"></p>
+</div>
+
+<p id="error" class="form-error error"></p>
+<button type="button" class="btn btn-primary" onclick="submitEmployee()" style="width: 100%;">Submit</button>
+
+
+<script src="js/user_controller.js"></script>
+
+<!-- This script is responsible for creating an employee account and returning errors -->
+<script src="js/reset_errors.js"></script>
 
 <!-- This script is responsible for creating an employee account and returning errors -->
 <script src="js/employee.js"></script>

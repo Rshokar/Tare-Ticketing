@@ -46,6 +46,22 @@ header h1 {
     width: 100%;
 }
 
+#search_button input{
+ width: 89%;
+}
+
+
+
+#select_button select {
+  display: inline;
+  width: 87%
+}
+
+#search_button button, #select_button button{
+  float: right;
+ }
+
+
 a h2, a h5{
     color: black;
 }
@@ -55,12 +71,11 @@ a:link, a:visited, a:hover {
 }
 
 
-
-
-
-
 .error {
+  margin-top: .25rem;
+  font-size: .875em;
     color: red;
+    width: 100%;
 }
 
 
@@ -84,12 +99,16 @@ a:link, a:visited, a:hover {
   
   /* Modal Content */
   .modal-content {
-      text-align: center;
+      text-align: left;
     background-color: #fefefe;
     margin: auto;
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
+  }
+
+  .modal-content h3, .modal-content span {
+    text-align: center;
   }
   
   /* The Close Button */
@@ -115,12 +134,10 @@ a:link, a:visited, a:hover {
     background-color: #E2E8D8;
   }
     
-    
   .confirmed {
     background-color: #D8E0E8;
   }
-    
-    
+     
   .sent {
     background-color: #f0e0c3;
   }
@@ -128,4 +145,7 @@ a:link, a:visited, a:hover {
   .empty {
     background-color: rgb(254, 130, 130);
   }
-  
+
+  .form-label {
+    text-align: left;
+  }

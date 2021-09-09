@@ -5,13 +5,21 @@
  * @date July 12 2021
  */
 function toggleContractorRates() {
-    const rates = document.getElementById("contractor_rates");
+  const C = document.getElementById("contractor");
+  const rates = document.getElementById("contractor_rates");
+  const toggle = document.querySelector("#contractor .user_details .edit");
+  if (rates.style.display == "none" || rates.style.display === "") {
+    rates.style.display = "block";
+    rates.style.marginBottom = "1em"
+    C.style.marginBottom = "0";
+    toggle.innerHTML = `<i class="fas fa-chevron-up"></i>`
 
-    if (rates.style.display == "none") {
-        rates.style.display = "block"
-    } else {
-        rates.style.display = "none"
-    }
+  } else {
+    rates.style.display = "none";
+    rates.style.marginBottom = "0"
+    C.style.marginBottom = "1em";
+    toggle.innerHTML = `<i class="fas fa-chevron-down"></i>`
+  }
 
 }
 
@@ -22,12 +30,21 @@ function toggleContractorRates() {
  * @date July 12 2021 
  */
 function toggleOperatorRates() {
-    const rates = document.getElementById("operator_rates");
-    if (rates.style.display == "none") {
-        rates.style.display = "block"
-    } else {
-        rates.style.display = "none"
-    }
+  const O = document.getElementById("operator");
+  const rates = document.getElementById("operator_rates");
+  const toggle = document.querySelector("#operator .user_details .edit");
+
+  if (rates.style.display == "none" || rates.style.display === "") {
+    rates.style.marginBottom = "1em"
+    rates.style.display = "block"
+    O.style.marginBottom = "0";
+    toggle.innerHTML = `<i class="fas fa-chevron-up"></i>`
+  } else {
+    rates.style.marginBottom = "0"
+    rates.style.display = "none"
+    O.style.marginBottom = "1em";
+    toggle.innerHTML = `<i class="fas fa-chevron-down"></i>`
+  }
 }
 
 
@@ -38,56 +55,56 @@ function toggleOperatorRates() {
  * @date July 17 2021
  */
 function saveOperatorRates() {
-    const confModal = document.getElementById("confirmation_modal");
-    const confText = document.getElementById("confirmation_text");
-    const confYes = document.getElementById("confirmation_yes");
+  const confModal = document.getElementById("confirmation_modal");
+  const confText = document.getElementById("confirmation_text");
+  const confYes = document.getElementById("confirmation_yes");
 
-    confYes.addEventListener("click", closeConfModals);
+  confYes.addEventListener("click", closeConfModals);
+  confYes.style.display = "block";
+  confYes.innerHTML = "Okay";
+
+  displayConfirmationModal();
+
+  let url = window.location.href;
+  let query = new URL(url);
+  let contractor = query.searchParams.get("contractor");
+
+  const rates = getOperatorRates();
+
+  if (verifyRates(rates)) {
+    $.ajax({
+      url: "/update_operator_rates",
+      dataType: "JSON",
+      type: "POST",
+      data: { rates, contractor },
+      success: (data) => {
+        console.log(data);
+        if (data.status == "success") {
+          confText.innerHTML = data.message;
+          confText.style.color = "green";
+          confYes.style.display = "block";
+        } else {
+          confText.innerHTML = data.message;
+          confText.style.color = "red";
+          confYes.style.display = "block";
+        }
+      },
+      error: (err) => {
+        confText.innerHTML = "Error Saving Rates";
+        confText.style.color = "red";
+        confYes.style.display = "block";
+
+      }
+    })
+
+  } else {
     confYes.style.display = "block";
     confYes.innerHTML = "Okay";
+    confText.innerHTML = "Rates Cannot be less than zero and percentages cannot be greater than 100%";
+    confText.style.color = "red";
 
-    displayConfirmationModal();
-
-    let url = window.location.href;
-    let query = new URL(url);
-    let contractor = query.searchParams.get("contractor");
-
-    const rates = getOperatorRates();
-
-    if (verifyRates(rates)) {
-        $.ajax({
-            url: "/update_operator_rates",
-            dataType: "JSON",
-            type: "POST",
-            data: { rates, contractor },
-            success: (data) => {
-                console.log(data);
-                if (data.status == "success") {
-                    confText.innerHTML = data.message;
-                    confText.style.color = "green";
-                    confYes.style.display = "block";
-                } else {
-                    confText.innerHTML = data.message;
-                    confText.style.color = "red";
-                    confYes.style.display = "block";
-                }
-            },
-            error: (err) => {
-                confText.innerHTML = "Error Saving Rates";
-                confText.style.color = "red";
-                confYes.style.display = "block";
-
-            }
-        })
-
-    } else {
-        confYes.style.display = "block";
-        confYes.innerHTML = "Okay";
-        confText.innerHTML = "Rates Cannot be less than zero and percentages cannot be greater than 100%";
-        confText.style.color = "red";
-
-        confYes.addEventListener("click", closeConfModals)
-    }
+    confYes.addEventListener("click", closeConfModals)
+  }
 }
 
 
@@ -98,22 +115,22 @@ function saveOperatorRates() {
  * @date July 17 2021 
  */
 function getOperatorRates() {
-    return {
-        tonnage: parseFloat(document.querySelector("#operator_rates .tonnage_rate input").value).toFixed(2),
-        perLoad: parseFloat(document.querySelector("#operator_rates .per_load_rate input").value).toFixed(2),
-        t: parseFloat(document.querySelector("#operator_rates .tandem input").value).toFixed(2),
-        t2p: parseFloat(document.querySelector("#operator_rates .tandem_2_pup input").value).toFixed(2),
-        t3p: parseFloat(document.querySelector("#operator_rates .tandem_3_pup input").value).toFixed(2),
-        t3tf: parseFloat(document.querySelector("#operator_rates .tandem_3_transfer input").value).toFixed(2),
-        t4tf: parseFloat(document.querySelector("#operator_rates .tandem_4_transfer input").value).toFixed(2),
-        t4ed: parseFloat(document.querySelector("#operator_rates .tandem_4_end_dump input").value).toFixed(2),
-        tri: parseFloat(document.querySelector("#operator_rates .tri input").value).toFixed(2),
-        tri2p: parseFloat(document.querySelector("#operator_rates .tri_2_pony input").value).toFixed(2),
-        tri3p: parseFloat(document.querySelector("#operator_rates .tri_3_pony input").value).toFixed(2),
-        tri3tf: parseFloat(document.querySelector("#operator_rates .tri_4_transfer input").value).toFixed(2),
-        tri4tf: parseFloat(document.querySelector("#operator_rates .tri_4_transfer input").value).toFixed(2),
-        tri4ed: parseFloat(document.querySelector("#operator_rates .tri_4_end_dumo input").value).toFixed(2),
-    }
+  return {
+    tonnage: parseFloat(document.querySelector("#operator_rates .tonnage_rate input").value).toFixed(2),
+    perLoad: parseFloat(document.querySelector("#operator_rates .per_load_rate input").value).toFixed(2),
+    t: parseFloat(document.querySelector("#operator_rates .tandem input").value).toFixed(2),
+    t2p: parseFloat(document.querySelector("#operator_rates .tandem_2_pup input").value).toFixed(2),
+    t3p: parseFloat(document.querySelector("#operator_rates .tandem_3_pup input").value).toFixed(2),
+    t3tf: parseFloat(document.querySelector("#operator_rates .tandem_3_transfer input").value).toFixed(2),
+    t4tf: parseFloat(document.querySelector("#operator_rates .tandem_4_transfer input").value).toFixed(2),
+    t4ed: parseFloat(document.querySelector("#operator_rates .tandem_4_end_dump input").value).toFixed(2),
+    tri: parseFloat(document.querySelector("#operator_rates .tri input").value).toFixed(2),
+    tri2p: parseFloat(document.querySelector("#operator_rates .tri_2_pony input").value).toFixed(2),
+    tri3p: parseFloat(document.querySelector("#operator_rates .tri_3_pony input").value).toFixed(2),
+    tri3tf: parseFloat(document.querySelector("#operator_rates .tri_4_transfer input").value).toFixed(2),
+    tri4tf: parseFloat(document.querySelector("#operator_rates .tri_4_transfer input").value).toFixed(2),
+    tri4ed: parseFloat(document.querySelector("#operator_rates .tri_4_end_dumo input").value).toFixed(2),
+  }
 }
 
 /**
@@ -123,54 +140,54 @@ function getOperatorRates() {
  * @date July 17 2021
  */
 function saveContractorRates() {
-    const confModal = document.getElementById("confirmation_modal");
-    const confText = document.getElementById("confirmation_text");
-    const confYes = document.getElementById("confirmation_yes");
+  const confModal = document.getElementById("confirmation_modal");
+  const confText = document.getElementById("confirmation_text");
+  const confYes = document.getElementById("confirmation_yes");
 
-    confYes.addEventListener("click", closeConfModals);
-    confYes.innerHTML = "Okay";
+  confYes.addEventListener("click", closeConfModals);
+  confYes.innerHTML = "Okay";
 
-    displayConfirmationModal()
+  displayConfirmationModal()
 
-    let url = window.location.href;
-    let query = new URL(url);
-    let contractor = query.searchParams.get("contractor");
+  let url = window.location.href;
+  let query = new URL(url);
+  let contractor = query.searchParams.get("contractor");
 
-    const rates = getContractorRates();
+  const rates = getContractorRates();
 
-    if (verifyRates(rates)) {
-        $.ajax({
-            url: "/update_contractor_rates",
-            dataType: "JSON",
-            type: "POST",
-            data: { rates, contractor },
-            success: (data) => {
-                console.log(data);
-                if (data.status == "success") {
-                    confText.innerHTML = data.message;
-                    confText.style.color = "green";
-                    confYes.style.display = "block";
-                } else {
-                    confText.innerHTML = data.message;
-                    confText.style.color = "red";
-                    confYes.style.display = "block";
-                }
-            },
-            error: (err) => {
-                confText.innerHTML = "Error Saving Rates";
-                confText.style.color = "red";
-                confYes.style.display = "block";
-            }
-        })
-
-    } else {
-        confYes.style.display = "block";
-        confYes.innerHTML = "Okay";
-        confText.innerHTML = "Rates Cannot be less than zero";
+  if (verifyRates(rates)) {
+    $.ajax({
+      url: "/update_contractor_rates",
+      dataType: "JSON",
+      type: "POST",
+      data: { rates, contractor },
+      success: (data) => {
+        console.log(data);
+        if (data.status == "success") {
+          confText.innerHTML = data.message;
+          confText.style.color = "green";
+          confYes.style.display = "block";
+        } else {
+          confText.innerHTML = data.message;
+          confText.style.color = "red";
+          confYes.style.display = "block";
+        }
+      },
+      error: (err) => {
+        confText.innerHTML = "Error Saving Rates";
         confText.style.color = "red";
+        confYes.style.display = "block";
+      }
+    })
 
-        confYes.addEventListener("click", closeConfModals)
-    }
+  } else {
+    confYes.style.display = "block";
+    confYes.innerHTML = "Okay";
+    confText.innerHTML = "Rates Cannot be less than zero";
+    confText.style.color = "red";
+
+    confYes.addEventListener("click", closeConfModals)
+  }
 
 }
 
@@ -182,20 +199,20 @@ function saveContractorRates() {
  * @date July 17 2021 
  */
 function getContractorRates() {
-    return {
-        t: parseFloat(document.querySelector("#contractor_rates .tandem input").value).toFixed(2),
-        t2p: parseFloat(document.querySelector("#contractor_rates .tandem_2_pup input").value).toFixed(2),
-        t3p: parseFloat(document.querySelector("#contractor_rates .tandem_3_pup input").value).toFixed(2),
-        t3tf: parseFloat(document.querySelector("#contractor_rates .tandem_3_transfer input").value).toFixed(2),
-        t4tf: parseFloat(document.querySelector("#contractor_rates .tandem_4_transfer input").value).toFixed(2),
-        t4ed: parseFloat(document.querySelector("#contractor_rates .tandem_4_end_dump input").value).toFixed(2),
-        tri: parseFloat(document.querySelector("#contractor_rates .tri input").value).toFixed(2),
-        tri2p: parseFloat(document.querySelector("#contractor_rates .tri_2_pony input").value).toFixed(2),
-        tri3p: parseFloat(document.querySelector("#contractor_rates .tri_3_pony input").value).toFixed(2),
-        tri3tf: parseFloat(document.querySelector("#contractor_rates .tri_4_transfer input").value).toFixed(2),
-        tri4tf: parseFloat(document.querySelector("#contractor_rates .tri_4_transfer input").value).toFixed(2),
-        tri4ed: parseFloat(document.querySelector("#contractor_rates .tri_4_end_dumo input").value).toFixed(2),
-    }
+  return {
+    t: parseFloat(document.querySelector("#contractor_rates .tandem input").value).toFixed(2),
+    t2p: parseFloat(document.querySelector("#contractor_rates .tandem_2_pup input").value).toFixed(2),
+    t3p: parseFloat(document.querySelector("#contractor_rates .tandem_3_pup input").value).toFixed(2),
+    t3tf: parseFloat(document.querySelector("#contractor_rates .tandem_3_transfer input").value).toFixed(2),
+    t4tf: parseFloat(document.querySelector("#contractor_rates .tandem_4_transfer input").value).toFixed(2),
+    t4ed: parseFloat(document.querySelector("#contractor_rates .tandem_4_end_dump input").value).toFixed(2),
+    tri: parseFloat(document.querySelector("#contractor_rates .tri input").value).toFixed(2),
+    tri2p: parseFloat(document.querySelector("#contractor_rates .tri_2_pony input").value).toFixed(2),
+    tri3p: parseFloat(document.querySelector("#contractor_rates .tri_3_pony input").value).toFixed(2),
+    tri3tf: parseFloat(document.querySelector("#contractor_rates .tri_4_transfer input").value).toFixed(2),
+    tri4tf: parseFloat(document.querySelector("#contractor_rates .tri_4_transfer input").value).toFixed(2),
+    tri4ed: parseFloat(document.querySelector("#contractor_rates .tri_4_end_dumo input").value).toFixed(2),
+  }
 }
 
 /**
@@ -205,15 +222,15 @@ function getContractorRates() {
  * @date July 17 2021 
  */
 function displayConfirmationModal() {
-    const confModal = document.getElementById("confirmation_modal");
-    const confText = document.getElementById("confirmation_text");
-    const confYes = document.getElementById("confirmation_yes");
-    const confNo = document.getElementById("confirmation_no");
+  const confModal = document.getElementById("confirmation_modal");
+  const confText = document.getElementById("confirmation_text");
+  const confYes = document.getElementById("confirmation_yes");
+  const confNo = document.getElementById("confirmation_no");
 
-    confModal.style.display = "block";
-    confText.innerHTML = "Saving Rates";
-    confYes.style.display = "none";
-    confNo.style.display = "none";
+  confModal.style.display = "block";
+  confText.innerHTML = "Saving Rates";
+  confYes.style.display = "none";
+  confNo.style.display = "none";
 }
 
 /**
@@ -223,30 +240,30 @@ function displayConfirmationModal() {
  * @date July 17 2021
  */
 function verifyRates(rates) {
-    if (
-        rates.t < 0 ||
-        rates.t2p < 0 ||
-        rates.t3p < 0 ||
-        rates.t3tf < 0 ||
-        rates.t4tf < 0 ||
-        rates.tonnage < 0 ||
-        rates.tri < 0 ||
-        rates.tri2p < 0 ||
-        rates.tri3p < 0 ||
-        rates.tri3tf < 0 ||
-        rates.tri4ed < 0 ||
-        rates.tri4tf < 0 ||
-        rates.perLoad < 0
-    ) {
-        return false;
-    } else if (
-        rates.perLoad > 100 ||
-        rates.tonnage > 100
-    ) {
-        return false;
-    } {
-        return true;
-    }
+  if (
+    rates.t < 0 ||
+    rates.t2p < 0 ||
+    rates.t3p < 0 ||
+    rates.t3tf < 0 ||
+    rates.t4tf < 0 ||
+    rates.tonnage < 0 ||
+    rates.tri < 0 ||
+    rates.tri2p < 0 ||
+    rates.tri3p < 0 ||
+    rates.tri3tf < 0 ||
+    rates.tri4ed < 0 ||
+    rates.tri4tf < 0 ||
+    rates.perLoad < 0
+  ) {
+    return false;
+  } else if (
+    rates.perLoad > 100 ||
+    rates.tonnage > 100
+  ) {
+    return false;
+  } {
+    return true;
+  }
 }
 
 /**
@@ -256,8 +273,17 @@ function verifyRates(rates) {
  * @date July 17 2021
  */
 function closeConfModals() {
-    const confText = document.getElementById("confirmation_text");
-    const confModal = document.getElementById("confirmation_modal");
-    confModal.style.display = "none";
-    confText.style.color = "black";
+  const confText = document.getElementById("confirmation_text");
+  const confModal = document.getElementById("confirmation_modal");
+  confModal.style.display = "none";
+  confText.style.color = "black";
 }
+
+
+$(document).ready(() => {
+  const CONT = document.querySelector("#contractor .user_details .edit");
+  const OPER = document.querySelector("#operator .user_details .edit");
+
+  CONT.addEventListener("click", toggleContractorRates)
+  OPER.addEventListener("click", toggleOperatorRates)
+})
