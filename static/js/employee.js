@@ -6,99 +6,45 @@
  */
 "use strict";
 
-
-//Error container 
-const fNameErr = document.getElementById("fName-error");
-const lNameErr = document.getElementById("lName-error");
-const emailErr = document.getElementById("email-error");
-const phoneErr = document.getElementById("phone-error");
-const passwordErr = document.getElementById("password-error");
-const companyErr = document.getElementById("company-error");
-const formErr = document.getElementById("error");
-
-
-//Inputs
-const fName = document.getElementById("fName");
-const lName = document.getElementById("lName");
-const email = document.getElementById("email");
-const phone = document.getElementById("phone");
-const company = document.getElementById("company");
-const password = document.getElementById("password");
-
-//Current User Data
-const empFname = document.getElementById('emp_name');
-
-
-//Submit button
-const submit = document.getElementById("submit");
-
-//Delete button
-const delete_button = document.getElementById("delete_button");
-
-
-
-//Get all form errors
-const errors = document.querySelectorAll(".error");
-
-console.log(errors);
-
 $(document).ready(() => {
+	const editButton = document.querySelector('.edit');
 
-	//Confirmation Modal
-	const conf = document.getElementById("confirmation_modal");
-	const confText = document.getElementById("confirmation_text");
-	const confYes = document.getElementById("confirmation_yes")
-	const confNo = document.getElementById("confirmation_no")
+	if (editButton !== null) {
+		const cancel = document.querySelector(".cancel");
+		const delete_button = document.getElementById("delete")
 
-	/**
-	 * THis function is responsible for making the ajax a call and calling the correct function
-	 * @author Ravinder Shokar 
-	 * @version 1.0 
-	 * @date June 1 2021 
-	 */
-	submit.addEventListener("click", () => {
+		editButton.addEventListener("click", openEditEmp)
 
-		//Reset Errors
-		resetErr();
+		cancel.addEventListener("click", (e) => {
+			e.preventDefault();
+			cancelEdit();
+		})
 
-		let data = getFormData();
-
-		console.log(data);
-
-		if (validateForm(data)) {
-			registerEmployee(data);
-		}
-	})
-
-	/**
-	 * This event listner opens the cofrimation dialog box. 
-	 */
-	if (delete_button != null) {
-		confText.innerHTML =
-			`
-		Are you sure you want to delete ${empFname.innerText}
-		`
+		/**
+		 * This event listner opens the cofrimation dialog box. 
+		 */
 		delete_button.addEventListener('click', (e) => {
-			console.log("I have been clicked")
+			const conf = document.getElementById("confirmation_modal");
+			const empFname = document.querySelector('.user_name');
+			document.getElementById("confirmation_text").innerHTML = `Are you sure you want to delete ${empFname.innerText}`
 			e.preventDefault();
 			conf.style.display = "block"
 		})
-	}
 
-	/**
-	 * This event listner opens the cofrimation dialog box. 
-	 */
-	if (confYes != null) {
+		/**
+		 * This event listner opens the cofrimation dialog box. 
+		 */
+
+		const confYes = document.getElementById("confirmation_yes")
 		confYes.addEventListener('click', (e) => {
 			let url = new URL(window.location.href);
 			deleteEmp(url.searchParams.get("id"));
 		})
-	}
 
-	/**
-	 * This event listner closes the cofrimation dialog box. 
-	 */
-	if (confNo != null) {
+		/**
+		 * This event listner closes the cofrimation dialog box. 
+		 */
+		const confNo = document.getElementById("confirmation_no")
 		confNo.addEventListener('click', (e) => {
 			conf.style.display = "none";
 		})
@@ -106,16 +52,33 @@ $(document).ready(() => {
 })
 
 /**
- * This function resets errors on the add employee form
- * @author Ravinder Shokar 
+ * Closes edit form and displays emp info
+ * @date Aug 29 2021
  * @version 1.0 
- * @date June 6 2021
- *  
  */
-function resetErr() {
-	for (let i = 0; i < errors.length; i++) {
-		errors[i].innerHTML = ""
-	}
+function cancelEdit() {
+	const editButton = document.querySelector('.edit');
+	const form = document.querySelector(".edit_form");
+	const empDetails = document.querySelector(".user_details");
+
+	empDetails.style.display = "grid";
+	editButton.style.display = "grid";
+	form.style.display = "none";
+}
+
+/**
+ * Open edit form and closes emp infor
+ * @date Aug 29 2021
+ * @version 1.0 
+ */
+function openEditEmp() {
+	const editButton = document.querySelector('.edit');
+	const form = document.querySelector(".edit_form");
+	const empDetails = document.querySelector(".user_details");
+
+	editButton.style.display = "none";
+	empDetails.style.display = "none";
+	form.style.display = "block";
 }
 
 /**
@@ -125,69 +88,15 @@ function resetErr() {
  * @date June 1 2021
  */
 function getFormData() {
-	let obj = {
-		fName: fName.value.trim(),
-		lName: lName.value.trim(),
-		email: email.value.trim(),
-		phone: phone.value.trim(),
-		company: company.value.trim(),
-		secretSauce: password.value.trim(),
+	let p = document.querySelector(".password").value.trim();
+	let pass = (p === "" ? undefined : p);
+	return {
+		fName: document.querySelector(".fName").value.trim(),
+		lName: document.querySelector(".lName").value.trim(),
+		email: document.querySelector(".email").value.trim(),
+		phone: document.querySelector(".phone").value.trim(),
+		password: pass,
 	}
-	return obj;
-}
-
-/**
- * This function is responsible for validating the form data
- * @author Ravinder Shokar
- * @version 1.0
- * @date Jun 1 2021
- */
-function validateForm(data) {
-	let isValid = true
-
-	if (data.fName == ""
-		|| data.lName == ""
-		|| data.email == ""
-		|| data.phone == ""
-		|| data.password == ""
-	) {
-		formErr.innerHTML = "Inputs Cannot Be Empty"
-		return false
-	}
-
-
-	if (data.fName.length < 2) {
-		fNameErr.innerHTML = "First Name must be longer than two characters."
-		isValid = false
-	}
-
-	if (data.lName.length < 2) {
-		lNameErr.innerHTML = "Last Name must be longer than two characters."
-		isValid = false
-	}
-
-	if (!(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(data.email))) {
-		emailErr.innerHTML = "Invalid Email"
-		isValid = false
-	}
-
-	console.log(data.secretSauce)
-	if (!/^(?=.*\d{1,})(?=.*[a-z]{1,})(?=.*[A-Z]{1,})(?=.*[a-zA-Z]{1,}).{8,}$/.test(data.secretSauce)) {
-		passwordErr.innerHTML = "Invalid Passowrd."
-		isValid = false
-	}
-
-	if (!/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/.test(data.phone)) {
-		phoneErr.innerHTML = "Invalid Phone Number."
-		isValid = false
-	}
-
-	if (isValid) {
-		return true
-	} else {
-		return false
-	}
-
 }
 
 
@@ -231,12 +140,11 @@ function registerEmployee(data) {
 		data: data,
 		success: (data) => {
 			let isValid = true;
-
 			if (data.message == "email-exist") {
-				emailErr.innerHTML = "Email Already Exist";
+				document.querySelector(".email-error").innerHTML = "Email Already Exist";
 				isValid = false
 			}
-			console.log(data);
+			console.log(data)
 			console.log(isValid)
 			if (isValid) {
 				window.location.href = "/employees";
@@ -245,5 +153,83 @@ function registerEmployee(data) {
 		error: (err) => {
 			console.log("I did not.....make it..... kill me!!!!!!!!!!", err);
 		}
+	})
+}
+
+
+/**
+ * Gets emlpoyees data, verifies it, and the submits to server.
+ * @version 1.0
+ * @date Aug 29 2021
+ */
+function submitEmployee() {
+	//Reset Errors
+	resetErrors();
+	let emp = getFormData();
+
+	if (validateUser(emp)) {
+		registerEmployee(emp);
+	}
+}
+
+
+/**
+ * Gets data and sends to server to edit emp
+ * @date Aug 29 2021
+ * @version 1.0 
+ */
+function editEmp() {
+	let emp = getFormData();
+
+	resetErrors();
+	console.log(emp)
+	if (validateUser(emp)) {
+		submitEditEmployee(emp)
+			.then(data => {
+				console.log(data)
+				document.querySelector(".user_name").innerHTML = emp.fName + " " + emp.lName;
+				document.querySelector(".user_phone").innerHTML = emp.phone;
+				document.querySelector(".user_email").innerHTML = emp.email;
+				cancelEdit();
+			})
+			.catch(e => {
+				console.log(e)
+			})
+	}
+}
+
+
+/**
+ * Makes ajax call to edit employee
+ * @date Aug 29 2021 
+ * @version 1.0
+ * @param { JSON } data
+ * @return { Promise } resolves if succesfull ajax call
+ */
+function submitEditEmployee(d) {
+	d["empId"] = new URL(window.location.href).searchParams.get("id");
+	return new Promise((res, rej) => {
+		$.ajax({
+			url: "update_employee",
+			type: "POST",
+			dataType: "JSON",
+			data: d,
+			success: data => {
+				if (data.status === "success") {
+					res(data)
+				} else if (data.status === "error") {
+					rej(data.err)
+				}
+			},
+			error: e => {
+				rej({
+					status: "error",
+					err: {
+						code: "form",
+						message: "Error connecting to server."
+					}
+				})
+			}
+		})
 	})
 }

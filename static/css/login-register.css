@@ -4,13 +4,6 @@
     width: 100%;
 }
 
-#email, #password, legend, #switch, #fName, #lName, #company, #type, .input{ 
-    margin-left: 10px;
-    padding-top: .5em;
-    padding-bottom: .5em;
-    display: block;
-}
-
 #submit {
     margin: 10px;
 }
@@ -22,4 +15,9 @@ legend {
 #company .employees_form {
     background-color: aqua;
     display: hide;
+}
+
+#title { 
+        width: 100%;
+        text-align: center;
 }

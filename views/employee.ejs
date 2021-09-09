@@ -4,6 +4,9 @@
 <!-- Custome CSS from edit employee page -->
 <link rel="stylesheet" href="css/edit_employee.css">
 
+<link rel="stylesheet" href="css/account_info.css">
+
+
 <div id="controls">
   <a id="exit" href="/employees">
     <i class="fas fa-arrow-left"></i>
@@ -19,61 +22,58 @@
   </span>
 </div>
 
-<div id="employee">
-  <div id="emp_details">
-    <h3 id="emp_name">
+<div class="user">
+  <div class="user_details">
+    <h3 class="user_name">
       <%= employee.fName %>
-        <%= employee.lName %>
+      <%= employee.lName %>
     </h3>
-    <span id="emp_phone">
+    <span class="user_phone">
       <%= employee.phone %>
     </span>
-    <span id="emp_email">
+    <span class="user_email">
       <%= employee.email %>
     </span>
-    <div id="edit">
+    <div class="edit">
       <i class="fas fa-edit"></i>
     </div>
   </div>
 
-  <div id='edit_form'>
+  <div class='edit_form'>
     <legend>Edit <%= employee.fName %>
-        <%= employee.lName %>'s Profile</legend>
-    <div class="input">
-      <label>First Name</label>
-      <input type='text' name="fName" id="fName" required placeholder="First Name">
-      <p id="fName-error" class="error"></p>
+      <%= employee.lName %>'s Profile</legend>
+
+    <div class="form-group">
+      <label>First Name*</label>
+      <input type="text" class="form-control fName" name="fName" placeholder="First Name" value="<%= employee.fName %>">
+      <p class="fName-error error"></p>
     </div>
-    <div class="input">
-      <label>Last Name</label>
-      <input type='text' name="lName" id="lName" required placeholder="Last Name">
-      <p id="lName-error" class="error"></p>
+    <div class="form-group">
+      <label>Last Name*</label>
+      <input type="text" class="form-control lName" name="lName" placeholder="Last Name" value="<%= employee.lName %>">
+      <p class="lName-error error"></p>
     </div>
-    <div class="input">
-      <label>Email</label>
-      <input type='email' name="email" id="email" required>
-      <p id="email-error" class="error"></p>
+    <div class="form-group">
+      <label for="exampleInputEmail1">Email address*</label>
+      <input type="email" class="form-control email" name="email" placeholder="Email" value="<%= employee.email %>">
+      <p class="email-error error"></p>
     </div>
-    <div class="input">
-      <label>Phone</label>
-      <input type='phone' name="phone" id="phone" required>
-      <p id="phone-error" class="error"></p>
+    <div class="form-group">
+      <label>Phone*</label>
+      <input type="phone" class="form-control phone" name="phone" placeholder="Phone" value="<%= employee.phone %>">
+      <p class="phone-error error"></p>
     </div>
-    <div class="input employees_form">
-      <input type='hidden' name="company" id="company" required value="<%=user.company %>">
-      <p id="company-error" class="error"></p>
-    </div>
-    <div class="input">
+    <div class="form-group">
       <label>Password</label>
-      <input type='password' name="secretSauce" id="password" required placeholder="Password">
-      <p id="password-error" class="error"></p>
-      <p class="hint">
-        Password must include one special character, number, upper case letter and lower case letters.
-      </p>
+      <input type="password" class="form-control password" name="secretSauce" placeholder="Passowrd">
+      <small class="form-text text-muted">Password must include one number,
+        upper case letter and lower case letters.</small>
+      <p class="password-error error"></p>
     </div>
-    <p id="error" class="error"></p>
-    <button id="submit">Submit</button>
-    <button id='cancel'>Cancel</button>
+
+    <p class="form-error error"></p>
+    <button type="button" class="submit btn btn-primary" onclick="editEmp()">Submit</button>
+    <button type="button" class="cancel btn btn-danger">Cancel</button>
   </div>
 
 
@@ -84,31 +84,9 @@
 </div>
 
 <script>
-  /**
-   * This function will switch the employee div to a form when the edit button is clicked.
-   * The data will be autofilled by EJS
-   * @author Ravinder Shokar
-   * @version 1.0
-   * @date May 24 2021
-   */
-  const editButton = document.getElementById('edit');
-  const form = document.getElementById("edit_form");
-  const empDetails = document.getElementById("emp_details");
-  const cancel = document.getElementById("cancel")
-
-  editButton.addEventListener("click", (e) => {
-    editButton.style.display = "none";
-    empDetails.style.display = "none";
-    form.style.display = "block";
-  })
-
-  cancel.addEventListener("click", (e) => {
-    e.preventDefault();
-    empDetails.style.display = "grid";
-    editButton.style.display = "grid";
-    form.style.display = "none";
-  })
 
 </script>
 
+<script src="js/user_controller.js"></script>
+<script src="js/reset_errors.js"></script>
 <script src="js/employee.js"></script>

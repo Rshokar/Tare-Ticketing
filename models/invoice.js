@@ -1,5 +1,6 @@
 const { ObjectId } = require("mongodb");
 const mongoose = require("mongoose");
+const subModels = require("../models/subModels");
 const Schema = mongoose.Schema;
 
 const dateRangeSchema = new Schema({
@@ -17,11 +18,17 @@ const rowSchema = new Schema({
     date: String,
 }, { _id: false })
 
+const nameBilling = new Schema({
+    id: ObjectId,
+    name: String,
+    billingAddress: subModels.billingAdress,
+}, { id: false })
+
 const inovoiceSchema = new Schema({
     lastIndex: Number,
     total: Number,
-    user: ObjectId,
-    customer: String,
+    user: nameBilling,
+    customer: nameBilling,
     dateRange: dateRangeSchema,
     i: [rowSchema]
 })

@@ -137,28 +137,6 @@ function validateDispatch(data) {
     return isValid;
 }
 
-function showReciever() {
-    let checkReciever = document.getElementById("reciever_check");
-    let reciever = document.getElementById("reciever");
-
-    change(reciever, checkReciever.checked)
-}
-
-function showSupplier() {
-    let checkSupplier = document.getElementById("supplier_check");
-    let supplier = document.getElementById("supplier");
-
-    change(supplier, checkSupplier.checked)
-}
-
-function showMaterial() {
-    let checkMaterial = document.getElementById("material_check");
-    let material = document.getElementById("material");
-
-    change(material, checkMaterial.checked)
-
-}
-
 function change(div, bool) {
     if (bool) {
         div.style.display = 'block';
@@ -191,10 +169,6 @@ function exit(url) {
  * @param { JSON } d Dispatch ticket
  */
 function disableInputs(d) {
-
-    document.getElementById("num_trucks").disabled = true;
-    document.getElementById("add_contractor").style.display = "none"
-
     const contractor = document.getElementById("contractor");
     const date = document.getElementById("date");
     const loadLocation = document.getElementById("load_location");
@@ -206,22 +180,37 @@ function disableInputs(d) {
 
     const s = d.status
 
-    if ((s.sent > 0 || s.confirmed > 0) && s.active === 0 && s.complete === 0) {
-        contractor.disabled = true;
-    } else if (s.active > 0) {
-        contractor.disabled = true;
-        date.disabled = true;
-        loadLocation.disabled = true;
-        dumpLocation.disabled = true;
-    } else if (s.sent === 0 && s.confirmed === 0 && s.active === 0 & s.complete > 0) {
-        contractor.disabled = true;
-        date.disabled = true;
-        loadLocation.disabled = true;
-        dumpLocation.disabled = true;
-        notes.disabled = true;
-        reciever.disabled = true;
-        supplier.disabled = true;
-        material.disabled = true;
+    configureForm(s);
+
+    function configureForm(s) {
+        if ((s.sent > 0 || s.confirmed > 0) && s.active === 0 && s.complete === 0) {
+            document.getElementById("num_trucks").disabled = true;
+            removeAddContractor()
+            contractor.disabled = true;
+        } else if (s.active > 0) {
+            document.getElementById("num_trucks").disabled = true;
+            removeAddContractor()
+            contractor.disabled = true;
+            date.disabled = true;
+            loadLocation.disabled = true;
+            dumpLocation.disabled = true;
+        } else if (s.sent === 0 && s.confirmed === 0 && s.active === 0 & s.complete > 0) {
+            document.getElementById("num_trucks").disabled = true;
+            removeAddContractor()
+            contractor.disabled = true;
+            date.disabled = true;
+            loadLocation.disabled = true;
+            dumpLocation.disabled = true;
+            notes.disabled = true;
+            reciever.disabled = true;
+            supplier.disabled = true;
+            material.disabled = true;
+        }
+    }
+
+    function removeAddContractor() {
+        document.querySelector("#select_button button").remove();
+        document.querySelector("#select_button select").style.width = "100%"
     }
 }
 
@@ -230,6 +219,9 @@ function disableInputs(d) {
 $(document).ready(async () => {
 
     var updateDispatchForm = (disp, savedDispatch) => {
+
+        console.log(disp.date);
+        console.log(savedDispatch)
         const materialCheck = document.getElementById("material_check")
         const supplierCheck = document.getElementById("supplier_check")
         const recieverCheck = document.getElementById("reciever_check")
@@ -244,8 +236,8 @@ $(document).ready(async () => {
         const supplier = document.querySelector("#supplier input");
         const material = document.querySelector("#material input");
 
+        date.value = now("date", new Date((savedDispatch ? savedDispatch.date : disp.date)));
         contractor.value = disp.contractor;
-        date.value = (savedDispatch ? savedDispatch.date : disp.date);
         loadLocation.value = (savedDispatch ? savedDispatch.loadLocation : disp.loadLocation);
         dumpLocation.value = (savedDispatch ? savedDispatch.dumpLocation : disp.dumpLocation);
         numTrucks.value = (savedDispatch ? savedDispatch.numTrucks : disp.numTrucks);
@@ -253,19 +245,6 @@ $(document).ready(async () => {
         reciever.value = (savedDispatch ? savedDispatch.reciever : disp.reciever);
         supplier.value = (savedDispatch ? savedDispatch.supplier : disp.supplier);
         material.value = (savedDispatch ? savedDispatch.material : disp.material);
-
-        if (disp.reciever !== "") {
-            recieverCheck.checked = true;
-            showReciever();
-        }
-        if (disp.supplier !== "") {
-            supplierCheck.checked = true;
-            showSupplier();
-        }
-        if (disp.material !== "") {
-            materialCheck.checked = true;
-            showMaterial();
-        }
     }
 
     const redirectToDispatch = (id) => {
@@ -291,9 +270,9 @@ $(document).ready(async () => {
 
         // Change exit redirect to point to dspatch ticket.
         redirectToDispatch(dispId);
-
         try {
             disp = await getDispatch(dispId);
+            console.log(disp)
             disableInputs(disp);
             if (!savedDispatch) { sessionStorage.setItem('dispatch', JSON.stringify(disp)); }
             date = new Date(disp.date)
@@ -304,7 +283,6 @@ $(document).ready(async () => {
         }
     } else {
         if (savedDispatch != "" && savedDispatch != null && savedDispatch != undefined) {
-            savedDispatch = JSON.parse(savedDispatch);
             updateDispatchForm(savedDispatch)
         }
     }

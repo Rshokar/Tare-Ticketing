@@ -17,11 +17,10 @@
 
 <div>
     <div id="checkboxs">
+        <% let userType = (user.type === "dispatcher" ? "Operator" : "Dispatcher") %>
         <div class="form-check">
             <input class="form-check-input" type="checkbox" id="operator_check" onclick="showOperator()" checked>
-            <label class="form-check-label" for="load_check">
-                Operators
-            </label>
+            <label class="form-check-label" for="load_check"><%= userType %></label>
         </div>
         <div class="form-check">
             <input class="form-check-input" type="checkbox" id="contractor_check" onclick="showContractor()">
@@ -42,8 +41,8 @@
             </select>
         </div>
         <div id="operator" class="mb-3">
-            <label for="operator" class="form-label">Operator*</label>
-            <input type="text" class="form-control" placeholder="Operator">
+            <label for="operator" class="form-label"><%= userType %></label>
+            <input type="text" class="form-control" placeholder="<%= userType %>">
         </div>
         <div id="type_error" class="form-text error"></div>
     </div>

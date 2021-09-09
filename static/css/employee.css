@@ -3,7 +3,8 @@
     height: 8vh;
     display: grid;
     align-content: center;
-    margin-top: 1em;
+    margin-top: .5em;
+    margin-bottom: .5em;
 }
 
 .employee  h3, .employee span, .employee h5 {

@@ -32,10 +32,9 @@ const createDispatch = (req, res, next) => {
         user = await UserController.getUser(decodedToken.id);
         rates["hourly"] = { cont: rates.hourly, oper: user.contractors[req.body.contractor].operatorRates }
       }
-      console.log("Operators", req.body.operators)
       let dispatch = new Dispatch({
         dispatcher: {
-          id: decodedToken.id,
+          id: ObjectId(decodedToken.id),
           company: decodedToken.company,
         },
         operators: req.body.operators,
@@ -53,7 +52,6 @@ const createDispatch = (req, res, next) => {
       })
 
       dispatch = await createJobTickets(dispatch.operators, dispatch);
-      console.log("Dispatch Ticket", dispatch);
       dispatch.save();
       res.send({ status: "success", message: "Succesfull Ajax call" })
       next();
@@ -76,8 +74,8 @@ const editDispatch = async (req, res, next) => {
   try {
     dispatch = await getDispatch(DATA._id);
     dispatch = await updateDspatchDetails(DATA, dispatch);
-    dispatch = await updateOperators(DATA, dispatch);
     dispatch = await updateRates(DATA, dispatch);
+    dispatch = await updateOperators(DATA, dispatch);
     dispatch.save();
     res.send({ status: "success", message: "Succesfully updated dispatch" })
   } catch (e) {
@@ -234,12 +232,16 @@ function updateOperators(data, disp) {
       }
 
       for (let i = 0; i < dispOps.length; i++) {
-        console.log(dispOps[i]);
         if (dispOps[i].jobId !== undefined) {
           await deleteJobTicket(dispOps[i].jobId);
         }
       }
 
+      //Convert all data.operator ID's from Strings to to Object Id
+      data.operators.forEach((op, i) => {
+        if (op.id) { data.operators[i].id = ObjectId(op.id); }
+        console.log(op)
+      })
 
       disp.operators = data.operators
       disp = await createJobTickets(disp.operators, disp);
@@ -350,11 +352,12 @@ function validateRoute(route) {
  * @param {*} y 
  * @return Boolean. True if x is in y
  */
-function hasRoutes(x, y) {
-  let isValid = false;
+function hasRoutes(y, x) {
+  let isValid;
   for (let i = 0; i < x.length; i++) {
+    isValid = false
     for (let j = 0; j < y.length; j++) {
-      if (x[i].l === y[i].l && x[i].d === y[i].d) {
+      if (x[i].l === y[j].l && x[i].d === y[j].d) {
         isValid = true;
       }
     }
@@ -435,16 +438,16 @@ const createJobTickets = (ops, data) => {
   let empty = sent = confirmed = active = complete = 0;
   let job;
 
-  return new Promise((resolve, reject) => {
-    const jobTickets = []
+  return new Promise((res, rej) => {
     const dispatchStatus = { empty, sent, confirmed, active, complete }
     ops.forEach(async (spot, index) => {
       if (data instanceof Dispatch) {
         if (spot.status === EMPTY) { dispatchStatus.empty += 1; }
         else if (spot.status === SENT) { dispatchStatus.sent += 1 }
-        else if (spot.status === CONFIRMED) { dispatchStatus.confrimed += 1 }
+        else if (spot.status === CONFIRMED) { dispatchStatus.confirmed += 1 }
         else if (spot.status === ACTIVE) { dispatchStatus.active += 1 }
         else if (spot.status === COMPLETE) { dispatchStatus.complete += 1 }
+        data.status = dispatchStatus
       }
       if ((spot.id === undefined || spot.id === "") || spot.jobId !== undefined) { return }
 
@@ -452,15 +455,13 @@ const createJobTickets = (ops, data) => {
         job = await createJobTicket(spot, data);
       } catch (e) {
         console.log(e);
-        res(e)
+        rej(e)
       }
 
       if (data instanceof Dispatch) { data.operators[index].jobId = job._id; }
-      // console.log("Job Ticket", job)
       job.save();
     })
-    if (data instanceof Dispatch) { data.status = dispatchStatus }
-    resolve(data);
+    res(data);
   })
 
 
@@ -1070,8 +1071,6 @@ const updateLoadTicket = async (req, res, next) => {
  * @date July 2 2021
  */
 const deleteLoadTicket = (req, res, next) => {
-  console.log(req.body);
-
   Job.findOne({
     _id: req.body.jobId
   })
@@ -1082,10 +1081,7 @@ const deleteLoadTicket = (req, res, next) => {
           message: "Error finding job ticket"
         })
       }
-      console.log("Before Splice", job);
       job.loadTickets.splice(req.body.loadId, 1);
-      console.log("After Splice", job);
-
 
       job.markModified("loadTickets");
 
@@ -1106,17 +1102,17 @@ const deleteLoadTicket = (req, res, next) => {
  * @param { String } type Current User type
  * @return { Promise }
  */
-const getJobTickets = (q, id, userType) => {
+const getJobTickets = (q, id, userType, status) => {
   return new Promise((res, rej) => {
     let customer;
     let user;
 
     if (q.type === "contractor") {
       customer = { contractor: q.customer }
+    } else if (q.type === "operator" && userType === "operator") {
+      customer = { "dispatcher.company": q.customer };
     } else if (q.type === "operator") {
       customer = { "operator.name": q.customer };
-    } else if (q.type === "dispatcher") {
-      customer = { "dispatcher.company": q.customer };
     }
 
     if (userType === "dispatcher") {
@@ -1125,13 +1121,10 @@ const getJobTickets = (q, id, userType) => {
       user = { "operator.id": id };
     }
 
-
     Job.find({
-      $and: [user, customer,
-        { $and: [{ date: { $gte: q.start, $lte: q.finish } }] },
-      ]
+      $and: [user, customer, { status: status }, { $and: [{ date: { $gte: q.start, $lte: q.finish } }] }]
     }).then((jobs) => {
-      if (jobs.length === 0 || jobs === null) {
+      if (jobs.length === 0) {
         rej({ code: "form", message: "No jobs found." });
       } else {
         res(jobs);
@@ -1176,6 +1169,7 @@ const getDispatch = (id) => {
       _id: ObjectId(id)
     })
       .then(ticket => {
+        console.log(ticket)
         if (ticket === null) {
           rej({ code: "form", message: "Error finding dispatch ticket" })
         } else {
@@ -1184,6 +1178,73 @@ const getDispatch = (id) => {
       })
   })
 }
+
+
+/**
+ * Gets most recent complete jobs
+ * @param {*} id dispatcher Id
+ * @param {*} num number of tickets wanted
+ * @returns 
+ */
+const getNumCopmletedDispatch = (id, num) => {
+  return new Promise((res, rej) => {
+    Dispatch.find({
+      $and: [{ "dispatcher.id": id },
+      { "status.complete": { $gt: 0 } },
+      { "status.sent": 0 },
+      { "status.confirmed": 0 },
+      { "status.active": 0 }]
+    }).limit(num)
+      .then(disp => {
+        console.log("Hello")
+        console.log(disp)
+        if (disp.length === 0) {
+          rej({ code: "no_tickets", message: "No dispatch tickets found" })
+        } else {
+          res(disp)
+        }
+      })
+  })
+}
+
+/**
+ * Gets most recent complete jobs
+ * @param { ObjectId } id dispatcher Id
+ * @param { Number } num number of tickets wanted
+ * @param { String } userType user type
+ * @returns 
+ */
+const getNumCopmletedJobs = (id, num, userType) => {
+  return new Promise((res, rej) => {
+    const DISPATCHER = "dispatcher";
+    if (userType === DISPATCHER) {
+      Job.find({
+        $and: [{ "dispatcher.id": id }, { status: "complete" }]
+      }).limit(num)
+        .then(jobs => {
+          if (jobs.length === 0) {
+            rej({ code: "no_tickets", message: "No Job tickets found" })
+          } else {
+            res(jobs)
+          }
+        })
+    } else {
+      Job.find({
+        $and: [{ "operator.id": id }, { status: "complete" }]
+      }).limit(num)
+        .then(jobs => {
+          if (jobs.length === 0) {
+            rej({ status: "error", message: "No tickets found" })
+          } else {
+            res(jobs)
+          }
+        })
+    }
+
+  })
+}
+
+
 
 
 
@@ -1200,4 +1261,6 @@ module.exports = {
   getJob,
   getDispatch,
   editDispatch,
+  getNumCopmletedDispatch,
+  getNumCopmletedJobs
 }

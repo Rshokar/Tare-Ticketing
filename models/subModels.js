@@ -54,10 +54,19 @@ const operatorSchema = new Schema({
     name: String
 }, { _id: false })
 
+const billingAdress = new Schema({
+    address: String,
+    country: String,
+    province: String,
+    city: String,
+    postal: String,
+}, { _id: false })
 
 module.exports = {
+    hourSchema,
     ratesSchema,
     dispatcherSchema,
     equipmentSchema,
     operatorSchema,
+    billingAdress
 }

@@ -7,6 +7,15 @@
 <!-- Custome CSS for Dispatch tickets -->
 <link rel="stylesheet" href="css/job.css">
 
+<!-- Custome CSS for date_time input -->
+<link rel="stylesheet" href="css/date_time.css">
+
+<!-- Custome CSS for tickets page -->
+<link rel="stylesheet" href="css/tickets.css">
+
+<!-- CSS for when there are no tickets -->
+<link rel="stylesheet" href="css/no_ticket.css">
+
 
 
 <div id="tabs">
@@ -25,15 +34,58 @@
 </div>
 
 
-<div id="search">
+<div id="search_button">
     <input type="text" placeholder="Search...">
+    <button onclick="toggleTicketQuery()">
+        <i class="fas fa-chevron-down"></i>
+    </button>
 </div>
 
-<% if (user.type=="dispatcher" ) { %>
+<div id="query" style="display: none;">
+    <div class="date_date">
+        <label>Date Range</label>
+        <input type="date" class="date form-control" id="start">
+        <input type="date" class="date form-control" id="finish">
+    </div>
+    <% if (user.type !== "employee") { %>
+    <div id="contractor">
+        <label for="contractor" class="form-label">Contractor</label>
+        <select class="form-select mb-3" aria-label="Select a contractor.">
+            <option value="default" selected>Select A Contractor</option>
+            <% for (let contractor in contractors) { %>
+            <option value="<%=contractor%>">
+                <%= contractor %>
+            </option>
+            <% } %>
+        </select>
+    </div>
+    <% } %>
+    <span class="error form-error"></span>
+    <button onclick="makeQuery()" style="width: 100%;">
+        Search
+    </button>
+
+    <button onclick="reset()" style="width: 100%;">
+        Reset
+    </button>
+</div>
+
+<% if (user.type==="dispatcher" ) { %>
 <!-- All Dispatches will be rendered in here -->
 <div id="dispatch_container">
     <% if (dispatches.length==0) { %>
-    <h3>No Dispatches Found</h3>
+    <div class="no_tickets">
+        <h1>
+            Could find any Dispatch Tickets
+        </h1>
+        <span>
+            <a href="/new_dispatch">
+                <button type="button" class="btn btn-primary">
+                    New Dispatch
+                </button>
+            </a>
+        </span>
+    </div>
     <% } else { %>
     <% for(let i=0; i < dispatches.length; i++) { %>
     <div class="dispatch complete">
@@ -81,10 +133,22 @@
 <!-- All job tickets will be rendered here -->
 <div id="job_container">
     <% if (jobs.length==0) { %>
-    <h3>No jobs found</h3>
+    <div class="no_tickets">
+        <h1>
+            Could find any Job Tickets
+        </h1>
+        <% if (user.type === "operator") { %>
+        <span>
+            <a href="/new_job">
+                <button type="button" class="btn btn-primary">
+                    New Job
+                </button>
+            </a>
+        </span>
+        <% } %>
+    </div>
     <% } else { %>
     <% for (let i=0; i < jobs.length; i++) { %>
-
     <div class="job <%= jobs[i].status %>">
         <a href="/job?id=<%=jobs[i]._id %>">
             <h2>
@@ -124,16 +188,22 @@
     <% } %>
 </div>
 
-<% if(user.type=="dispatcher" ) { %>
+
+<script src="js/modal.js"> </script>
+<script src="js/ticket_controller.js"> </script>
+<script src="js/search_tickets.js"></script>
+<script src="js/tickets.js"> </script>
+
+
+<% if(user.type==="dispatcher") { %>
 <script>
     const disp = document.getElementById("left_tab");
     const job = document.getElementById("right_tab");
 
-
-    const dispatch_container = document.getElementById("dispatch_container");
-    const job_container = document.getElementById("job_container");
-
     disp.addEventListener("click", (e) => {
+        const dispatchContainer = document.getElementById("dispatch_container");
+        const jobContainer = document.getElementById("job_container");
+
         //Change tab colors
         job.style.backgroundColor = "#CFD8DC";
         job.style.color = "black";
@@ -142,11 +212,14 @@
         disp.style.color = "white";
 
         //Change visible cards with CSS
-        job_container.style.display = "none";
-        dispatch_container.style.display = "block";
+        jobContainer.style.display = "none";
+        dispatchContainer.style.display = "block";
     })
 
     job.addEventListener("click", (e) => {
+        const dispatch_container = document.getElementById("dispatch_container");
+        const job_container = document.getElementById("job_container");
+
         //Change tab colors
         job.style.backgroundColor = "#004065";
         job.style.color = "white";
@@ -162,7 +235,6 @@
 <% } else { %>
 <script>
     const job = document.getElementById("job");
-
     const job_container = document.getElementById("job_container");
     job_container.style.display = "block";
     job.style.gridColumn = "1 / span 2";

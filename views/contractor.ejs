@@ -3,6 +3,8 @@
 <!-- CSS for contractors tabs -->
 <link rel="stylesheet" href="css/contractor_rates.css">
 
+<link rel="stylesheet" href="css/account_info.css">
+
 <div id="controls">
     <a id="exit" href="/contractors">
         <i class="fas fa-arrow-left"></i>
@@ -14,17 +16,101 @@
         <%= user.company %>
     </h1>
     <span>
-        <%= user.name %>
+        <%= contName %>
     </span>
 </div>
 
-<a onclick="toggleContractorRates()">
-    <div class="contractor" onclick="">
+<h3>Billing address</h3>
+<div class="user billing_information">
+    <div class="user_details_billing">
+        <% if (billingAddress !== undefined || billingAddress === {}) { %>
+        <h3 class="user_address"><%= billingAddress.address %></h3>
+        <div class="prov_country_zip">
+            <span class="user_city"><%= billingAddress.city %></span>
+            <span class="user_prov"><%= billingAddress.province %></span>
+            <span class="user_country"><%= billingAddress.country %></span>
+            <span class="user_zip"><%= billingAddress.postal %></span>
+        </div>
+        <% } else { %>
+        <h3 class="user_address">None</h3>
+        <div class="prov_country_zip">
+            <span class="user_city"></span>
+            <span class="user_prov"></span>
+            <span class="user_country"></span>
+            <span class="user_zip"></span>
+        </div>
+        <% } %>
+        <div class="edit" onclick="toggleBillingAdress()">
+            <i class="fas fa-edit"></i>
+        </div>
+    </div>
+
+    <div class='edit_address_form'>
+        <div class="col-md-8 order-md-1">
+            <form class="needs-validation" novalidate="">
+                <% let address, country, province, city, postal %>
+                <% if (billingAddress) { %>
+                <% address = billingAddress.address %>
+                <% country = billingAddress.country %>
+                <% province = billingAddress.province %>
+                <% city = billingAddress.city %>
+                <% postal = billingAddress.postal %>
+                <% } %>
+                <div class="mb-3">
+                    <label for="address">Address*</label>
+                    <input type="text" class="form-control" id="autocomplete" placeholder="Enter Address" required=""
+                        value="<%= address %>">
+                    <div class="form-text">Please enter address to fill form.</div>
+                </div>
+                <div class="row">
+                    <div class=" mb-3">
+                        <label for="country">Country*</label>
+                        <input type="text" class="form-control" id="country" placeholder="country" required=""
+                            value="<%= country %>" disabled>
+                        <div class="country_error"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="state">Province*</label>
+                        <input type="text" class="form-control" id="province" placeholder="province" required=""
+                            value="<%= province %>" disabled>
+                        <div class="province_error"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="state">City*</label>
+                        <input type="text" class="form-control" id="city" placeholder="city" required=""
+                            value="<%= city %>" disabled>
+                        <div class="state_error"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="post">Postal Code</label>
+                        <input type="text" class="form-control" id="post" placeholder="postal code" required=""
+                            value="<%= postal %>" disabled>
+                        <div class="postal_error">Postal Code required. </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <p class="address-form-error error"></p>
+        <button type="button" class="submit btn btn-primary" onclick="editBillingAddress('contractor')">Submit</button>
+        <button type="button" class="cancel btn btn-danger" onclick="toggleBillingAdress()">Cancel</button>
+    </div>
+</div>
+
+
+
+
+
+
+<div class="user" id="contractor">
+    <div class="user_details">
         <h3>
             Contractor Rates
         </h3>
+        <div class="edit">
+            <i class="fas fa-chevron-down"></i>
+        </div>
     </div>
-</a>
+</div>
 <div id="contractor_rates">
     <h5>
         Hourly
@@ -92,13 +178,16 @@
     <button onclick="saveContractorRates()">Save</button>
 </div>
 
-<a onclick="toggleOperatorRates()">
-    <div class="contractor">
+<div class="user" id="operator">
+    <div class="user_details">
         <h3>
             Operator Rates
         </h3>
+        <div class="edit">
+            <i class="fas fa-chevron-down"></i>
+        </div>
     </div>
-</a>
+</div>
 <div id="operator_rates">
     <div class="tonnage_rate">
         <span>Tonnage (Percentage)</span>
@@ -174,5 +263,16 @@
     <button onclick="saveOperatorRates()">Save</button>
 </div>
 
+<script async
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBw_orl37OX48-9bmzkItQ-DH-l-66CK2E&libraries=places&callback=initMap"
+    defer></script>
+
+<script src="js/address_auto_complete.js"></script>
+
+<script src="js/reset_errors.js"></script>
+
+<script src="js/toggles.js"></script>
+
+<script src="js/user_controller.js"></script>
 
 <script src="js/contractor.js"></script>

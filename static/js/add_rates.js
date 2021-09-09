@@ -58,6 +58,7 @@ function next(url) {
                     if (rates) {
                         fee = (fee == "NaN" ? 0.00 : (100 * fee).toFixed(0) / 100.00);
                         dispatch.rates["perLoad"] = { fee, rates, }
+                        console.log(dispatch.rates["perLoad"])
                     } else {
                         return
                     }
@@ -163,7 +164,6 @@ function getRatesList(type) {
 
 
     for (let i = 0; i < elements.length; i++) {
-        console.log(elements[i]);
         rate = parseFloat(elements[i].querySelector(".rate input").value.trim()).toFixed(2);
         obj = {
             r: (rate == "NaN" ? 0.00 : rate),
@@ -407,11 +407,11 @@ function addRoute(type, i, obj, disable) {
         rate.setAttribute("class", "per_load_rate input_rate");
         rate.innerHTML = getRouteHTML(obj, i, disable);
         per.insertBefore(rate, button);
-
     } else {
         const button = document.querySelector("#tonnage_rates .add_rate");
         rate.setAttribute("class", "tonnage_rate input_rate");
         rate.innerHTML = getRouteHTML(obj, i, disable);
+        console.log(rate.innerHTML)
         ton.insertBefore(rate, button);
     }
 
@@ -592,7 +592,7 @@ const renderRates = (disp, edit) => {
         }
     }
 
-    if (dispatch.rates != undefined || dispatch.rates != {}) {
+    if (dispatch.rates !== undefined || dispatch.rates != {}) {
         if (dispatch.rates.hourly) {
             hourly.checked = true;
             updateHourlyRates(dispatch.rates.hourly);
@@ -601,42 +601,46 @@ const renderRates = (disp, edit) => {
             if (dispatch.rates.perLoad) {
                 perLoad.checked = true;
                 document.querySelector("#per_load_rates .operator_rate input").value = dispatch.rates.perLoad.fee;
-                dispatch.rates.perLoad.rates.forEach((rate, i, lst) => {
-                    if (edit && disp.rates.perLoad) {
-                        rates = disp.rates.perLoad.rates;
-                        for (let j = 0; j < rates.length; j++) {
-                            if (rates[j].l === rate.l && rates[j].d === rate.d) {
+                if (edit && disp.rates.perLoad) {
+                    rates = disp.rates.perLoad.rates;
+                    dispatch.rates.perLoad.rates.forEach((rate) => {
+                        for (let i = 0; i < rates.length; i++) {
+                            if (rates[i].l === rate.l && rates[i].d === rate.d && rates[i].r == rate.r) {
                                 addRoute(PERLOAD, 1, rate, true)
-                            } else {
-                                addRoute(PERLOAD, (lst.length > 1 ? -1 : 1), rate, false)
+                                rates.splice(i, 1);
+                                return
                             }
                         }
-                    } else {
-                        addRoute(PERLOAD, (lst.length > 1 ? -1 : 1), rate, false)
-                    }
-                })
+                        addRoute(PERLOAD, (rates.length > 1 || dispatch.rates.perLoad.rates.length > 1 ? -1 : 1), rate, false);
+                    })
+                } else {
+                    dispatch.rates.perLoad.rates.forEach((rate) => {
+                        addRoute(TONNAGE, (dispatch.rates.perLoad.rates.length > 1 ? -1 : 1), rate, false);
+                    })
+                }
                 togglePerLoadRates()
             }
 
             if (dispatch.rates.tonnage) {
                 tonnage.checked = true;
                 document.querySelector("#tonnage_rates .operator_rate input").value = dispatch.rates.tonnage.fee;
-                dispatch.rates.tonnage.rates.forEach((rate, i, lst) => {
-                    if (edit && disp.rates.tonnage) {
-                        console.log(disp)
-                        rates = disp.rates.tonnage.rates;
-                        for (let j = 0; j < rates.length; j++) {
-                            console.log(rate);
-                            if (rates[j].l === rate.l && rates[j].d === rate.d) {
+                if (edit && disp.rates.tonnage) {
+                    rates = disp.rates.tonnage.rates;
+                    dispatch.rates.tonnage.rates.forEach((rate) => {
+                        for (let i = 0; i < rates.length; i++) {
+                            if (rates[i].l === rate.l && rates[i].d === rate.d && rates[i].r == rate.r) {
                                 addRoute(TONNAGE, 1, rate, true)
-                            } else {
-                                addRoute(TONNAGE, (lst.length > 1 ? -1 : 1), rate, false)
+                                rates.splice(i, 1);
+                                return
                             }
                         }
-                    } else {
-                        addRoute(TONNAGE, (lst.length > 1 ? -1 : 1), rate, false)
-                    }
-                })
+                        addRoute(TONNAGE, (rates.length > 1 || dispatch.rates.tonnage.rates.length > 1 ? -1 : 1), rate, false);
+                    })
+                } else {
+                    dispatch.rates.tonnage.rates.forEach((rate) => {
+                        addRoute(TONNAGE, (dispatch.rates.tonnage.rates.length > 1 ? -1 : 1), rate, false);
+                    })
+                }
                 toggleTonnageRates()
             }
         }

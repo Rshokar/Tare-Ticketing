@@ -1,0 +1,63 @@
+.user {
+  background-color: #EFEFEF;
+  height: auto;
+  padding: .5em .5em .5em .5em;
+  margin-bottom: 1em;
+}
+
+.user_details, .user_details_billing {
+  display: grid;
+  grid-template-columns: 75% 25%;
+} 
+
+.user_name, .user_phone, .user_email, .user_address{
+  padding-left: 10px;
+  grid-column: 1 / span 1;
+}
+
+.prov_country_zip {
+    padding-left: 10px;
+    grid-column: 1 / span 1;
+    grid-row: 2 / span 1;
+}
+
+.user_email {
+  margin-bottom: .5em;
+}
+
+.edit {
+  grid-column: 2 / span 1;
+  grid-row:  1 / span 3;
+  text-align: cen  ter;
+  display: grid;
+  align-content: center;
+}
+
+.user_name {
+  margin: .5em .5em .5em 0em;
+}
+
+.edit_address_form, .edit_user_form, .edit_form {
+  padding: 1em 1em 1em 1em;
+  display: none;
+}
+
+.edit_form button, .edit_address_form button, .edit_user_form button{
+  width: 100%;
+}
+
+.input { 
+  margin-left: 10px;
+  padding-top: .5em;
+  padding-bottom: .5em;
+  display: block;
+}
+
+.submit, .cancel {
+  padding-top: .5em;
+  padding-bottom: .5em;
+}
+
+.submit {
+  margin-bottom: 1em;
+}

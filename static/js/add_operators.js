@@ -24,33 +24,31 @@ function addOperatorCards() {
     let truck;
     let trailer;
 
-    if (operators != undefined) {
+    if (operators !== undefined && Object.keys(operators).length > 0) {
         for (let i = 0; i < numTrucks; i++) {
             start = { date: dispatch.date, time: time }
             name = "Add Operator";
             status = "empty";
             id = "";
             disable = false;
-            if (operators[i] != undefined && operators[i].id != "") {
+            console.log("Hello")
+            if (operators[i] != undefined && operators[i].id !== undefined) {
                 name = operators[i].name;
                 id = operators[i].id;
                 [truck, trailer] = getEquipmentHTML(operators[i].equipment)
                 status = operators[i].status;
                 if (operators[i].status === ACTIVE || operators[i].status === COMPLETE) { disable = true }
-                if (operators[i].start !== undefined) {
-                    start.date = operators[i].start.split("T")[0];
-                    start.time = new Date(operators[i].start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-                }
             } else if (operators[i] != undefined) {
                 [truck, trailer] = getEquipmentHTML(operators[i].equipment);
-                if (operators[i].start !== undefined) {
-                    start.date = operators[i].start.split("T")[0];
-                    start.time = operators[i].start.split("T")[1];
-                }
+
             } else {
                 [truck, trailer] = getEquipmentHTML();
             }
 
+            if (operators[i].start !== undefined) {
+                start.date = operators[i].start.split("T")[0];
+                start.time = new Date(operators[i].start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+            }
             let obj = {
                 id: i,
                 status: status,
@@ -64,7 +62,6 @@ function addOperatorCards() {
             }
 
             const operatorCardHTML = buildOperatorCard(obj);
-
             operatorsContainer.insertAdjacentHTML('beforeend', operatorCardHTML);
         }
     } else {
@@ -237,6 +234,7 @@ function addOperator() {
  * @param obj A JSON object containing card details
  */
 function buildOperatorCard(obj) {
+    console.log(obj)
     const DISABLE = (obj.disable ? "disabled" : "");
     const ONCLICK = (obj.disable ? "" : `openOperatorModal(${obj.id})`)
 
@@ -347,43 +345,38 @@ function closeModal() {
  * @date June 21 2021
  */
 const getEmployees = () => {
-    $.ajax({
-        url: "get_employees",
-        type: "GET",
-        dataType: "JSON",
-        success: (data) => {
-            console.log(data);
-            const employeesContainer = document.getElementById("employees");
-            const spotIndex = document.getElementById("spot_index").innerHTML;
-            for (let i = 0; i < data.result.length; i++) {
-                let div = document.createElement("div");
-                div.setAttribute('class', "employee");
-
-                let name = document.createElement("h3");
-                name.innerText = data.result[i].fName + " " + data.result[i].lName;
-
-                div.appendChild(name);
-
-                div.addEventListener("click", function () {
-                    fillSpot(
-                        data.result[i].id,
-                        data.result[i].fName,
-                        data.result[i].lName,
-                        "employee"
-                    )
+    return new Promise((res, rej) => {
+        $.ajax({
+            url: "get_employees",
+            type: "GET",
+            dataType: "JSON",
+            success: (data) => {
+                console.log(data)
+                if (data.status === "success" && data.result.length > 0) {
+                    res(data.result)
+                } else {
+                    rej({
+                        status: "error",
+                        err: {
+                            code: "no_employees",
+                            message: "No employees found."
+                        }
+                    });
+                }
+            },
+            error: (err) => {
+                rej({
+                    status: "error",
+                    err: {
+                        code: "could_not_connect",
+                        message: "Could not connect server error getting employees."
+                    }
                 })
-                employeesContainer.appendChild(div);
-
-
+                console.log("Error", err);
             }
-        },
-        error: (err) => {
-            console.log("Error", err);
-        }
+        })
     })
 }
-
-getEmployees();
 
 /**
  * This function is responsible for adding an operator to a spot in a the dispatch 
@@ -393,25 +386,16 @@ getEmployees();
  */
 const fillSpot = (id, fName, lName, type, company) => {
     const index = document.getElementById("spot_index").innerHTML;
-    console.log(index);
     const spot = document.getElementById(index);
 
-    console.log(type);
-
-    console.log(index);
+    spot.querySelector(".user_id").innerHTML = id;
+    spot.className = "operator sent mb-3";
 
     if (type == "employee") {
         spot.querySelector(".operator_name").innerHTML = fName + " " + lName;
-        spot.querySelector(".user_id").innerHTML = id;
-        spot.className = "operator sent";
-    }
-
-    if (type == "operator") {
+    } else if (type == "operator") {
         spot.querySelector(".operator_name").innerHTML = company;
-        spot.querySelector(".user_id").innerHTML = id;
-        spot.className = "operator sent";
     }
-
     closeModal();
 }
 
@@ -425,14 +409,17 @@ function showEmployees() {
     const operators = document.getElementById('owner_operator');
     const employees = document.getElementById('employees');
 
-    const operators_tab = document.getElementById('operator_tab');
-    const employees_tab = document.getElementById('employee_tab');
+    const operators_tab = document.getElementById('right_tab');
+    const employees_tab = document.getElementById('left_tab');
 
     operators.style.display = "none";
     employees.style.display = "block";
 
-    operators_tab.style.backgroundColor = "rgb(255, 255, 255)";
-    employees_tab.style.backgroundColor = "rgb(196, 196, 196)";
+    operators_tab.style.backgroundColor = "#CFD8DC";
+    operators_tab.style.color = "black";
+
+    employees_tab.style.backgroundColor = "#004065";
+    employees_tab.style.color = "white";
 }
 
 /**
@@ -445,14 +432,18 @@ function showOwnerOps() {
     const operators = document.getElementById('owner_operator');
     const employees = document.getElementById('employees');
 
-    const operators_tab = document.getElementById('operator_tab');
-    const employees_tab = document.getElementById('employee_tab');
+    const operators_tab = document.getElementById('right_tab');
+    const employees_tab = document.getElementById('left_tab');
 
     operators.style.display = "block";
     employees.style.display = "none";
 
-    operators_tab.style.backgroundColor = "rgb(196, 196, 196)";
-    employees_tab.style.backgroundColor = "rgb(255, 255, 255)";
+
+    operators_tab.style.backgroundColor = "#004065";
+    operators_tab.style.color = "white";
+
+    employees_tab.style.backgroundColor = "#CFD8DC";
+    employees_tab.style.color = "black";
 }
 
 
@@ -538,6 +529,7 @@ function back(url) {
     const edit = new URL(window.location.href).searchParams.get("edit");
     url += (edit ? "&edit=true&dispId=" + dispatch._id : "");
     dispatch["operators"] = getOperators();
+    console.log(dispatch)
     sessionStorage.setItem('dispatch', JSON.stringify(dispatch));
     window.location.href = url;
 }
@@ -551,9 +543,6 @@ function back(url) {
  * @date June 21 2021
  */
 function getOperators() {
-    const SENT = "sent";
-    const EMPTY = "empty";
-
     const obj = {}
     for (let i = 0; i < dispatch.numTrucks; i++) {
         const spot = document.getElementById(i);
@@ -569,7 +558,7 @@ function getOperators() {
             status: getSpotStatus(spot)
         }
 
-        if (userId !== "") {
+        if (userId) {
             obj[i]["id"] = userId
         }
     }
@@ -636,6 +625,7 @@ function next(url) {
  * @date June 21 2021
  */
 function verifyOperators(operators) {
+    console.log(operators)
     let isValid = true
     let dispDate = new Date(dispatch.date);
     let start
@@ -675,7 +665,7 @@ function verifyOperators(operators) {
         }
 
         for (let j = i + 1; j < dispatch.numTrucks; j++) {
-            if (operators[i].id != "" && operators[i].id === operators[j].id) {
+            if (operators[i].id && operators[i].id === operators[j].id) {
                 error.innerHTML = "Operator has already been selected."
                 return false;
             }
@@ -698,7 +688,6 @@ $(document).ready(() => {
 
     document.getElementById("exit").setAttribute("onclick", `back('/add_rates?contractor=${dispatch.contractor.replace("&", "%26")}')`);
 
-
     contractor.innerHTML = dispatch.contractor;
     loadLocation.innerHTML = dispatch.loadLocation + "<p class='ticket_text'>Load</p>";
     dumpLocation.innerHTML = dispatch.dumpLocation + "<p class='ticket_text'>Dump</p>";
@@ -708,4 +697,62 @@ $(document).ready(() => {
     material.innerHTML = "Material: " + dispatch.material;
     numTrucks.innerHTML = "<i class='fas fa-truck'></i><span id='number_of_trucks'>" + dispatch.numTrucks + "</span><span id='plus' onclick='addOperator()'> + </span>";
     notes.innerHTML = dispatch.notes;
+
+
+    getEmployees()
+        .then((emps) => {
+            const employeesContainer = document.getElementById("employees");
+            employeesContainer.innerHTML = "";
+            for (let i = 0; i < emps.length; i++) {
+                console.log(i)
+                let div = document.createElement("div");
+                div.setAttribute('class', "employee");
+
+                let name = document.createElement("h3");
+                name.innerText = emps[i].fName + " " + emps[i].lName;
+
+                div.appendChild(name);
+                div.addEventListener("click", function () {
+                    fillSpot(
+                        emps[i].id,
+                        emps[i].fName,
+                        emps[i].lName,
+                        "employee"
+                    )
+                })
+                employeesContainer.appendChild(div);
+            }
+        })
+        .catch(e => {
+            console.log(e);
+            const empContainer = document.getElementById("employees");
+            const div = document.createElement("div");
+            const h1 = document.createElement("h1");
+            const span = document.createElement("span");
+            const a = document.createElement("a");
+            const button = document.createElement("button")
+
+            empContainer.innerHTML = "";
+
+            let err = e.err;
+            div.setAttribute("class", "no_tickets");
+            h1.innerText = err.message;
+
+            if (err.code === "no_employees") {
+                a.setAttribute("href", "/new_employee")
+                button.setAttribute("class", "btn btn-primary");
+                button.innerHTML = "Add Employee";
+                a.appendChild(button);
+
+            } else if (err.code === "could_not_connect") {
+                button.setAttribute("class", "btn btn-primary");
+                button.setAttribute("onclick", getEmployees);
+                button.innerHTML = "Reset"
+                a.appendChild(button);
+            }
+
+            span.appendChild(a);
+            div.appendChild(h1).appendChild(span)
+            empContainer.appendChild(div)
+        })
 })

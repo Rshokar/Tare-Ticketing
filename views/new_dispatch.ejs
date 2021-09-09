@@ -15,7 +15,7 @@
 <h1 id="title">New Dispatch</h1>
 
 <form>
-    <div class="mb-3">
+    <div class="mb-3" id="select_button">
         <label for="contractor" class="form-label">Contractor *</label>
         <select class="form-select" aria-label="Default select example" id="contractor">
             <option selected>Select A Contractor</option>
@@ -25,71 +25,59 @@
             </option>
             <% } %>
         </select>
-        <div id="contractor-error" class="form-text error"></div>
-        <a href="/contractors" id="add_contractor"><button type="button" class="btn btn-secondary">Add
-                Contractor</button></a>
+        <button type="button" class="btn btn-primary"><a href="/contractors"><i class="fas fa-plus"></i></a></button>
+        <div id="contractor-error" class="error"></div>
     </div>
     <div class="mb-3">
         <label for="date" class="form-label">Date *</label>
         <input type="date" class="form-control" id="date">
-        <div id="date-error" class="form-text error"></div>
+        <div id="date-error" class="error"></div>
     </div>
     <div class="mb-3">
         <label for="load_location" class="form-label">Load Location *</label>
         <input type="text" class="form-control" id="load_location" placeholder="Load Location">
-        <div id="load-location-error" class="form-text error"></div>
+        <div id="load-location-error" class="error"></div>
     </div>
     <div class="mb-3">
         <label for="dump_location" class="form-label">Dump Location *</label>
         <input type="text" class="form-control" id="dump_location" placeholder="Dump Location">
-        <div id="dump-location-error" class="form-text error"></div>
+        <div id="dump-location-error" class="error"></div>
     </div>
     <div class="mb-3">
         <label for="num_trucks" class="form-label">Num Trucks</label>
         <input type="number" class="form-control" id="num_trucks" placeholder="0" step="1">
-        <div id="num_trucks_error" class="form-text error"></div>
-    </div>
-
-    <div class="mb-3">
-        <input type="checkbox" id="reciever_check" value="Reciever" onclick="showReciever()">
-        <label class="form-check-label">Reciever</label>
-
-        <input type="checkbox" id="supplier_check" value="Supplier" onclick="showSupplier()">
-        <label class="form-check-label">Supplier</label>
-
-        <input type="checkbox" id="material_check" value="Material" onclick="showMaterial()">
-        <label class="form-check-label">Material</label>
+        <div id="num_trucks_error" class="error"></div>
     </div>
 
     <div class="mb-3" id="reciever">
         <label for="reciever" class="form-label">Reciever</label>
         <input type="text" class="form-control" placeholder="Reciever">
-        <div id="reciever-error" class="form-text error"></div>
+        <div id="reciever-error" class="error"></div>
     </div>
 
     <div class="mb-3" id="supplier">
         <label for="supplier" class="form-label">Supplier</label>
         <input type="text" class="form-control" placeholder="Supplier">
-        <div id="supplier-error" class="form-text error"></div>
+        <div id="supplier-error" class="error"></div>
     </div>
 
     <div class="mb-3" id="material">
         <label for="material" class="form-label">Material</label>
         <input type="text" class="form-control" placeholder="Material">
-        <div id="material-error" class="form-text error"></div>
+        <div id="material-error" class="error"></div>
     </div>
 
 
     <div class="mb-3">
         <label for="notes" class="form-label">Notes</label>
         <textarea type="text" class="form-control" id="notes" placeholder="Notes"></textarea>
-        <div id="notes_error" class="form-text error"></div>
+        <div id="notes_error" class="error"></div>
     </div>
 
 
 
     <div class="mb-3">
-        <div id="form-error" class="form-text error"></div>
+        <div id="form-error" class="error"></div>
     </div>
 </form>
 
@@ -110,6 +98,8 @@
 </script>
 
 <script src="js/reset_errors.js"></script>
+
+<script src="js/date.js"></script>
 
 <script src="js/ticket_controller.js"></script>
 

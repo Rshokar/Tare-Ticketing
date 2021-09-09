@@ -4,7 +4,7 @@
 <!-- Custome CSS for Dispatch tickets -->
 <link rel="stylesheet" href="css/job.css">
 
-<!-- Custome CSS for Dispatch tickets -->
+<!-- Custome CSS for Tabs -->
 <link rel="stylesheet" href="css/tabs.css">
 
 <!-- CSS for contractors tabs -->
@@ -14,23 +14,19 @@
   <a href="/dashboard"><i class="fas fa-arrow-left"></i></a>
 </div>
 
-<div id="search">
-  <input type="text" placeholder="Search...">
-</div>
-
 <!-- All Dispatches will be rendered in here -->
 <div id="ticket_preview_container">
-  <% let status = 'empty' %>
+  <% let status = "empty" %>
   <% if (dispatch.status.sent==0 && dispatch.status.confirmed==0 && dispatch.status.active==0 &&
-    dispatch.status.complete> 0) { %>
+    dispatch.status.complete > 0) { %>
   <% status = "complete" %>
-  <% } else if (dispatch.status.sent> 0 && dispatch.status.confirmed == 0 && dispatch.status.active == 0)
+  <% } else if (dispatch.status.sent > 0 && dispatch.status.confirmed == 0 && dispatch.status.active == 0)
         { %>
   <% status = "sent" %>
-  <% } else if (dispatch.status.confirmed> 0 && dispatch.status.active == 0) { %>
+  <% } else if (dispatch.status.confirmed > 0 && dispatch.status.active == 0) { %>
   <% status = "confirmed" %>
-  <% } else { %>
-  <% status = "active" %>
+  <% } else if (dispatch.status.active > 0) { %>
+  <% status = 'active' %>
   <% } %>
   <div id="ticket_preview" class="<%= status %>">
     <h2>
@@ -105,6 +101,10 @@
   </div>
 </div>
 
+<div id="search" class="html_search">
+  <input type="text" placeholder="Search...">
+</div>
+
 <div id="tabs">
   <div id="left_tab" onclick="showOperators()">
     Operators
@@ -123,33 +123,39 @@
 <!-- All Job Tickets will be rendered in here -->
 <div id="operators">
   <% for (let i=0; i < dispatch.operators.length; i++) { %>
-  <a href="/job?id=<%=dispatch.operators[i].jobId %>">
-    <div class="job <%= dispatch.operators[i].status %>">
+  <% if (dispatch.operators[i].jobId) { %>
+
+  <% } %>
+  <div class="job <%= dispatch.operators[i].status %>">
+    <a href="/job?id=<%=dispatch.operators[i].jobId %>">
       <h2>
         <%= dispatch.operators[i].name %>
       </h2>
-      <div class="equipment">
-        <div id="truck">
-          <span>
-            <%= dispatch.operators[i].equipment.truck %>
-          </span>
-        </div>
-        <div id="trailer">
-          <% if (dispatch.operators[i].equipment.trailer !="default" ) { %>
-          <span>
-            <%= dispatch.operators[i].equipment.trailer %>
-          </span>
-          <% } %>
-        </div>
-      </div>
-      <div class="start_time">
+    </a>
+    <div class="equipment">
+      <div id="truck">
         <span>
-          <% let d=new Date(dispatch.operators[i].start) %>
-          <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12: false }) %>
+          <%= dispatch.operators[i].equipment.truck %>
         </span>
       </div>
+      <div id="trailer">
+        <% if (dispatch.operators[i].equipment.trailer !="default" ) { %>
+        <span>
+          <%= dispatch.operators[i].equipment.trailer %>
+        </span>
+        <% } %>
+      </div>
     </div>
-  </a>
+    <div class="start_time">
+      <span>
+        <% let d=new Date(dispatch.operators[i].start) %>
+        <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12: false }) %>
+      </span>
+    </div>
+  </div>
+  <% if (dispatch.operators[i].jobId) { %>
+
+  <% } %>
   <% } %>
 </div>
 
@@ -260,9 +266,10 @@
     </div>
     <div id="per_load_rates" style="display: block;">
       <div class="per_load_rate operator_rate mb-2">
-        <span>Dispatch Fee (%)</span>
+        <% let fee=(parseFloat((dispatch.rates.perLoad.fee * 100) / 100.00).toFixed(2)); %>
+        <span>Fee (%)</span>
         <span class="rate">
-          <%= dispatch.rates.perLoad.fee %>
+          <%= fee %>
         </span>
       </div>
       <% for (let i=0; dispatch.rates.perLoad.rates !=undefined && i <
@@ -303,9 +310,10 @@
     </div>
     <div id="tonnage_rates" style="display: block;">
       <div class="tonnage_rate operator_rate mb-2">
-        <span>Dispatch Fee (%)</span>
+        <% let fee=(parseFloat((dispatch.rates.tonnage.fee * 100) / 100.00).toFixed(2)); %>
+        <span>Fee (%)</span>
         <span class="rate">
-          <%= dispatch.rates.tonnage.fee %>
+          <%= fee %>
         </span>
       </div>
       <% for (let i=0; dispatch.rates.tonnage.rates !=undefined && i <
@@ -340,7 +348,8 @@
   <% } %>
 </div>
 <% } %>
-
+<script src="js/search_tickets.js"></script>
+<script src="js/dashboard.js"></script>
 <script src="js/ticket_preview.js"></script>
 
 <script>

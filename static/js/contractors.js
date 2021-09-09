@@ -31,8 +31,7 @@ function closeAddContractorModal() {
  * @date July 17 2021
  */
 function submitContractor() {
-    const modal = document.getElementById("new_contractor_modal");
-    const modalInput = modal.querySelector("input");
+    cont = document.querySelector("#search_button input").value;
 
     const confModal = document.getElementById("confirmation_modal");
     const confText = document.getElementById("confirmation_text");
@@ -41,17 +40,21 @@ function submitContractor() {
 
     const contractorContainer = document.getElementById("contractors");
 
+    confYes.innerHTML = "Okay";
+    confYes.addEventListener("click", closeModals);
+    confNo.style.display = "none";
+
     $.ajax({
         url: "/add_contractor",
         dataType: "JSON",
         type: "POST",
-        data: { contractor: modalInput.value },
+        data: { cont },
         success: (data) => {
             console.log(data)
 
             if (data.status == "success") {
                 confYes.style.display = "none";
-                confNo.style.display = "none";
+
                 confText.innerHTML = data.message;
                 confText.style.color = "green";
                 confModal.style.display = "block";
@@ -63,41 +66,28 @@ function submitContractor() {
 
                 let html =
                     `
-                        <a href="/contractor?contractor=${modalInput.value}">
+                        <a href="/contractor?contractor=${cont}">
                             <h3>
-                            ${modalInput.value}
+                            ${cont}
                             </h3>
                         </a>
                         `
-
                 contractor.innerHTML = html;
 
-                console.log("/contractor?contractor=" + modalInput.value);
-
                 setTimeout(() => {
-                    window.location.replace("/contractor?contractor=" + modalInput.value);
+                    window.location.replace("/contractor?contractor=" + cont);
                 }, 2000);
 
             } else {
-                confYes.addEventListener("click", closeModals);
-                confYes.innerHTML = "Okay";
-                confNo.style.display = "none";
                 confText.innerHTML = data.message;
                 confText.style.color = "red"
                 confModal.style.display = "block";
                 confYes.focus();
-
-                modalInput.value = ""
             }
         },
         error: (err) => {
-            confYes.addEventListener("click", closeModals);
-            confYes.innerHTML = "Okay";
-            confNo.style.display = "none";
             confText.innerHTML = "Error Adding Contractor.";
             confModal.style.display = "block";
-
-            modalInput.value = ""
         }
     })
 }

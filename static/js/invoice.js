@@ -41,15 +41,14 @@ function submitInvoiceQuery() {
             })
             .catch(e => {
                 modal.modal.style.display = "none";
-                console.log(e);
                 if (e.err.code === "form") {
-                    modal.txt.innerHTML = e.err.message;
+                    console.log(e);
+                    document.getElementById("form_error").innerHTML = e.err.message;
                 }
 
                 modal.txt.style.color = "red"
                 modal.yes.style.display = "block";
                 modal.yes.addEventListener("click", closeModals)
-
             })
     }
 }
@@ -61,19 +60,21 @@ function submitInvoiceQuery() {
  * @date Aug 2 2021
  */
 function getQueryData() {
-    const start = document.getElementById("start_date");
-    const finish = document.getElementById("finish_date");
+    const start = document.getElementById("start_date").value.trim();
+    const finish = document.getElementById("finish_date").value.trim();
 
-    const oper = document.querySelector("#operator input");
-    const cont = document.querySelector("#contractor select");
+    let oper = document.querySelector("#operator input").value;
+    oper = (oper === "" ? undefined : oper);
+    let cont = document.querySelector("#contractor select").value;
+    cont = (cont === "" ? undefined : cont)
 
     const opCheck = document.getElementById("operator_check");
 
     return query = {
-        start: start.value.trim() + "T" + "00:00",
-        finish: finish.value + "T" + "00:00",
+        start: (start === "" ? undefined : start + "T00:00"),
+        finish: (finish === "" ? undefined : finish + "T00:00"),
         type: (opCheck.checked ? "operator" : "contractor"),
-        customer: (opCheck.checked ? oper.value : cont.value),
+        customer: (opCheck.checked ? oper : cont),
     }
 }
 
@@ -85,20 +86,21 @@ function getQueryData() {
  * @param { JSON } q Invoice Query
  */
 function validateInvoiceQuery(q) {
-
     console.log(q);
-    let isValid = true;
-
     resetErrors();
 
-    if (q.finish === ""
-        || q.start === ""
-        || q.customer === ""
+    if (!q.start || !q.finish || !q.customer
         || (q.type !== "operator" && q.type !== "contractor" && q.type !== "dispatcher")) {
         document.getElementById("form_error").innerHTML = "Fill in all required fields."
         return false
     }
-    return isValid;
+    console.log(new Date(q.start) > new Date(q.finish))
+
+    if (new Date(q.start) > new Date(q.finish)) {
+        document.getElementById("form_error").innerHTML = "Start cannot be before finish.";
+        return false
+    }
+    return true;
 }
 
 /**

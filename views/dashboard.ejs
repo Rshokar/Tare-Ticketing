@@ -7,6 +7,9 @@
 <!-- CUstome CSS for /dashboard -->
 <link rel="stylesheet" href="css/dashboard.css">
 
+<!-- CSS for when there are no tickets -->
+<link rel="stylesheet" href="css/no_ticket.css">
+
 <div id="details">
   <% if (user.type=="dispatcher" ) { %>
   <span class="number">
@@ -22,7 +25,7 @@
 </div>
 
 
-<div id="search">
+<div id="search" class="<%= user.type %> html_search">
   <input type="text" placeholder="Search...">
 </div>
 
@@ -80,15 +83,14 @@
         </div>
         <% } %>
         <% } else if (user.type=="dispatcher" && dispatches.length==0) { %>
-        <div id="tickets_empty">
+        <div class="no_tickets">
           <h1>
-            No Active Dispathces
+            No New Dispatch Tickets
           </h1>
           <span>
-
-            <a href="/new_dispatch?new=true">
+            <a href="/new_dispatch">
               <button type="button" class="btn btn-primary">
-                Create Dispatch
+                Create dispatch ticket
               </button>
             </a>
           </span>
@@ -130,23 +132,23 @@
         </div>
         <% } %>
         <% } else if (user.type=="operator" && jobs.length==0) { %>
-        <div id="tickets_empty">
+        <div class="no_tickets">
           <h1>
             No New Job Tickets
           </h1>
-          <span>
-            <a href="/new_job">
-              <button type="button" class="btn btn-primary">
-                Create Job ticket
-              </button>
-            </a>
-          </span>
         </div>
         <% } else { %>
-        <div id="tickets_empty">
+        <div class="no_tickets">
           <h1>
             No New Job Tickets
           </h1>
         </div>
         <% } %>
       </div>
+
+
+
+
+      <script src="js/search_tickets.js"></script>
+
+      <script src="js/dashboard.js"></script>

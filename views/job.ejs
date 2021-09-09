@@ -275,10 +275,10 @@
       </h3>
     </div>
     <div id="per_load_rates" style="display: block;">
-      <% let fee=(parseFloat(job.rates.perLoad.fee) / 100.00).toFixed(2); %>
+      <% let fee=(parseFloat((job.rates.perLoad.fee * 100) / 100.00).toFixed(2)); %>
       <% if (user.type ==="dispatcher" ) { %>
       <div class="per_load_rate operator_rate mb-2">
-        <span>Dispatch Fee (%)</span>
+        <span>Fee (%)</span>
         <span class="rate">
           <%= fee %>
         </span>
@@ -327,7 +327,7 @@
       <% let fee=(parseFloat(job.rates.tonnage.fee) / 100.00).toFixed(2); %>
       <% if (user.type === "dispatcher" ) { %>
       <div class="tonnage_rate operator_rate mb-2">
-        <span>Dispatch Fee (%)</span>
+        <span>Fee (%)</span>
         <span class="rate">
           <%= fee %>
         </span>
@@ -560,6 +560,8 @@
 </div>
 
 <script src="js/reset_errors.js"></script>
+
+<script src="js/date.js"></script>
 
 <script src="js/modal.js"></script>
 

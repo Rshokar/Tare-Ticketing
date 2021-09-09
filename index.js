@@ -2,7 +2,6 @@
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
 const bodyParser = require("body-parser");
-const bcrypt = require('bcrypt');
 
 const jwt = require('jsonwebtoken');
 const cookieParser = require("cookie-parser");
@@ -12,7 +11,7 @@ const mongoose = require('mongoose').set('debug', true);;
 const ObjectId = require('mongodb').ObjectId;
 const ejsLint = require('ejs-lint');
 const ObjectsToCsv = require("objects-to-csv");
-const zip = require('express-zip');
+const zip = require('express-zip')
 
 const app = express();
 
@@ -137,7 +136,7 @@ app.get("/contractors", authenticate, (req, res) => {
           {
             page: pageName,
             user: decodedToken,
-            contractors: user.contractors,
+            contractors: user._doc.contractors,
           })
       })
 
@@ -165,27 +164,28 @@ app.post("/add_contractor", UserController.addRates, (req, res) => {
 app.get("/contractor", authenticate, (req, res) => {
   const pageName = "Contractor";
   const token = req.cookies.jwt;
-  let contractor;
+  let contractors
 
-  console.log("Inputed Contractor", req.query.contractor);
   jwt.verify(token, "butternut", (err, decodedToken) => {
     if (err) {
       res.sendStatus(404);
     }
     User.findOne({ _id: decodedToken.id })
       .then((user) => {
-        for (let cont in user.contractors) {
-          if (cont == req.query.contractor) {
+        contractors = user.contractors.toJSON()
+        for (let cont in contractors) {
+          if (cont === req.query.contractor) {
             res.render("contractor", {
               page: pageName,
               user: decodedToken,
-              contRates: user.contractors[cont].contractorRates,
-              opRates: user.contractors[cont].operatorRates,
+              contRates: contractors[cont].contractorRates,
+              contName: cont,
+              opRates: contractors[cont].operatorRates,
+              billingAddress: (Object.keys(contractors[cont].billingAddress).length === 0 ? undefined : contractors[cont].billingAddress)
             })
           }
         }
       })
-
   })
 })
 
@@ -209,7 +209,7 @@ app.post("/update_operator_rates", (req, res) => {
     } else {
       User.findOne({ _id: decodedToken.id })
         .then((user) => {
-          user.contractors[contractor].operatorRates = rates;
+          user._doc.contractors[contractor].operatorRates = rates;
           console.log(user.contractors[contractor])
           user.markModified("contractors");
           user.save();
@@ -243,7 +243,7 @@ app.post("/update_contractor_rates", (req, res) => {
     } else {
       User.findOne({ _id: decodedToken.id })
         .then((user) => {
-          user.contractors[contractor].contractorRates = rates;
+          user._doc.contractors[contractor].contractorRates = rates;
           console.log(user.contractors[contractor])
           user.markModified("contractors");
           user.save();
@@ -265,23 +265,29 @@ app.post("/update_contractor_rates", (req, res) => {
  * @version 1.0 
  * @date June 28 2021
  */
-app.get("/my_settings", authenticate, (req, res) => {
+app.get("/my_information", authenticate, (req, res) => {
   const token = req.cookies.jwt;
-  const pageName = "My Settings"
+  const PAGENAME = "My Settings"
+  let user, billingAddress;
 
-  jwt.verify(token, "butternut", (err, decodedToken) => {
-    User.findOne({
-      _id: decodedToken.id
-    }).then((user) => {
-      if (user == null) {
-        res.render('layout')
-      } else {
-        res.render("my_settings", { user: decodedToken, page: pageName, userAccount: user })
-      }
-    })
+  jwt.verify(token, "butternut", async (err, dt) => {
+    try {
+      user = await UserController.getUser(dt.id)
+      billingAddress = user.address
+      res.render("my_information", { user, page: PAGENAME, billingAddress })
+    } catch (e) {
+      console.log(e);
+      res.sendStatus(404);
+    }
   })
 })
 
+app.post("/update_user", UserController.updateUser, (req, res) => { })
+
+
+app.post("/update_contractor_billing_address", UserController.updateContractorAddress, (req, res) => { })
+
+app.post("/update_billing_address", UserController.updateAddress, (req, res) => { })
 
 /**
  * This route will return the appropriate HTML for the login page. 
@@ -355,8 +361,14 @@ app.post("/register_user", AuthController.register, (req, res) => {
  */
 app.get("/tickets", authenticate, (req, res) => {
   const token = req.cookies.jwt;
+  const PAGENAME = "Tickets";
+  const NUMTICKETS = 10
 
-  jwt.verify(token, "butternut", (err, decodedToken) => {
+  let user;
+  let dispatches = [];
+  let jobs = [];
+
+  jwt.verify(token, "butternut", async (err, decodedToken) => {
     if (err) {
       console.log(err);
       res.send({
@@ -364,41 +376,140 @@ app.get("/tickets", authenticate, (req, res) => {
         message: "error decoding JWT"
       })
     }
-
-    if (decodedToken.type == "dispatcher") {
-      Dispatch.find({
-        $and: [{ "dispatcher.id": decodedToken.id }, { "status.complete": { $gt: 0 } }, { "status.sent": 0 }, { "status.active": 0 }]
-      })
-        .then((dispatches) => {
-          Job.find({
-            $and: [
-              { "dispatcher.id": decodedToken.id },
-              { status: "complete" }
-
-            ]
-          })
-            .then((jobs) => {
-
-              const pageName = "Tickets";
-              res.render("tickets", { page: pageName, dispatches, jobs, user: decodedToken });
-            })
-        })
-    } else {
-      Job.find({
-        $and: [{ "operator.id": decodedToken.id }, { status: "complete" }]
-      })
-        .then((jobs) => {
-          console.log(jobs);
-          const pageName = "Tickets";
-          res.render("tickets", { page: pageName, jobs, user: decodedToken });
-        })
-
-
+    try {
+      user = await UserController.getUser(decodedToken.id)
+      if (decodedToken.type == "dispatcher") {
+        dispatches = await TicketController.getNumCopmletedDispatch(decodedToken.id, NUMTICKETS)
+      }
+      jobs = await TicketController.getNumCopmletedJobs(decodedToken.id, NUMTICKETS, decodedToken.type);
+      res.render("tickets", { page: PAGENAME, dispatches, jobs, user: decodedToken, contractors: user._doc.contractors });
+    } catch (e) {
+      console.log(e);
+      res.render("tickets", { page: PAGENAME, dispatches, jobs, user: decodedToken, contractors: user._doc.contractors })
     }
-
-
   })
 })
+
+/**
+ * Gets dispatch or job tickets dependent on query
+ * @version 1.0
+ * @date Aug 27 2021
+ */
+app.get("/query_tickets", authenticate, (req, res) => {
+  const token = req.cookies.jwt
+
+  let dispatches
+
+  jwt.verify(token, "butternut", async (err, dT) => {
+    if (err) {
+      res.send({ status: "error", message: "Error decoding token" })
+    } else {
+      if (req.query.type === "dispatch") {
+        try {
+          dispatches = await queryForDispatch(req.query, dT.id)
+          res.send({ status: "success", results: dispatches })
+        } catch (e) {
+          console.log(e)
+          res.send({ status: "error", err: e })
+        }
+      } else if (req.query.type === "job") {
+        try {
+          console.log(req.query)
+          dispatches = await queryForJobs(req.query, dT.id, dT.type)
+          res.send({ status: "success", results: dispatches })
+        } catch (e) {
+          console.log(e)
+          res.send({ status: "error", err: e })
+        }
+        Job.find({
+
+        })
+      }
+    }
+  })
+
+  function queryForDispatch(q, userId) {
+    return new Promise((res, rej) => {
+      const TYPE = "dispatcher"
+      let query = buildQuery(q, TYPE, userId);
+      query["status.complete"] = { $gt: 0 };
+      query["status.sent"] = 0;
+      query["status.confirmed"] = 0;
+      query["status.active"] = 0;
+      console.log(query);
+      Dispatch.find(query)
+        .then(dispatches => {
+          if (dispatches.length === 0) {
+            rej({ code: "no_tickets", message: "No dispatches found" })
+          } else { res(dispatches) }
+        })
+    })
+  }
+
+  function queryForJobs(q, userId, type) {
+    return new Promise((res, rej) => {
+      const STATUS = "complete"
+      let query = buildQuery(q, type, userId);
+      query["status"] = STATUS
+
+      console.log(query);
+
+      Job.find(query)
+        .then(jobs => {
+          console.log(jobs)
+          if (jobs.length === 0) {
+            rej({ code: "no_tickets", message: "No job tickets found" })
+          } else { res(jobs) }
+        })
+    })
+  }
+
+  function buildQuery(q, type, userId) {
+    const DISP = "dispatcher"
+    let query = {}
+    if (q.contractor) { query["contractor"] = q.contractor };
+    if (q.dateRange && (q.dateRange.start || q.dateRange.finish)) {
+      query["date"] = {}
+      if (q.dateRange.start) { query.date["$gte"] = q.dateRange.start };
+      if (q.dateRange.finish) { query.date["$lte"] = q.dateRange.finish };
+    }
+    if (type === DISP) { query["dispatcher.id"] = userId }
+    else { query["operator.id"] = userId }
+
+    return query
+  }
+})
+
+app.get("/get_recent_tickets", authenticate, (req, res) => {
+  const D = "dispatch"
+  const J = "job";
+  const NUMTICKETS = 10
+
+  let token = req.cookies.jwt
+  let tickets;
+
+  jwt.verify(token, "butternut", async (err, dT) => {
+    if (err) {
+      res.send({ status: "error", err: { code: "form", message: "Error authorizing token " } })
+    } else {
+      try {
+        if (req.query.type === D) {
+          tickets = await TicketController.getNumCopmletedDispatch(dT.id, NUMTICKETS)
+        } else if (req.query.type === J) {
+          tickets = await TicketController.getNumCopmletedJobs(dT.id, NUMTICKETS, dT.type);
+        }
+        res.send({ status: "success", results: tickets })
+      } catch (e) {
+        console.log(e)
+        res.send({ status: "error", err: e })
+      }
+    }
+  })
+})
+
+
+
+
 
 /**
  * This route will return the appropriate HTML for the dispatch page. 
@@ -414,7 +525,7 @@ app.get("/dispatch", authenticate, (req, res) => {
   jwt.verify(token, "butternut", (err, decodedToken) => {
     Dispatch.findOne({ _id: dispatchId })
       .then((result) => {
-        console.log(result);
+        console.log(result.rates);
         res.render("dispatch", { page: pageName, dispatch: result, user: decodedToken });
       })
   })
@@ -690,7 +801,7 @@ app.get("/new_dispatch", authenticate, (req, res) => {
   jwt.verify(token, "butternut", (err, decodedToken) => {
     User.findOne({ _id: decodedToken.id })
       .then((user) => {
-        res.render("new_dispatch", { page: pageName, user: decodedToken, contractors: user.contractors });
+        res.render("new_dispatch", { page: pageName, user: decodedToken, contractors: user._doc.contractors });
       })
 
   })
@@ -730,8 +841,8 @@ app.get("/add_rates", authenticate, (req, res) => {
       User.findOne({ _id: decodedToken.id })
         .then((user) => {
           console.log(req.query.contractor);
-          const opRates = user.contractors[req.query.contractor].operatorRates;
-          const contRates = user.contractors[req.query.contractor].contractorRates;
+          const opRates = user._doc.contractors[req.query.contractor].operatorRates;
+          const contRates = user._doc.contractors[req.query.contractor].contractorRates;
           res.render("add_rates", { page: pageName, user: decodedToken, opRates, contRates });
         })
     }
@@ -853,13 +964,12 @@ app.get("/employee", authenticate, (req, res) => {
 })
 
 /**
- * This route will serve the HTML neccesary to edit and delete employees. 
+ * Updates and employee
  * @author Ravinder Shokar 
  * @version 1.0 
  * @date MAy 23 2021  
  */
-app.post("/update_employee", authenticate, UserController.updateEmployee, (req, res) => {
-})
+app.post("/update_employee", authenticate, UserController.updateEmployee);
 
 
 /**
@@ -869,7 +979,6 @@ app.post("/update_employee", authenticate, UserController.updateEmployee, (req, 
  * @date May 24 2021
  */
 app.post("/register_employee", AuthController.registetEmp, (req, res) => {
-  res.send({ message: "Succesfully added employee", status: "success" });
 })
 
 /**
@@ -1011,7 +1120,7 @@ app.get("/invoicing", authenticate, (req, res) => {
             res.render("invoice", {
               page: pageName,
               user: decodedToken,
-              contractors: user.contractors
+              contractors: user.contractors.toJSON(),
             })
           }
         })
@@ -1031,21 +1140,21 @@ app.get("/download", async (req, res) => {
   let inv, rows, csvInvoice;
   let csv = req.query.csv;
   let pdf = req.query.pdf;
-  let csvName, pdfName;
+  let csvName, pdfName, name;
 
   try {
     inv = await InvoiceController.getInvoice(req.query.id);
-    rows = InvoiceController.convertToJSON(inv.i)
+    rows = InvoiceController.arrayConvertToJSON(inv.i)
 
-
+    name = inv.customer.name + "-_" + inv.dateRange.start.toLocaleDateString() + "_" + inv.dateRange.finish.toLocaleDateString();
     if (csv === 'true') {
       csvInvoice = new ObjectsToCsv(rows);
       await csvInvoice.toDisk(CSVPATH);
-      csvName = inv.customer + "_" + inv.dateRange.start.toLocaleDateString() + "_" + inv.dateRange.finish.toLocaleDateString() + ".csv";
+      csvName = name + ".csv";
     }
     if (pdf === "true") {
       await InvoiceController.buildPDFInvoice(rows, inv, PDFPATH);
-      pdfName = inv.customer + "-_" + inv.dateRange.start.toLocaleDateString() + "_" + inv.dateRange.finish.toLocaleDateString() + ".pdf";
+      pdfName = name + ".pdf";
     }
 
     if (csv === "true" && pdf === "true") {

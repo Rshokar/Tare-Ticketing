@@ -109,37 +109,41 @@ const registetEmp = async (req, res, next) => {
         res.send({ message: "email-exist" })
       } else {
         bcrypt.genSalt(10, function (err, salt) {
-          bcrypt.hash(req.body.secretSauce, salt, function (err, hashedPassword) {
+          bcrypt.hash(req.body.secretSauce, salt, async (err, hashedPassword) => {
             if (err) {
+              console.log("Error decoding decoded token.")
               res.send({
                 error: err
               })
-            }
-
-            let employee = new User({
-              phone: req.body.phone,
-              fName: req.body.fName,
-              lName: req.body.lName,
-              email: req.body.email,
-              company: req.body.company,
-              password: hashedPassword,
-              type: "employee",
-            })
-
-            console.log("Employee", employee);
-            addEmp(employee, token);
-
-            employee.save()
-              .then(emp => {
-                next();
+            } else {
+              let employee = new User({
+                phone: req.body.phone,
+                fName: req.body.fName,
+                lName: req.body.lName,
+                email: req.body.email,
+                password: hashedPassword,
+                type: "employee",
               })
-              .catch(error => {
-                res.send({
-                  message: "An error occured!"
+
+              try {
+                employee["company"] = await addEmp(employee, token);
+              } catch (e) {
+                console.log(e)
+              }
+
+              employee.save()
+                .then(() => {
+                  console.log("Hello");
+                  res.send({ message: "Succesfully added employee", status: "success" });
+                  next();
                 })
+                .catch(e => {
+                  console.log("Jello")
+                  console.log(e)
+                  res.send({ status: "error", message: "An error occured!" })
 
-              })
-
+                })
+            }
           })
         })
       }
@@ -213,21 +217,30 @@ const deleteEmp = async (req, res, next) => {
  * @param emp is the employee being added to dispatcher document. 
  */
 async function addEmp(emp, token) {
-  jwt.verify(token, "butternut", (err, decodedToken) => {
-    User.findOne({ _id: decodedToken.id })
-      .then(user => {
+  return new Promise(res => {
+    jwt.verify(token, "butternut", (err, decodedToken) => {
+      User.findOne({ _id: decodedToken.id })
+        .then(user => {
 
-        let employee = {
-          fName: emp.fName,
-          lName: emp.lName,
-          phone: emp.phone,
-          id: emp._id,
-        }
-        user.employees.push(employee);
+          let employee = {
+            fName: emp.fName,
+            lName: emp.lName,
+            phone: emp.phone,
+            id: emp._id,
+          }
+          user.employees.push(employee);
 
-        user.save();
-      })
+          user.save()
+            .then(() => {
+              res(user.company)
+            })
+            .catch(e => {
+              console.log(e)
+            });
+        })
+    })
   })
+
 }
 
 /**

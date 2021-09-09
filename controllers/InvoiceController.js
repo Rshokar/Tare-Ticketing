@@ -19,7 +19,7 @@ const createInvoice = async (req, res, next) => {
   const token = req.cookies.jwt;
   const query = req.body;
 
-  let jobs = [];
+  let jobs = []
   let status, inv;
 
   jwt.verify(token, "butternut", async (err, decodedToken) => {
@@ -30,9 +30,9 @@ const createInvoice = async (req, res, next) => {
       try {
         status = await validateInvoiceQuery(query);
         inv = await newInvoice(query, decodedToken.id);
-        temp = await TicketController.getJobTickets(query, decodedToken.id, decodedToken.type);
-        temp.forEach(job => { if (job.status === COMPLETE) { jobs.push(job) } })
+        jobs = await TicketController.getJobTickets(query, decodedToken.id, decodedToken.type, COMPLETE);
         inv = await buildInvoice(jobs, inv, query.type);
+        console.log(inv)
         inv.save();
         res.send({
           status: "success",
@@ -70,7 +70,7 @@ const createInvoice = async (req, res, next) => {
  * @param { Array } lst of rows  
  * @returns An array of rows
  */
-function convertToJSON(lst) {
+function arrayConvertToJSON(lst) {
   let temp = [];
   for (let i = 0; i < lst.length; i++) {
     temp.push(lst[i].toJSON());
@@ -131,8 +131,6 @@ function buildInvoice(jobs, inv, type) {
     for (let i = 0; i < jobs.length; i++) {
       if (jobs[i].rates.hourly) {
         buildHourlyRow(jobs[i], type).then((row) => {
-          console.log(row.truck);
-          console.log(inv.total + " + " + row.total + " = " + (inv.total + row.total))
           inv.total += row.total;
           inv.i.push(row);
         })
@@ -141,8 +139,6 @@ function buildInvoice(jobs, inv, type) {
 
         if (jobs[i].rates.tonnage) {
           buildTonnageRows(jobs[i], type).then(([rows, total]) => {
-            console.log(rows[1].truck);
-            console.log(inv.total + " + " + total + " = " + (inv.total + total))
             inv.total += total;
             inv.i.push(...rows);
           }).catch((err) => { console.log(err); rej(err); });
@@ -150,14 +146,13 @@ function buildInvoice(jobs, inv, type) {
 
         if (jobs[i].rates.perLoad) {
           buildPerLoadRows(jobs[i], type).then(([rows, total]) => {
-            console.log(rows[1].truck);
-            console.log(inv.total + " + " + total + " = " + (inv.total + total))
             inv.total += total;
             inv.i.push(...rows);
           }).catch((err) => { console.log(err); rej(err); });
         }
       }
     }
+    console.log('Finished Invoice', inv)
     res(inv);
   })
 }
@@ -174,7 +169,7 @@ function buildInvoice(jobs, inv, type) {
 function buildHourlyRow(j, t) {
   return new Promise((res, rej) => {
     const MSINHOUR = 3600000;
-    let total, ammount, rate, key, row;
+    let rate, key;
     amount = Math.round(((j.finish - j.start) / MSINHOUR) * 100) / 100;
     [rate, key] = getHourlyRate(j, t);
 
@@ -368,12 +363,28 @@ function getHourlyRate(j, type) {
  * @return { Promise }
  */
 function newInvoice(q, id) {
-  let inv;
-  return new Promise((res, rej) => {
+  return new Promise(async (res, rej) => {
+    let user = {};
+    let customer = {};
+    let inv, tempUser, tempCutomer;
+
     try {
+      tempUser = (await UserController.getUser(id))._doc;
+      user["name"] = tempUser.company;
+      user["id"] = tempUser._id;
+      user["billingAddress"] = tempUser.address;
+      if (q.type === "operator") {
+        tempCutomer = await UserController.getUserByName(q.customer, (tempUser.type === "operator" ? "dispatcher" : "operator"));
+        customer["name"] = tempCutomer.company;
+        customer["id"] = tempCutomer._id;
+        customer["billingAddress"] = tempCutomer.address;
+      } else {
+        customer["name"] = q.customer
+        customer["billingAddress"] = tempUser.contractors[q.customer].billingAddress;
+      }
       inv = new Invoice({
-        user: ObjectId(id),
-        customer: q.customer,
+        user,
+        customer,
         dateRange: {
           start: q.start,
           finish: q.finish,
@@ -424,14 +435,10 @@ function getInvoice(id) {
 const buildPDFInvoice = (rows, inv, path) => {
   let user, bottom;
   return new Promise(async res => {
-    try {
-      user = await UserController.getUser(inv.user);
-    } catch (e) {
-      res({ code: 'user', message: "Error getting user" });
-    }
+
     const writeStream = fs.createWriteStream(path);
     let doc = new PDFDocument({ margin: 50, compress: false });
-    generateHeader(doc, user);
+    generateHeader(doc, inv);
     generateCustomerInformation(doc, inv);
     bottom = generateInvoiceTable(doc, rows, inv);
     generateFooter(doc, bottom);
@@ -452,28 +459,27 @@ const buildPDFInvoice = (rows, inv, path) => {
  * @param { PDFDocument } doc PDF Document
  * @param { User } user user  
  */
-function generateHeader(doc, user) {
+function generateHeader(doc, inv) {
+  let user = inv.user
+  let add = user.billingAddress.city + " "
+    + user.billingAddress.province + " "
+    + user.billingAddress.country + " "
+    + user.billingAddress.postal;
   doc
     .image("./static/images/logo.jpg", 50, 45, { width: 50 })
     .fillColor("#444444")
     .fontSize(20)
-    .text(user.company, 110, 57)
+    .text(inv.user.company, 110, 57)
     .fontSize(10)
-    .text(user.company, 200, 50, { align: "right" })
-    .text("123 Main Street", 200, 65, { align: "right" })
-    .text("New York, NY, 10025", 200, 80, { align: "right" })
+    .text(inv.user.company, 200, 50, { align: "right" })
+    .text(inv.user.billingAddress.address, 200, 65, { align: "right" })
+    .text(add, 200, 80, { align: "right" })
     .moveDown();
 }
 
 function generateCustomerInformation(doc, invoice) {
   // Temp shipping data
-  const SHIPPING = {
-    address: "1234 Main Street",
-    city: "San Francisco",
-    state: "CA",
-    country: "US",
-    postal_code: 94111
-  }
+  const SHIPPING = invoice.customer.billingAddress;
   const DATE = invoice.dateRange.start.toLocaleDateString()
 
   doc
@@ -501,13 +507,13 @@ function generateCustomerInformation(doc, invoice) {
     )
 
     .font("Helvetica-Bold")
-    .text(invoice.customer, 300, customerInformationTop)
+    .text(invoice.customer.name, 300, customerInformationTop)
     .font("Helvetica")
     .text(SHIPPING.address, 300, customerInformationTop + 15)
     .text(
       SHIPPING.city +
       ", " +
-      SHIPPING.state +
+      SHIPPING.province +
       ", " +
       SHIPPING.country,
       300,
@@ -665,4 +671,4 @@ function formatDate(date) {
   return year + "/" + month + "/" + day;
 }
 
-module.exports = { createInvoice, getInvoice, convertToJSON, buildPDFInvoice }
+module.exports = { createInvoice, getInvoice, arrayConvertToJSON, buildPDFInvoice }
