@@ -1170,5 +1170,12 @@ app.get("/download", async (req, res) => {
   }
 })
 
+
+app.use(function (req, res) {
+  const PAGE_NAME = "404 Error";
+  res.status(404).render('404', { page: PAGE_NAME, user: { type: null } });
+});
+
+
 //App Listen.
 app.listen(8000, () => console.log("App available on http://localhost:8000"));
