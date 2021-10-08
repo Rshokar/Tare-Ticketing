@@ -438,6 +438,7 @@ const buildPDFInvoice = (rows, inv, path) => {
 
     const writeStream = fs.createWriteStream(path);
     let doc = new PDFDocument({ margin: 50, compress: false });
+    console.log(inv);
     generateHeader(doc, inv);
     generateCustomerInformation(doc, inv);
     bottom = generateInvoiceTable(doc, rows, inv);
@@ -460,19 +461,20 @@ const buildPDFInvoice = (rows, inv, path) => {
  * @param { User } user user  
  */
 function generateHeader(doc, inv) {
-  let user = inv.user
+  let user = inv.user;
   let add = user.billingAddress.city + " "
     + user.billingAddress.province + " "
     + user.billingAddress.country + " "
     + user.billingAddress.postal;
+  console.log(add);
   doc
     .image("./static/images/logo.jpg", 50, 45, { width: 50 })
     .fillColor("#444444")
     .fontSize(20)
-    .text(inv.user.company, 110, 57)
+    .text(user.name, 110, 57)
     .fontSize(10)
-    .text(inv.user.company, 200, 50, { align: "right" })
-    .text(inv.user.billingAddress.address, 200, 65, { align: "right" })
+    .text(user.name, 200, 50, { align: "right" })
+    .text(user.billingAddress.address, 200, 65, { align: "right" })
     .text(add, 200, 80, { align: "right" })
     .moveDown();
 }
