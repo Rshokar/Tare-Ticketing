@@ -109,8 +109,9 @@ const registetEmp = async (req, res, next) => {
         res.send({ message: "email-exist" })
       } else {
         bcrypt.genSalt(10, function (err, salt) {
-          bcrypt.hash(req.body.secretSauce, salt, async (err, hashedPassword) => {
+          bcrypt.hash(req.body.password, salt, async (err, hashedPassword) => {
             if (err) {
+              console.log(err);
               console.log("Error decoding decoded token.")
               res.send({
                 error: err
