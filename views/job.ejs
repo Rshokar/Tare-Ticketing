@@ -294,7 +294,7 @@
           </span>
           <% } else { %>
           <% let rate=job.rates.perLoad.rates[i].r %>
-          <%= parseFloat(rate) - (parseFloat(rate * fee)).toFixed(2) %>
+          <%= parseFloat(rate) - (parseFloat(rate * fee) / 100.00).toFixed(2) %>
           <% } %>
         </div>
         <div class="form-control mb-2 load">
@@ -324,7 +324,7 @@
       </h3>
     </div>
     <div id="tonnage_rates" style="display: block;">
-      <% let fee=(parseFloat(job.rates.tonnage.fee) / 100.00).toFixed(2); %>
+      <% let fee=(parseFloat(job.rates.tonnage.fee)).toFixed(2); %>
       <% if (user.type === "dispatcher" ) { %>
       <div class="tonnage_rate operator_rate mb-2">
         <span>Fee (%)</span>
@@ -344,7 +344,7 @@
           <% } else { %>
           <span>
             <% let rate=job.rates.tonnage.rates[i].r %>
-            <%= parseFloat(rate) - (parseFloat(rate * fee)).toFixed(2) %>
+            <%= parseFloat(rate) - (parseFloat(rate * fee) / 100.00).toFixed(2) %>
           </span>
           <% } %>
         </div>
