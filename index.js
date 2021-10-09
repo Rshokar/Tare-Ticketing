@@ -299,7 +299,20 @@ app.get("/login", (req, res) => {
   const page = "Login";
   let user = { type: "none" };
 
-  res.render("login.ejs", { page, user });
+  res.render("login", { page, user });
+});
+
+/**
+ * This route will return the appropriate HTML for the Register page. 
+ * @author Nolan Nordwall 
+ * @version 1.0
+ * @date Oct 19 2021
+ */
+app.get("/register", (req, res) => {
+  const page = "Register";
+  let user = { type: "none" };
+
+  res.render("register", { page, user });
 });
 
 /**
