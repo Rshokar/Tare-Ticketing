@@ -1,0 +1,33 @@
+<link rel="stylesheet" href="css/login.css">
+
+
+<main>
+  <div id="login window">
+    <div id="login_top">
+      <img src="images/truck.png">
+      <p>Login Or register Below</p>
+    </div>
+
+    <div id="login_middle">
+
+    </div>
+    <form action="/login_user" method="POST">
+      <legend>Login</legend>
+      <div id="email">
+        <label>Email</label>
+        <input type='text' name="email" required placeholder="Email">
+      </div>
+      <div id="password">
+        <label>Password</label>
+        <input type='password' name="password" required placeholder="Password">
+      </div>
+      <input id="login_submit" type="submit">
+    </form>
+
+    <div id="login_bottom">
+      <span id="switch">Do you not have an account? <a href="/register">Register</a></span>
+    </div>
+
+  </div>
+
+</main>
