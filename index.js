@@ -24,6 +24,7 @@ mongoose.connect("mongodb+srv://gross:GjRoH10TY93a2Wme@testforgross.inl6e.mongod
 app.use("/js", express.static("static/js"));
 app.use("/css", express.static("static/css"));
 app.use("/html", express.static("static/html"));
+app.use("/images", express.static("static/images"));
 
 app.use(expressLayouts)
 app.set("view engine", "ejs");
@@ -141,7 +142,6 @@ app.get("/contractors", authenticate, (req, res) => {
       })
 
     }
-
   })
 })
 
@@ -291,18 +291,29 @@ app.post("/update_billing_address", UserController.updateAddress, (req, res) => 
 
 /**
  * This route will return the appropriate HTML for the login page. 
- * @author Ravinder Shokar 
+ * @author Nolan Nordwall 
  * @version 1.0
- * @date May 18 2021
+ * @date Oct 19 2021
  */
 app.get("/login", (req, res) => {
-  readFile("static/html/login.html", "utf-8", (err, html) => {
-    if (err) {
-      throw err;
-    }
-    res.send(html);
-  })
-})
+  const page = "Login";
+  let user = { type: "none" };
+
+  res.render("login", { page, user });
+});
+
+/**
+ * This route will return the appropriate HTML for the Register page. 
+ * @author Nolan Nordwall 
+ * @version 1.0
+ * @date Oct 19 2021
+ */
+app.get("/register", (req, res) => {
+  const page = "Register";
+  let user = { type: "none" };
+
+  res.render("register", { page, user });
+});
 
 /**
  * This route is responsible for logging users out of. This route will change the JWT tokenn 
@@ -1178,4 +1189,4 @@ app.use(function (req, res) {
 
 
 //App Listen.
-app.listen(8000, () => console.log("App available on http://localhost:8000"));
+app.listen(8000, () => console.log("Let's boogie at http://localhost:8000"));
