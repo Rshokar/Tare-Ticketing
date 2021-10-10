@@ -63,10 +63,10 @@ function getQueryData() {
     const start = document.getElementById("start_date").value.trim();
     const finish = document.getElementById("finish_date").value.trim();
 
-    let oper = document.querySelector("#operator input").value;
-    oper = (oper === "" ? undefined : oper);
-    let cont = document.querySelector("#contractor select").value;
-    cont = (cont === "" ? undefined : cont)
+    let oper = document.querySelector("#operator input");
+    oper = (oper && oper.value.trim() ? oper.value.trim() : undefined);
+    let cont = document.querySelector("#contractor select");
+    cont = (cont && cont.value.trim() != "" ? cont.value.trim() : undefined);
 
     const opCheck = document.getElementById("operator_check");
 
@@ -86,15 +86,12 @@ function getQueryData() {
  * @param { JSON } q Invoice Query
  */
 function validateInvoiceQuery(q) {
-    console.log(q);
     resetErrors();
-
     if (!q.start || !q.finish || !q.customer
         || (q.type !== "operator" && q.type !== "contractor" && q.type !== "dispatcher")) {
         document.getElementById("form_error").innerHTML = "Fill in all required fields."
         return false
     }
-    console.log(new Date(q.start) > new Date(q.finish))
 
     if (new Date(q.start) > new Date(q.finish)) {
         document.getElementById("form_error").innerHTML = "Start cannot be before finish.";
