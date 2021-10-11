@@ -8,8 +8,8 @@ const AuthController = require("../Objects/AuthController");
 /**
  * This function is responsible for registering users. 
  * @author Ravinder Shokar 
- * @version 1.0 
- * @date May 23 2021
+ * @version 1.1
+ * @date Oct 11 2021
  */
 const register = async (req, res, next) => {
   let user = new UserObject(req.body);
