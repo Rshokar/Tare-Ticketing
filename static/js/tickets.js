@@ -30,10 +30,9 @@ function toggleTicketQuery() {
 function makeQuery() {
     let query = getQuery();
     if (verifyQuery(query)) {
-        console.log(query)
         getTickets(query)
-            .then(tickets => {
-                genTicketsHTML(tickets, query.type);
+            .then(results => {
+                genTicketsHTML(results.dispatches, query.type, results.userType);
             })
             .catch(e => {
                 console.log(e)
@@ -48,7 +47,8 @@ function makeQuery() {
  * @param {*} tic { JSON } can pass in Job or Dispatch Object 
  * @param {*} t  { String } type of ticket being displayed
  */
-function genTicketsHTML(tic, t) {
+function genTicketsHTML(tic, t, userType) {
+
     const D = "dispatch"
     const J = "job"
 
@@ -65,7 +65,7 @@ function genTicketsHTML(tic, t) {
     container.innerHTML = "";
 
     for (let i = 0; i < tic.length; i++) {
-        container.innerHTML += htmlGenerator(tic[i]);
+        container.innerHTML += htmlGenerator(tic[i], userType);
     }
 }
 
@@ -123,7 +123,6 @@ function getTickets(q) {
             dataType: "JSON",
             data: q,
             success: data => {
-                console.log(data)
                 if (data.status === "success") {
                     res(data.results);
                 } else if (data.status === "error") {
@@ -152,7 +151,6 @@ function getTickets(q) {
 function reset() {
     const J = document.getElementById("job_container")
     const TYPE = (J.style.display === "block" ? "job" : "dispatch")
-    console.log("Hello")
     $.ajax({
         url: "/get_recent_tickets",
         type: "GET",
@@ -160,8 +158,7 @@ function reset() {
         data: { type: TYPE },
         success: data => {
             if (data.status === "success") {
-                console.log(data.result)
-                genTicketsHTML(data.results, TYPE);
+                genTicketsHTML(data.results.tickets, TYPE, data.results.userType);
             } else if (data.status === "error") {
                 console.log(data)
             }
