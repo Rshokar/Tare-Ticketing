@@ -2,6 +2,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const cookieParser = require("cookie-parser");
+const UserObject = require("../Objects/User");
+const AuthController = require("../Objects/AuthController");
 
 /**
  * This function is responsible for registering users. 
@@ -9,49 +11,20 @@ const cookieParser = require("cookie-parser");
  * @version 1.0 
  * @date May 23 2021
  */
-const register = (req, res, next) => {
-  let email = req.body.email;
-  User.findOne({ email: email })
-    .then(user => {
-      if (user) {
-        res.send({ message: "Email Already Exist" })
-      } else {
-        bcrypt.genSalt(10, function (err, salt) {
-          bcrypt.hash(req.body.secretSauce, salt, function (err, hashedPassword) {
-            if (err) {
-              res.send({
-                error: err
-              })
-            }
+const register = async (req, res, next) => {
+  let user = new UserObject(req.body);
+  let password = req.body.secretSauce;
 
-            let user = new User({
-              phone: req.body.phone,
-              fName: req.body.fName,
-              lName: req.body.lName,
-              email: req.body.email,
-              company: req.body.company,
-              password: hashedPassword,
-              type: req.body.type,
-            })
-
-            console.log("User", user);
-
-            user.save()
-              .then(user => {
-                next();
-              })
-              .catch(error => {
-                res.send({
-                  message: "An error occured!"
-                })
-
-              })
-
-          })
-        })
-      }
-    })
-
+  try {
+    user.validateUser();
+    await AuthController.doesEmailAlreadyExist(user.email);
+    AuthController.validatePassword(password);
+    await AuthController.registerUser(user, password);
+    next();
+  } catch (e) {
+    console.log(e);
+    res.send({ message: e.message });
+  }
 }
 
 /**

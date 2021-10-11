@@ -338,20 +338,20 @@ app.post("/login_user", AuthController.login, (req, res) => {
   res.redirect("/dashboard")
 })
 
-/**
- * This route will return the appropriate HTML for the register page. 
- * @author Ravinder Shokar 
- * @version 1.0
- * @date May 19 2021
- */
-app.get("/register", (req, res) => {
-  readFile("static/html/register.html", "utf-8", (err, html) => {
-    if (err) {
-      throw err;
-    }
-    res.send(html);
-  })
-})
+// /**
+//  * This route will return the appropriate HTML for the register page. 
+//  * @author Ravinder Shokar 
+//  * @version 1.0
+//  * @date May 19 2021
+//  */
+// app.get("/register", (req, res) => {
+//   readFile("static/html/register.html", "utf-8", (err, html) => {
+//     if (err) {
+//       throw err;
+//     }
+//     res.send(html);
+//   })
+// })
 
 /**
  * This route is repsonsible for regustering a new user and then redirecting to the login
@@ -361,7 +361,7 @@ app.get("/register", (req, res) => {
  * @date May 23 2021 
  */
 app.post("/register_user", AuthController.register, (req, res) => {
-  res.redirect("/login")
+  res.redirect("/login");
 })
 
 /**
