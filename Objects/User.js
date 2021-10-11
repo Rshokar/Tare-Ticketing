@@ -11,7 +11,11 @@ class UserObject {
             this.company = args.company;
         }
     }
-
+    /**
+    * @author Ravinder Shokar
+    * @version 1.0 
+    * @date Oct 11 2021
+    */
     validateUser() {
         const NAME_REGEX = /^[a-zA-Z]+$/;
         const EMAIL_REGEX = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;

@@ -5,6 +5,10 @@ const UserObject = require("./User");
 
 class AuthController {
     /**
+     * Throws and PasswordError if password is not valid
+     * @author Ravinder Shokar
+     * @version 1.0 
+     * @date Oct 11 2021
      * @param { String } password
      */
     static validatePassword(password) {
@@ -14,6 +18,13 @@ class AuthController {
         }
     }
 
+    /**
+     * Checks to see if an email is already in use.
+     * @author Ravinder Shokar
+     * @version 1.0 
+     * @date Oct 11 2021
+     * @param { String } email 
+     */
     static doesEmailAlreadyExist(email) {
         return new Promise((res, rej) => {
             User.findOne({ email })
@@ -28,9 +39,12 @@ class AuthController {
     }
 
     /**
+     * Regsiters a user. 
+     * @author Ravinder Shokar
+     * @version 1.0 
+     * @date Oct 11 2021
      * @param { UserObject } userData 
      * @param { String } password 
-     * @returns 
      */
     static registerUser(userData, password) {
         return new Promise((res, rej) => {
@@ -53,6 +67,9 @@ class AuthController {
     /**
      * Returns a new Mongoose user model with data 
      * passed in
+     * @author Ravinder Shokar
+     * @version 1.0 
+     * @date Oct 11 2021
      * @param { UserObject } user 
      * @return { User } mongoose model
      */
@@ -70,6 +87,9 @@ class AuthController {
 
     /**
      * Returns a hashed password 
+     * @author Ravinder Shokar
+     * @version 1.0 
+     * @date Oct 11 2021
      * @param { String } password
      * @returns { String } hashed password.  
      */
