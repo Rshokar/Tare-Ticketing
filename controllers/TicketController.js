@@ -26,11 +26,11 @@ const createDispatch = (req, res, next) => {
       })
       next();
     }
-
     try {
       if (rates.hourly) {
+        console.log("Hello");
         user = await UserController.getUser(decodedToken.id);
-        rates["hourly"] = { cont: rates.hourly, oper: user.contractors[req.body.contractor].operatorRates }
+        rates["hourly"] = { cont: rates.hourly, oper: user._doc.contractors[req.body.contractor].operatorRates }
       }
       let dispatch = new Dispatch({
         dispatcher: {
@@ -56,6 +56,7 @@ const createDispatch = (req, res, next) => {
       res.send({ status: "success", message: "Succesfull Ajax call" })
       next();
     } catch (e) {
+      console.log(e);
       res.send({ status: "error", err: e })
       next()
     }
