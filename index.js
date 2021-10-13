@@ -372,7 +372,7 @@ app.post("/register_user", AuthController.register, (req, res) => {
  */
 app.get("/tickets", authenticate, (req, res) => {
   const token = req.cookies.jwt;
-  const PAGENAME = "Tickets";
+  const PAGENAME = "Ticket History";
   const NUMTICKETS = 10
 
   let user;
@@ -408,9 +408,7 @@ app.get("/tickets", authenticate, (req, res) => {
  */
 app.get("/query_tickets", authenticate, (req, res) => {
   const token = req.cookies.jwt
-
   let dispatches
-
   jwt.verify(token, "butternut", async (err, dT) => {
     if (err) {
       res.send({ status: "error", message: "Error decoding token" })
@@ -418,7 +416,7 @@ app.get("/query_tickets", authenticate, (req, res) => {
       if (req.query.type === "dispatch") {
         try {
           dispatches = await queryForDispatch(req.query, dT.id)
-          res.send({ status: "success", results: dispatches })
+          res.send({ status: "success", results: { dispatches, userType: dT.type } })
         } catch (e) {
           console.log(e)
           res.send({ status: "error", err: e })
@@ -427,7 +425,7 @@ app.get("/query_tickets", authenticate, (req, res) => {
         try {
           console.log(req.query)
           dispatches = await queryForJobs(req.query, dT.id, dT.type)
-          res.send({ status: "success", results: dispatches })
+          res.send({ status: "success", results: { dispatches, userType: dT.type } })
         } catch (e) {
           console.log(e)
           res.send({ status: "error", err: e })
@@ -509,7 +507,7 @@ app.get("/get_recent_tickets", authenticate, (req, res) => {
         } else if (req.query.type === J) {
           tickets = await TicketController.getNumCopmletedJobs(dT.id, NUMTICKETS, dT.type);
         }
-        res.send({ status: "success", results: tickets })
+        res.send({ status: "success", results: { tickets, userType: dT.type } });
       } catch (e) {
         console.log(e)
         res.send({ status: "error", err: e })

@@ -111,10 +111,11 @@ function getDispatchHTML(d) {
 /**
  * Generators Job ticket HTML
  * @version 1.0 
- * @date Aug 24 2021
+ * @date Oct 10 2021
+ * @param { String } userType the type of user currently logged in. 
  * @param { Job } j job ticket
  */
-function getJobHTML(j) {
+function getJobHTML(j, userType) {
     return `
     <div class="job ${j.status}">
         <a href="/job?id=${j._id}">
@@ -123,7 +124,7 @@ function getJobHTML(j) {
             </h2>
         </a>
         <h5>
-            ${j.operator.name}
+            ${userType === "operator" ? j.dispatcher.company : j.operator.name}
         </h5>
         <div class="equipment">
             <div id="truck">
