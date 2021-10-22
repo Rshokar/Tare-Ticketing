@@ -1,5 +1,5 @@
-const ValidationErrors = require("../Objects/ValidationErrors");
-const User = require("../models/user");
+const ValidationErrors = require("../ValidationErrors");
+const User = require("../../models/user");
 
 class UserObject {
     constructor(args) {
@@ -12,6 +12,7 @@ class UserObject {
             this.company = args.company;
         }
     }
+
     /**
     * @author Ravinder Shokar
     * @version 1.0 
@@ -79,6 +80,34 @@ class UserObject {
                         res(undefined);
                     }
                 })
+        })
+    }
+
+    /**
+    * Get a user with a specific email
+    * @param { String } id 
+    * @return { User } returns user if succesful otherwise undefined.
+    */
+    static getUserWithId(id) {
+        return new Promise((res) => {
+            User.findOne({ _id: id })
+                .then(user => {
+                    if (user) {
+                        res(user);
+                    } else {
+                        res(undefined);
+                    }
+                })
+        })
+    }
+    /**
+     * Saves a user to DB
+     * @param { UserObject} user 
+     * @returns 
+     */
+    static saveUser(user) {
+        return new Promise((res, rej) => {
+
         })
     }
 }

@@ -1,7 +1,10 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const ValidationErrors = require("../Objects/ValidationErrors");
-const UserObject = require("./User");
+const UserObject = require("./user/User");
+const DispatcherObject = require("./user/Dispatcher");
+
+const jwt = require("jsonwebtoken");
 
 class AuthController {
     /**
@@ -39,6 +42,25 @@ class AuthController {
     }
 
     /**
+ * Looks for a user with a specific email. 
+ * If user exist it returns a User if not, 
+ * throws an EmailError. 
+ * @param { String } email 
+ * @returns { User }
+ */
+    static doesUserExistWithEmail(email) {
+        return new Promise(async (res, rej) => {
+            let user = await UserObject.getUserWithEmail(email);
+            if (user) {
+                res(user);
+            } else {
+                rej(new ValidationErrors.EmailError("No user found with that email."));
+            }
+        })
+
+    }
+
+    /**
      * Regsiters a user. 
      * @author Ravinder Shokar
      * @version 1.0 
@@ -51,36 +73,15 @@ class AuthController {
             this.#hashPassword(password)
                 .then(hashedPassword => {
                     let user = this.#newUserModel(userData, hashedPassword);
-                    console.log(user);
-                    res();
                     user.save()
                         .then(() => {
-                            res()
+                            res(user._id)
                         })
                         .catch(e => {
                             rej(e);
                         })
                 })
         })
-    }
-
-    /**
-     * Looks for a user with a specific email. 
-     * If user exist it returns a User if not, 
-     * throws an EmailError. 
-     * @param { String } email 
-     * @returns { User }
-     */
-    static doesUserExistWithEmail(email) {
-        return new Promise(async (res, rej) => {
-            let user = await UserObject.getUserWithEmail(email);
-            if (user) {
-                res(user);
-            } else {
-                rej(new ValidationErrors.EmailError("No user found with that email."));
-            }
-        })
-
     }
 
     /**
@@ -96,6 +97,18 @@ class AuthController {
                     res()
                 } else {
                     rej(new ValidationErrors.PasswordError("Incorrect Password"));
+                }
+            })
+        })
+    }
+
+    static verifyJWTToken(token) {
+        return new Promise((res, rej) => {
+            jwt.verify(token, "butternut", async (err, dt) => {
+                if (err) {
+                    rej(new ValidationErrors.JWTVerificationError(err.message));
+                } else {
+                    res(dt);
                 }
             })
         })
@@ -118,6 +131,7 @@ class AuthController {
             email: user.email,
             type: user.type,
             company: user.company,
+            employer: user.employer,
             password,
         })
     }

@@ -2,7 +2,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const cookieParser = require("cookie-parser");
-const UserObject = require("../Objects/User");
+const UserObject = require("../Objects/user/User");
+const EmployeObject = require("../Objects/user/Employee");
+const DispatcherObject = require("../Objects/user/Dispatcher");
 const AuthController = require("../Objects/AuthController");
 
 /**
@@ -31,7 +33,7 @@ const register = async (req, res, next) => {
  * This function is responsible for logging in new users. 
  * @author Ravinder Shokar 
  * @version 1.0 
- * @date May 23 2021
+ * @date Oct 21 2021
  */
 const login = async (req, res, next) => {
   var email = req.body.email;
@@ -64,57 +66,30 @@ const login = async (req, res, next) => {
  * This function is responsible for registering employees. 
  * @author Ravinder Shokar 
  * @version 1.0 
- * @date May 24 2021
+ * @date Oct 21 2021
  */
 const registetEmp = async (req, res, next) => {
+  const TYPE = "employee";
   let token = req.cookies.jwt
   let email = req.body.email;
-  User.findOne({ email: email })
-    .then(user => {
-      if (user) {
-        res.send({ message: "email-exist" })
-      } else {
-        bcrypt.genSalt(10, function (err, salt) {
-          bcrypt.hash(req.body.password, salt, async (err, hashedPassword) => {
-            if (err) {
-              console.log(err);
-              console.log("Error decoding decoded token.")
-              res.send({
-                error: err
-              })
-            } else {
-              let employee = new User({
-                phone: req.body.phone,
-                fName: req.body.fName,
-                lName: req.body.lName,
-                email: req.body.email,
-                password: hashedPassword,
-                type: "employee",
-              })
+  let password = req.body.password;
+  req.body.password = undefined;
+  let employee = new EmployeObject(req.body);
+  let decodedToken;
 
-              try {
-                employee["company"] = await addEmp(employee, token);
-              } catch (e) {
-                console.log(e)
-              }
-
-              employee.save()
-                .then(() => {
-                  console.log("Hello");
-                  res.send({ message: "Succesfully added employee", status: "success" });
-                  next();
-                })
-                .catch(e => {
-                  console.log("Jello")
-                  console.log(e)
-                  res.send({ status: "error", message: "An error occured!" })
-
-                })
-            }
-          })
-        })
-      }
-    })
+  try {
+    decodedToken = await AuthController.verifyJWTToken(token);
+    employee.employer = decodedToken.id;
+    employee.type = TYPE;
+    employee.validateUser();
+    AuthController.validatePassword(password);
+    await AuthController.doesEmailAlreadyExist(employee.email);
+    employee.id = await AuthController.registerUser(employee, password);
+    await DispatcherObject.addEmployee(decodedToken.id, employee);
+    next();
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 /**

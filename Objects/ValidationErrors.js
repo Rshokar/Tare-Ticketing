@@ -40,4 +40,21 @@ class PasswordError extends Error {
     }
 }
 
-module.exports = { PasswordError, CompanyNameError, PhoneError, EmailError, LastNameError, FirstNameError };
+class JWTVerificationError extends Error {
+    constructor(message) {
+        super(message);
+        this.code = "JWT";
+    }
+}
+
+class InvalidInputError extends Error { }
+module.exports = {
+    PasswordError,
+    CompanyNameError,
+    PhoneError,
+    EmailError,
+    LastNameError,
+    FirstNameError,
+    JWTVerificationError,
+    InvalidInputError,
+};
