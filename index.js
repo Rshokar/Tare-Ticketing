@@ -45,6 +45,13 @@ const { decode } = require("punycode");
 const { update } = require("./models/user");
 
 
+const UserObject = require("./Objects/user/User");
+const DispatcherObject = require("./Objects/user/Dispatcher");
+const EmployeObject = require("./Objects/user/Employee");
+
+const Authorizer = require("./Objects/AuthController");
+
+
 /**
  * This is the route that returns index.html. 
  * @author Ravinder Shokar 
@@ -901,22 +908,20 @@ app.post("/edit_dispatch", TicketController.editDispatch, (req, res) => { })
  * This route will return the appropriate HTML for the employee page. 
  * @author Ravinder Shokar 
  * @version 1.0
- * @date May 22 2021
+ * @date Oct 21 2021
  */
-app.get("/employees", authenticate, (req, res) => {
+app.get("/employees", authenticate, async (req, res) => {
   let token = req.cookies.jwt;
   let pageName = "Employees";
 
-  jwt.verify(token, "butternut", (err, decodedToken) => {
-    User.findOne({ _id: decodedToken.id })
-      .then(user => {
-        res.render("employees",
-          {
-            page: pageName,
-            user: user,
-          })
-      })
-  })
+  try {
+    let decodedToken = await Authorizer.verifyJWTToken(token);
+    let employees = await DispatcherObject.getEmployees(decodedToken.id)
+    res.render("employees", { page: pageName, user: decodedToken, employees })
+  } catch (e) {
+    console.log(e);
+    res.send({ status: "error", err: { code: e.code, message: e.message } })
+  }
 })
 
 /**
@@ -925,51 +930,38 @@ app.get("/employees", authenticate, (req, res) => {
  * @version 1.0
  * @date May 22 2021
  */
-app.get("/new_employee", authenticate, (req, res) => {
+app.get("/new_employee", authenticate, async (req, res) => {
   let token = req.cookies.jwt;
   let pageName = "New Employee";
 
-  jwt.verify(token, "butternut", (err, decodedToken) => {
-    res.render("new_employee",
-      {
-        page: pageName,
-        user: {
-          name: decodedToken.name,
-          company: decodedToken.company
-        }
-      })
-  })
+  try {
+    let decodedToken = await Authorizer.verifyJWTToken(token);
+    res.render("new_employee", { page: pageName, user: decodedToken, })
+  } catch (e) {
+    console.log(e);
+    res.send({ status: "error", err: { code: e.code, message: e.message } })
+  }
 })
 
 /**
  * This route will serve the HTML neccesary to edit and delete employees. 
  * @author Ravinder Shokar 
  * @version 1.0 
- * @date MAy 23 2021  
+ * @date Oct 21 2021  
  */
-app.get("/employee", authenticate, (req, res) => {
+app.get("/employee", authenticate, async (req, res) => {
   const pageName = "Employee"
   let token = req.cookies.jwt;
   let id = req.query.id
 
-  jwt.verify(token, "butternut", (err, decodedToken) => {
-    User.findOne({ _id: id })
-      .then(emp => {
-        if (emp) {
-          res.render("employee",
-            {
-              page: pageName,
-              user: {
-                name: decodedToken.name,
-                company: decodedToken.company
-              },
-              employee: emp
-            })
-        } else {
-          res.send({ message: "User Not Found" })
-        }
-      })
-  })
+  try {
+    let decodedToken = await Authorizer.verifyJWTToken(token);
+    let employee = await UserObject.getUserWithId(id);
+    res.render("employee", { page: pageName, user: decodedToken, employee })
+  } catch (e) {
+    console.log(e);
+    res.send({ status: "error", err: { code: e.code, message: e.message } });
+  }
 })
 
 /**
@@ -1007,26 +999,18 @@ app.post("/delete_employee", AuthController.deleteEmp, (req, res) => {
  * @version 1.0
  * @date June 21 2021  
  */
-app.get("/get_employees", authenticate, (req, res) => {
+app.get("/get_employees", authenticate, async (req, res) => {
   const token = req.cookies.jwt;
 
-  jwt.verify(token, "butternut", (err, decodedToken) => {
-    if (err) {
-      res.send({
-        status: "error",
-        message: "Error verifying JWT"
-      })
-    }
-    User.findOne({ "_id": decodedToken.id })
-      .then((user) => {
-        if (user) {
-          res.send({
-            status: "success",
-            result: user.employees
-          })
-        }
-      })
-  })
+  try {
+    let decodedToken = await Authorizer.verifyJWTToken(token);
+    let employees = await DispatcherObject.getEmployees(decodedToken.id);
+    console.log(employees);
+    res.send({ status: "success", result: employees })
+  } catch (e) {
+    console.log(e);
+    res.send({ status: "error", err: { code: e.code, message: e.message } })
+  }
 })
 
 /**

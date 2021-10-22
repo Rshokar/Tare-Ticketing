@@ -33,6 +33,26 @@ class DispatcherObject extends UserObject {
             }
         })
     }
+
+    static async getEmployees(id) {
+        let dispatcher = await UserObject.getUserWithId(id);
+        let employees = await DispatcherObject.#getEmpsFromlistOfIds(dispatcher.employees);
+        return employees;
+    }
+
+
+    static #getEmpsFromlistOfIds(ids) {
+        return new Promise(res => {
+            User.find({ _id: { $in: ids } })
+                .then(employees => {
+                    if (employees) {
+                        res(employees);
+                    } else {
+                        res(undefined);
+                    }
+                })
+        })
+    }
 }
 
 module.exports = DispatcherObject;

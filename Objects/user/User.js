@@ -84,7 +84,7 @@ class UserObject {
     }
 
     /**
-    * Get a user with a specific email
+    * Get a user with a specific Id
     * @param { String } id 
     * @return { User } returns user if succesful otherwise undefined.
     */
@@ -102,7 +102,7 @@ class UserObject {
     }
     /**
      * Saves a user to DB
-     * @param { UserObject} user 
+     * @param { UserObject } user 
      * @returns 
      */
     static saveUser(user) {
