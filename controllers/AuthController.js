@@ -36,35 +36,28 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   var email = req.body.email;
   var password = req.body.password;
-  User.findOne({ email: email })
-    .then(user => {
-      if (user) {
-        bcrypt.compare(password, user.password, function (err, result) {
-          if (result) {
-            console.log(user);
-            const token = jwt.sign(
-              {
-                id: user._id,
-                type: user.type,
-                name: user.fName + " " + user.lName,
-                company: user.company,
-              }, "butternut", { expiresIn: 24 * 60 * 60 });
-            res.cookie('jwt', token, {
-              httpOnly: true,
-              maxAge: 24 * 24 * 60 * 1000
-            });
-            next();
-          } else {
-            res.send({ message: "Password is incorrect" });
-          }
-        });
+  let user;
 
-      } else {
-        res.send({
-          message: "No user found"
-        })
-      }
-    })
+  try {
+    UserObject.validateEmail(email)
+    user = await AuthController.doesUserExistWithEmail(email);
+    await AuthController.comparePasswords(password, user.password);
+    const token = jwt.sign(
+      {
+        id: user._id,
+        type: user.type,
+        name: user.fName + " " + user.lName,
+        company: user.company,
+      }, "butternut", { expiresIn: 24 * 60 * 60 });
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      maxAge: 24 * 24 * 60 * 1000
+    });
+    next();
+  } catch (e) {
+    console.log(e);
+    res.send({ status: "Error", err: { code: e.code, message: e.message } })
+  }
 }
 
 /**

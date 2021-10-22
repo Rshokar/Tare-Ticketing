@@ -1,4 +1,5 @@
 const ValidationErrors = require("../Objects/ValidationErrors");
+const User = require("../models/user");
 
 class UserObject {
     constructor(args) {
@@ -18,7 +19,7 @@ class UserObject {
     */
     validateUser() {
         const NAME_REGEX = /^[a-zA-Z]+$/;
-        const EMAIL_REGEX = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+
 
         if (this.fName == "" || !this.fName) {
             throw new ValidationErrors.FirstNameError("First name cannot be left empty");
@@ -36,10 +37,8 @@ class UserObject {
             throw new ValidationErrors.LastNameError("Last Name cannot container numbers or special characters.");
         }
 
+        UserObject.validateEmail(this.email);
 
-        if (!(EMAIL_REGEX.test(this.email))) {
-            throw new ValidationErrors.EmailError("Invalid Email");
-        }
 
         if (!Number(this.phone)) {
             throw new ValidationErrors.PhoneError("Phone number must only contain digits.");
@@ -54,6 +53,33 @@ class UserObject {
         } else if (!NAME_REGEX.test(this.company)) {
             throw new ValidationErrors.CompanyNameError("Company Name cannot container numbers or special characters.");
         }
+    }
+
+
+    static validateEmail(email) {
+        const EMAIL_REGEX = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+        if (!(EMAIL_REGEX.test(email))) {
+            throw new ValidationErrors.EmailError("Invalid Email");
+        }
+    }
+
+
+    /**
+     * Get a user with a specific email
+     * @param { String } email 
+     * @return { User } returns user if succesful otherwise undefined.
+     */
+    static getUserWithEmail(email) {
+        return new Promise((res) => {
+            User.findOne({ email: email })
+                .then(user => {
+                    if (user) {
+                        res(user);
+                    } else {
+                        res(undefined);
+                    }
+                })
+        })
     }
 }
 

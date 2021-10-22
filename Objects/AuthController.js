@@ -65,6 +65,43 @@ class AuthController {
     }
 
     /**
+     * Looks for a user with a specific email. 
+     * If user exist it returns a User if not, 
+     * throws an EmailError. 
+     * @param { String } email 
+     * @returns { User }
+     */
+    static doesUserExistWithEmail(email) {
+        return new Promise(async (res, rej) => {
+            let user = await UserObject.getUserWithEmail(email);
+            if (user) {
+                res(user);
+            } else {
+                rej(new ValidationErrors.EmailError("No user found with that email."));
+            }
+        })
+
+    }
+
+    /**
+     * Compares two passwords throws error if it 
+     * does not match
+     * @param { String } password 
+     * @param { String } hashedPassword 
+     */
+    static comparePasswords(password, hashedPassword) {
+        return new Promise((res, rej) => {
+            bcrypt.compare(password, hashedPassword, (err, result) => {
+                if (result) {
+                    res()
+                } else {
+                    rej(new ValidationErrors.PasswordError("Incorrect Password"));
+                }
+            })
+        })
+    }
+
+    /**
      * Returns a new Mongoose user model with data 
      * passed in
      * @author Ravinder Shokar
