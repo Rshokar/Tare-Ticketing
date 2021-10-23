@@ -48,6 +48,8 @@ class JWTVerificationError extends Error {
 }
 
 class InvalidInputError extends Error { }
+
+
 module.exports = {
     PasswordError,
     CompanyNameError,

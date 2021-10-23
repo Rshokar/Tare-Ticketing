@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 const UserObject = require("../Objects/user/User");
 const EmployeObject = require("../Objects/user/Employee");
 const DispatcherObject = require("../Objects/user/Dispatcher");
-const AuthController = require("../Objects/AuthController");
+const Authorizer = require("../Objects/Authorizer");
 
 /**
  * This function is responsible for registering users. 
@@ -19,9 +19,9 @@ const register = async (req, res, next) => {
 
   try {
     user.validateUser();
-    await AuthController.doesEmailAlreadyExist(user.email);
-    AuthController.validatePassword(password);
-    await AuthController.registerUser(user, password);
+    await Authorizer.doesEmailAlreadyExist(user.email);
+    Authorizer.validatePassword(password);
+    await Authorizer.registerUser(user, password);
     next();
   } catch (e) {
     console.log(e);
@@ -42,8 +42,8 @@ const login = async (req, res, next) => {
 
   try {
     UserObject.validateEmail(email)
-    user = await AuthController.doesUserExistWithEmail(email);
-    await AuthController.comparePasswords(password, user.password);
+    user = await Authorizer.doesUserExistWithEmail(email);
+    await Authorizer.comparePasswords(password, user.password);
     const token = jwt.sign(
       {
         id: user._id,
@@ -68,27 +68,25 @@ const login = async (req, res, next) => {
  * @version 1.0 
  * @date Oct 21 2021
  */
-const registetEmp = async (req, res, next) => {
-  const TYPE = "employee";
+const registerEmp = async (req, res, next) => {
   let token = req.cookies.jwt
-  let email = req.body.email;
   let password = req.body.password;
   req.body.password = undefined;
   let employee = new EmployeObject(req.body);
-  let decodedToken;
 
   try {
-    decodedToken = await AuthController.verifyJWTToken(token);
+    let decodedToken = await Authorizer.verifyJWTToken(token);
+    await Authorizer.doesEmailAlreadyExist(employee.email);
     employee.employer = decodedToken.id;
-    employee.type = TYPE;
     employee.validateUser();
-    AuthController.validatePassword(password);
-    await AuthController.doesEmailAlreadyExist(employee.email);
-    employee.id = await AuthController.registerUser(employee, password);
+    Authorizer.validatePassword(password);
+    employee.id = await Authorizer.registerUser(employee, password);
     await DispatcherObject.addEmployee(decodedToken.id, employee);
+    res.send({ status: "success" })
     next();
   } catch (e) {
     console.log(e);
+    res.send({ status: "error", err: { code: e.code, message: e.message } })
   }
 }
 
@@ -151,49 +149,7 @@ const deleteEmp = async (req, res, next) => {
 
 }
 
-/**
- * This function is responsible for adding the employee to the dispatchers document. 
- * @author Ravinder Shokar 
- * @version 1.0 
- * @date May 23 2021
- * @param emp is the employee being added to dispatcher document. 
- */
-async function addEmp(emp, token) {
-  return new Promise(res => {
-    jwt.verify(token, "butternut", (err, decodedToken) => {
-      User.findOne({ _id: decodedToken.id })
-        .then(user => {
-
-          let employee = {
-            fName: emp.fName,
-            lName: emp.lName,
-            phone: emp.phone,
-            id: emp._id,
-          }
-          user.employees.push(employee);
-
-          user.save()
-            .then(() => {
-              res(user.company)
-            })
-            .catch(e => {
-              console.log(e)
-            });
-        })
-    })
-  })
-
-}
-
-/**
- * This function is responsible for removing the employee from the dispatcher document 
- * @author Ravinder Shokar 
- * @version 1.0 
- * @date Jun 7 2021
- */
-async function removeEmp(empId, token) {
-}
 
 module.exports = {
-  register, login, registetEmp, deleteEmp
+  register, login, registerEmp, deleteEmp
 }

@@ -1,12 +1,12 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
-const ValidationErrors = require("../Objects/ValidationErrors");
+const ValidationErrors = require("./ValidationErrors");
 const UserObject = require("./user/User");
 const DispatcherObject = require("./user/Dispatcher");
 
 const jwt = require("jsonwebtoken");
 
-class AuthController {
+class Authorizer {
     /**
      * Throws and PasswordError if password is not valid
      * @author Ravinder Shokar
@@ -159,4 +159,4 @@ class AuthController {
     }
 }
 
-module.exports = AuthController;
+module.exports = Authorizer;
