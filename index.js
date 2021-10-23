@@ -45,11 +45,11 @@ const { decode } = require("punycode");
 const { update } = require("./models/user");
 
 
-const UserObject = require("./Objects/user/User");
-const DispatcherObject = require("./Objects/user/Dispatcher");
-const EmployeObject = require("./Objects/user/Employee");
+const UserObject = require("./Objects/users/User");
+const DispatcherObject = require("./Objects/users/Dispatcher");
+const EmployeObject = require("./Objects/users/Employee");
 
-const Authorizer = require("./Objects/AuthController");
+const Authorizer = require("./Objects/Authorizer");
 
 
 /**

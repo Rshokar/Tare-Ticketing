@@ -15,51 +15,53 @@ const jwt = require("jsonwebtoken");
  */
 const createDispatch = (req, res, next) => {
   const token = req.cookies.jwt
-  let rates = req.body.rates;
-  let user;
+  const operators = req.body.operators;
 
-  jwt.verify(token, "butternut", async (err, decodedToken) => {
-    if (err) {
-      res.send({
-        status: "error",
-        message: "Error decoding JWT token."
-      })
-      next();
-    }
-    try {
-      if (rates.hourly) {
-        user = await UserController.getUser(decodedToken.id);
-        rates["hourly"] = { cont: rates.hourly, oper: user._doc.contractors[req.body.contractor].operatorRates }
-      }
-      let dispatch = new Dispatch({
-        dispatcher: {
-          id: ObjectId(decodedToken.id),
-          company: decodedToken.company,
-        },
-        operators: req.body.operators,
-        date: req.body.date + "T00:00",
-        dumpLocation: req.body.dumpLocation,
-        loadLocation: req.body.loadLocation,
-        contractor: req.body.contractor,
-        numTrucks: req.body.numTrucks,
-        notes: req.body.notes,
-        material: req.body.material,
-        supplier: req.body.supplier,
-        reciever: req.body.reciever,
-        status: {},
-        rates,
-      })
+  console.log("Request Body:", req.body)
 
-      dispatch = await createJobTickets(dispatch.operators, dispatch);
-      dispatch.save();
-      res.send({ status: "success", message: "Succesfull Ajax call" })
-      next();
-    } catch (e) {
-      console.log(e);
-      res.send({ status: "error", err: e })
-      next()
-    }
-  })
+  // jwt.verify(token, "butternut", async (err, decodedToken) => {
+  //   if (err) {
+  //     res.send({
+  //       status: "error",
+  //       message: "Error decoding JWT token."
+  //     })
+  //     next();
+  //   }
+
+  //   try {
+  //     if (rates.hourly) {
+  //       user = await UserController.getUser(decodedToken.id);
+  //       rates["hourly"] = { cont: rates.hourly, oper: user._doc.contractors[req.body.contractor].operatorRates }
+  //     }
+  //     let dispatch = new Dispatch({
+  //       dispatcher: {
+  //         id: ObjectId(decodedToken.id),
+  //         company: decodedToken.company,
+  //       },
+  //       operators: req.body.operators,
+  //       date: req.body.date + "T00:00",
+  //       dumpLocation: req.body.dumpLocation,
+  //       loadLocation: req.body.loadLocation,
+  //       contractor: req.body.contractor,
+  //       numTrucks: req.body.numTrucks,
+  //       notes: req.body.notes,
+  //       material: req.body.material,
+  //       supplier: req.body.supplier,
+  //       reciever: req.body.reciever,
+  //       status: {},
+  //       rates,
+  //     })
+
+  //     dispatch = await createJobTickets(dispatch.operators, dispatch);
+  //     dispatch.save();
+  //     res.send({ status: "success", message: "Succesfull Ajax call" })
+  //     next();
+  // } catch (e) {
+  //   console.log(e);
+  //   res.send({ status: "error", err: e })
+  //   next()
+  // }
+  //   })
 }
 
 

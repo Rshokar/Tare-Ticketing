@@ -2,9 +2,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const cookieParser = require("cookie-parser");
-const UserObject = require("../Objects/user/User");
-const EmployeObject = require("../Objects/user/Employee");
-const DispatcherObject = require("../Objects/user/Dispatcher");
+const UserObject = require("../Objects/users/User");
+const EmployeObject = require("../Objects/users/Employee");
+const DispatcherObject = require("../Objects/users/Dispatcher");
 const Authorizer = require("../Objects/Authorizer");
 
 /**

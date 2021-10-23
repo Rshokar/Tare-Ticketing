@@ -1,8 +1,8 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const ValidationErrors = require("./ValidationErrors");
-const UserObject = require("./user/User");
-const DispatcherObject = require("./user/Dispatcher");
+const UserObject = require("./users/User");
+const DispatcherObject = require("./users/Dispatcher");
 
 const jwt = require("jsonwebtoken");
 

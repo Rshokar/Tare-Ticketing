@@ -1,4 +1,4 @@
-const UserObject = require("../user/User");
+const UserObject = require("../users/User");
 const ValidationErrors = require("../ValidationErrors");
 const User = require("../../models/user");
 

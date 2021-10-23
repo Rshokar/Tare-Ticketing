@@ -1,4 +1,4 @@
-const UserObject = require("../user/User");
+const UserObject = require("../users/User");
 const User = require("../../models/user");
 
 class EmployeeObject extends UserObject {
