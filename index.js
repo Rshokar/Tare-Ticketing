@@ -979,7 +979,7 @@ app.post("/update_employee", authenticate, UserController.updateEmployee);
  * @version 1.0 
  * @date May 24 2021
  */
-app.post("/register_employee", AuthController.registetEmp, (req, res) => {
+app.post("/register_employee", AuthController.registerEmp, (req, res) => {
 })
 
 /**

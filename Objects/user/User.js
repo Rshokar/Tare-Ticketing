@@ -20,7 +20,7 @@ class UserObject {
     */
     validateUser() {
         const NAME_REGEX = /^[a-zA-Z]+$/;
-
+        const COMPANY_REGEX = /^[a-zA-Z]+$/;
 
         if (this.fName == "" || !this.fName) {
             throw new ValidationErrors.FirstNameError("First name cannot be left empty");
@@ -51,9 +51,10 @@ class UserObject {
             throw new ValidationErrors.CompanyNameError("Company Name cannot be left empty");
         } else if (this.company.length < 3 || this.company.length > 20) {
             throw new ValidationErrors.CompanyNameError("Company Name must be between 3 - 20 characters");
-        } else if (!NAME_REGEX.test(this.company)) {
-            throw new ValidationErrors.CompanyNameError("Company Name cannot container numbers or special characters.");
         }
+        // else if (!NAME_REGEX.test(this.company)) {
+        //     throw new ValidationErrors.CompanyNameError("Company Name cannot containe numbers or special characters.");
+        // }
     }
 
 
