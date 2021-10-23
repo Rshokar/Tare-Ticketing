@@ -31,8 +31,6 @@ const createDispatch = (req, res, next) => {
       if (rates.hourly) {
 
         user = await UserController.getUser(decodedToken.id);
-        console.log(req.body.contractor);
-        console.log(user._doc.contractors[req.body.contractor]);
         rates["hourly"] = { cont: rates.hourly, oper: user._doc.contractors[req.body.contractor].operatorRates }
       }
       let dispatch = new Dispatch({
