@@ -714,7 +714,7 @@ $(document).ready(() => {
                 div.appendChild(name);
                 div.addEventListener("click", function () {
                     fillSpot(
-                        emps[i].id,
+                        emps[i]._id,
                         emps[i].fName,
                         emps[i].lName,
                         "employee"

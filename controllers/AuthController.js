@@ -2,153 +2,94 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const cookieParser = require("cookie-parser");
+const UserObject = require("../Objects/user/User");
+const EmployeObject = require("../Objects/user/Employee");
+const DispatcherObject = require("../Objects/user/Dispatcher");
+const AuthController = require("../Objects/AuthController");
 
 /**
  * This function is responsible for registering users. 
  * @author Ravinder Shokar 
- * @version 1.0 
- * @date May 23 2021
+ * @version 1.1
+ * @date Oct 11 2021
  */
-const register = (req, res, next) => {
-  let email = req.body.email;
-  User.findOne({ email: email })
-    .then(user => {
-      if (user) {
-        res.send({ message: "Email Already Exist" })
-      } else {
-        bcrypt.genSalt(10, function (err, salt) {
-          bcrypt.hash(req.body.secretSauce, salt, function (err, hashedPassword) {
-            if (err) {
-              res.send({
-                error: err
-              })
-            }
+const register = async (req, res, next) => {
+  let user = new UserObject(req.body);
+  let password = req.body.secretSauce;
 
-            let user = new User({
-              phone: req.body.phone,
-              fName: req.body.fName,
-              lName: req.body.lName,
-              email: req.body.email,
-              company: req.body.company,
-              password: hashedPassword,
-              type: req.body.type,
-            })
-
-            console.log("User", user);
-
-            user.save()
-              .then(user => {
-                next();
-              })
-              .catch(error => {
-                res.send({
-                  message: "An error occured!"
-                })
-
-              })
-
-          })
-        })
-      }
-    })
-
+  try {
+    user.validateUser();
+    await AuthController.doesEmailAlreadyExist(user.email);
+    AuthController.validatePassword(password);
+    await AuthController.registerUser(user, password);
+    next();
+  } catch (e) {
+    console.log(e);
+    res.send({ message: e.message });
+  }
 }
 
 /**
  * This function is responsible for logging in new users. 
  * @author Ravinder Shokar 
  * @version 1.0 
- * @date May 23 2021
+ * @date Oct 21 2021
  */
 const login = async (req, res, next) => {
   var email = req.body.email;
   var password = req.body.password;
-  User.findOne({ email: email })
-    .then(user => {
-      if (user) {
-        bcrypt.compare(password, user.password, function (err, result) {
-          if (result) {
-            console.log(user);
-            const token = jwt.sign(
-              {
-                id: user._id,
-                type: user.type,
-                name: user.fName + " " + user.lName,
-                company: user.company,
-              }, "butternut", { expiresIn: 24 * 60 * 60 });
-            res.cookie('jwt', token, {
-              httpOnly: true,
-              maxAge: 24 * 24 * 60 * 1000
-            });
-            next();
-          } else {
-            res.send({ message: "Password is incorrect" });
-          }
-        });
+  let user;
 
-      } else {
-        res.send({
-          message: "No user found"
-        })
-      }
-    })
+  try {
+    UserObject.validateEmail(email)
+    user = await AuthController.doesUserExistWithEmail(email);
+    await AuthController.comparePasswords(password, user.password);
+    const token = jwt.sign(
+      {
+        id: user._id,
+        type: user.type,
+        name: user.fName + " " + user.lName,
+        company: user.company,
+      }, "butternut", { expiresIn: 24 * 60 * 60 });
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      maxAge: 24 * 24 * 60 * 1000
+    });
+    next();
+  } catch (e) {
+    console.log(e);
+    res.send({ status: "Error", err: { code: e.code, message: e.message } })
+  }
 }
 
 /**
  * This function is responsible for registering employees. 
  * @author Ravinder Shokar 
  * @version 1.0 
- * @date May 24 2021
+ * @date Oct 21 2021
  */
 const registetEmp = async (req, res, next) => {
+  const TYPE = "employee";
   let token = req.cookies.jwt
   let email = req.body.email;
-  User.findOne({ email: email })
-    .then(user => {
-      if (user) {
-        res.send({ message: "email-exist" })
-      } else {
-        bcrypt.genSalt(10, function (err, salt) {
-          bcrypt.hash(req.body.password, salt, async (err, hashedPassword) => {
-            if (err) {
-              console.log(err);
-              console.log("Error decoding decoded token.")
-              res.send({
-                error: err
-              })
-            } else {
-              let employee = new User({
-                phone: req.body.phone,
-                fName: req.body.fName,
-                lName: req.body.lName,
-                email: req.body.email,
-                password: hashedPassword,
-                type: "employee",
-              })
+  let password = req.body.password;
+  req.body.password = undefined;
+  let employee = new EmployeObject(req.body);
+  let decodedToken;
 
-              try {
-                employee["company"] = await addEmp(employee, token);
-              } catch (e) {
-                console.log(e)
-              }
-
-              employee.save()
-                .then(() => {
-                  console.log("Hello");
-                  res.send({ message: "Succesfully added employee", status: "success" });
-                  next();
-                })
-                .catch(e => {
-                  console.log("Jello")
-                  console.log(e)
-                  res.send({ status: "error", message: "An error occured!" })
-
-                })
-            }
-          })
-        })
-      }
-    })
+  try {
+    decodedToken = await AuthController.verifyJWTToken(token);
+    employee.employer = decodedToken.id;
+    employee.type = TYPE;
+    employee.validateUser();
+    AuthController.validatePassword(password);
+    await AuthController.doesEmailAlreadyExist(employee.email);
+    employee.id = await AuthController.registerUser(employee, password);
+    await DispatcherObject.addEmployee(decodedToken.id, employee);
+    next();
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 /**

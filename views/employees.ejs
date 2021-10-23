@@ -29,12 +29,12 @@
 
 
 <div id="users">
-  <% for (let i=0 ; i < user.employees.length ; i++) { %>
+  <% for (let i=0 ; i < employees.length ; i++) { %>
   <div class="employee">
-    <a href="/employee?id=<%= user.employees[i].id %>">
+    <a href="/employee?id=<%= employees[i].id %>">
       <h3>
-        <%= user.employees[i].fName %>
-        <%= user.employees[i].lName %>
+        <%= employees[i].fName %>
+        <%= employees[i].lName %>
       </h3>
     </a>
   </div>

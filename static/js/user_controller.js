@@ -57,54 +57,6 @@ function validateUser(u) {
     const passwordErr = document.querySelector(".password-error");
     const formErr = document.querySelector(".form-error ");
 
-    if (u.fName == ""
-        || u.lName == ""
-        || u.email == ""
-        || u.phone == ""
-    ) {
-        formErr.innerHTML = "Inputs Cannot Be Empty"
-        return false
-    }
-
-    if (u.fName.length < 3 || u.fName.length > 20) {
-        fNameErr.innerHTML = "Firt Name must be between 3 - 20."
-        return false;
-    } else if (!/^[a-zA-Z]{3,}$/.test(u.fName)) {
-        fNameErr.innerHTML = "First Name cannot container numbers or special characters."
-        return false
-    }
-
-
-    if (u.lName.length < 3 || u.lName.length > 20) {
-        lName.innerHTML = "Last Name must be between 3 - 20."
-        return false;
-    } else if (!/^[a-zA-Z]{3,}$/.test(u.lName)) {
-        lNameErr.innerHTML = "Last Name cannot container numbers or special characters."
-        return false
-    }
-
-
-    if (!(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(u.email))) {
-        emailErr.innerHTML = "Invalid Email"
-        return false;
-    }
-
-    if (u.password !== undefined &&
-        !/^(?=.*\d{1,})(?=.*[a-z]{1,})(?=.*[A-Z]{1,})(?=.*[a-zA-Z]{1,}).{8,}$/.test(u.password)) {
-        console.log("Invalid Password")
-        passwordErr.innerHTML = "Invalid Passowrd."
-        return false;
-    }
-
-    if (!/^[0-9]{10}$/.test(u.phone)) {
-        phoneErr.innerHTML = "Invalid Phone Number. Must be only 10 digits long"
-        return false;
-    }
-
-    if (u.phone.length < 10) {
-        phoneErr.innerHTML = "Phone number too short."
-        return false;
-    }
 
     return true
 }
