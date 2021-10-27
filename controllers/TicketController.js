@@ -1,24 +1,93 @@
+const Authorizer = require("../Objects/Authorizer");
 const Dispatch = require("../models/dispatch");
 const Job = require("../models/job");
 const User = require("../models/user");
+const DispatchTicket = require("../Objects/tickets/DispatchTicket");
+const JobTicket = require("../Objects/tickets/JobTicket");
 const { ObjectId } = require("mongodb");
 const UserController = require("../controllers/UserController");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 'use strict';
 
-/**
- * This function is responsible for creating dispatch tickets and operator tickets
- * @author Ravinder Shokar 
- * @date June 22 2021 
- * @version 1.0 
- */
-const createDispatch = (req, res, next) => {
-  const token = req.cookies.jwt
-  const operators = req.body.operators;
 
-  console.log("Request Body:", req.body)
+class TicketController {
+  /**
+   * This function is responsible for creating dispatch tickets and operator tickets
+   * @author Ravinder Shokar 
+   * @date June 22 2021 
+   * @version 1.0 
+   */
+  static async createDispatch(req, res, next) {
+    const token = req.cookies.jwt
+    const operators = req.body.operators;
+    req.body.startLocation = req.body.loadLocation;
 
+    try {
+      let decodedToken = await Authorizer.verifyJWTToken(token);
+      let dispatch = new DispatchTicket(req.body);
+      dispatch.userId = decodedToken.id;
+      console.log("Dispatch Ticket", dispatch);
+      await dispatch.verifyTicket();
+      dispatch.status = TicketController.#generateStatusObjectFromOperators(operators);
+      let dispatchId = await dispatch.saveTicket();
+      console.log("Dispatch Id", dispatchId);
+      await TicketController.#createJobTickets(operators, dispatchId);
+      next();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  /**
+   * Returns an object with the status of each job ticket 
+   * passed in. 
+   * @param { JSON } operators
+   * @return { JSON } 
+   */
+  static #generateStatusObjectFromOperators(operators) {
+    let statusObject = { empty: 0, sent: 0, confirmed: 0, active: 0, complete: 0 }
+    for (let i = 0; i < operators.length; i++) {
+      switch (operators[i].status) {
+        case 'sent':
+          statusObject.sent++;
+          break;
+        case "confirmed":
+          statusObject.confirmed++;
+          break;
+        case "active":
+          statusObject.active++;
+          break;
+        case "complete":
+          statusObject.complete++
+          break;
+        default:
+          statusObject.empty++;
+      }
+    }
+    return statusObject;
+  }
+
+
+  static #createJobTickets(operators, dispatchId) {
+    return new Promise((res, rej) => {
+      let job;
+      let jobIds = []
+      for (let i = 0; i < operators.length; i++) {
+        operators[i].dispatchId = dispatchId;
+        job = new JobTicket(operators[i]);
+        job.saveTicket()
+          .then(jobId => {
+            jobIds.push(jobId);
+          })
+          .catch(e => {
+            console.log(e)
+            rej(new ValidationError.SavingTicketsError("Error saving job ticket", jobIds));
+          })
+      }
+      res();
+    })
+  }
   // jwt.verify(token, "butternut", async (err, decodedToken) => {
   //   if (err) {
   //     res.send({
@@ -1251,7 +1320,7 @@ const getNumCopmletedJobs = (id, num, userType) => {
 
 
 module.exports = {
-  createDispatch,
+  TicketController,
   confirmJobTicket,
   activateJobTicket,
   submitLoadTicket,

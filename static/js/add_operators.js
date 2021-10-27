@@ -32,9 +32,9 @@ function addOperatorCards() {
             id = "";
             disable = false;
             console.log("Hello")
-            if (operators[i] != undefined && operators[i].id !== undefined) {
+            if (operators[i] != undefined && operators[i].userId !== undefined) {
                 name = operators[i].name;
-                id = operators[i].id;
+                id = operators[i].userId;
                 [truck, trailer] = getEquipmentHTML(operators[i].equipment)
                 status = operators[i].status;
                 if (operators[i].status === ACTIVE || operators[i].status === COMPLETE) { disable = true }
@@ -553,13 +553,13 @@ function getOperators() {
                 truck: spot.querySelector('.equipment .truck select').value,
                 trailer: spot.querySelector('.equipment .trailer select').value,
             },
-            start: spot.querySelector('.start .date').value + "T" + spot.querySelector('.start .time').value,
+            startTime: spot.querySelector('.start .date').value + "T" + spot.querySelector('.start .time').value,
             name: spot.querySelector('.operator_container .operator_name').innerHTML,
             status: getSpotStatus(spot)
         }
 
         if (userId) {
-            obj[i]["id"] = userId
+            obj[i]["userId"] = userId
         }
     }
     return obj;
@@ -634,8 +634,7 @@ function verifyOperators(operators) {
         const spot = document.getElementById(i);
         const error = spot.querySelector(".error")
         error.innerHTML = "";
-
-        start = new Date(operators[i].start);
+        start = new Date(operators[i].startTime);
 
         if (Object.prototype.toString.call(start) === "[object Date]") {
             // it is a date

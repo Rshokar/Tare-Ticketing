@@ -5,15 +5,6 @@ const Schema = mongoose.Schema;
 const subModels = require("../models/subModels");
 
 
-const operatorSchema = new Schema({
-    id: { type: ObjectId, required: false, default: undefined },
-    equipment: subModels.equipmentSchema,
-    start: Date,
-    name: String,
-    status: String,
-    jobId: ObjectId,
-}, { _id: false })
-
 const statusSchema = new Schema({
     empty: Number,
     sent: Number,
@@ -24,11 +15,10 @@ const statusSchema = new Schema({
 
 
 const dispatchSchema = new Schema({
-    dispatcher: subModels.dispatcherSchema,
-    operators: [operatorSchema],
+    dispatcher: ObjectId,
     date: Date,
     dumpLocation: String,
-    loadLocation: String,
+    startLocation: String,
     contractor: String,
     numTrucks: Number,
     notes: String,

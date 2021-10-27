@@ -892,7 +892,9 @@ app.get("/dispatch_preview", authenticate, (req, res) => {
  * @version 1.0 
  * @date June 21 2021
  */
-app.post("/submit_dispatch", authenticate, TicketController.createDispatch, (req, res) => { })
+app.post("/submit_dispatch", authenticate, TicketController.TicketController.createDispatch, (req, res) => {
+  res.send({ status: "success", message: "Succesfully created dispatch and job tickets" });
+})
 
 
 /**

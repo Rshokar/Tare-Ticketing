@@ -53,6 +53,21 @@ class DispatcherObject extends UserObject {
                 })
         })
     }
+
+    static isValidContractor(contractor, userId) {
+        return new Promise(async (res, rej) => {
+            if (!contractor || !userId) {
+                rej(new ValidationErrors.InvalidInputError("Passed in undefined value."));
+            } else {
+                let dispatcher = await UserObject.getUserWithId(userId);
+                if (!dispatcher) {
+                    rej(new ValidationErrors.InvalidInputError("No user found with id passed in."));
+                }
+                if (dispatcher._doc.contractors[contractor]) { res() }
+                rej(new ValidationErrors.ContractorNameError("Invalid Contractor."));
+            }
+        })
+    }
 }
 
 module.exports = DispatcherObject;

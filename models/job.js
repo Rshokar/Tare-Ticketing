@@ -16,22 +16,20 @@ const loadSchema = new Schema({
 
 
 const jobSchema = new Schema({
-    dispatcher: subModels.dispatcherSchema,
-    dispatchTicket: ObjectId,
-    operator: subModels.operatorSchema,
+    dispatchId: ObjectId,
+    operator: ObjectId,
     date: Date,
-    start: Date,
-    finish: Date,
-    dumpLocation: String,
-    loadLocation: String,
+    startTime: Date,
+    finishTime: Date,
+    startLocation: String,
+    finishLocation: String,
     contractor: String,
     equipment: subModels.equipmentSchema,
-    notes: String,
     material: String,
     supplier: String,
     reciever: String,
     status: String,
-    loadTickets: [loadSchema],
+    billingTickets: [loadSchema],
     rates: subModels.ratesSchema,
 }, { timestamps: true })
 

@@ -147,7 +147,7 @@ function addOperatorCards() {
     for (let i = 0; i < numTrucks; i++) {
         let name;
         let id;
-        let start = operators[i].start
+        let start = operators[i].startTime
         let truck = operators[i].equipment.truck;
         let trailer = (operators[i].equipment.trailer == "default" ? "" : operators[i].equipment.trailer);
         let status;
