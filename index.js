@@ -49,6 +49,8 @@ const UserObject = require("./Objects/users/User");
 const DispatcherObject = require("./Objects/users/Dispatcher");
 const EmployeObject = require("./Objects/users/Employee");
 
+const DispatchTicket = require("./Objects/tickets/DispatchTicket");
+
 const Authorizer = require("./Objects/Authorizer");
 
 
@@ -70,36 +72,52 @@ app.get("/", authenticate, (req, res) => {
  * @versio 1.0 
  * @date May 16 2021
  */
-app.get("/dashboard", authenticate, (req, res) => {
+app.get("/dashboard", authenticate, async (req, res) => {
   const pageName = "Dashboard";
   const token = req.cookies.jwt;
 
   res.url = "/account";
-  jwt.verify(token, "butternut", (err, decodedToken) => {
 
+  try {
+    const decodedToken = await Authorizer.verifyJWTToken(token);
+    console.log(decodedToken);
     if (decodedToken.type == 'dispatcher') {
-      Dispatch.find({
-        $and: [
-          { "dispatcher.id": decodedToken.id },
-          {
-            $or: [{ "status.empty": { $gt: 0 } }, { "status.sent": { $gt: 0 } }, { "status.active": { $gt: 0 } }, { "status.confirmed": { $gt: 0 } }]
-          }
-        ]
-      }).then((result) => {
-        res.render("dashboard", { page: pageName, dispatches: result, user: decodedToken })
-      })
+      let dispatches = await DispatchTicket.getNonCompleteDispatches(decodedToken.id);
+      console.log(dispatches);
+      // res.render("dashboard", { page: pageName, dispatches, user: decodedToken })
     } else {
-      Job.find({
-        $and: [
-          { "operator.id": decodedToken.id },
-          { $or: [{ status: "sent" }, { status: "confirmed" }, { status: "active" }] }
-        ]
-      }).then((jobs) => {
-        ejsLint("dashboard")
-        res.render("dashboard", { page: pageName, jobs: jobs, user: decodedToken })
-      })
+
     }
-  })
+  } catch (e) {
+    console.log(e);
+    res.send({ staus: "error", err: { code: e.code, message: e.message } });
+  }
+
+  // jwt.verify(token, "butternut", (err, decodedToken) => {
+
+  //   if (decodedToken.type == 'dispatcher') {
+  //     Dispatch.find({
+  //       $and: [
+  //         { "dispatcher.id": decodedToken.id },
+  //         {
+  //           $or: [{ "status.empty": { $gt: 0 } }, { "status.sent": { $gt: 0 } }, { "status.active": { $gt: 0 } }, { "status.confirmed": { $gt: 0 } }]
+  //         }
+  //       ]
+  //     }).then((result) => {
+  //       res.render("dashboard", { page: pageName, dispatches: result, user: decodedToken })
+  //     })
+  //   } else {
+  //     Job.find({
+  //       $and: [
+  //         { "operator.id": decodedToken.id },
+  //         { $or: [{ status: "sent" }, { status: "confirmed" }, { status: "active" }] }
+  //       ]
+  //     }).then((jobs) => {
+  //       ejsLint("dashboard")
+  //       res.render("dashboard", { page: pageName, jobs: jobs, user: decodedToken })
+  //     })
+  //   }
+  // })
 })
 
 /**

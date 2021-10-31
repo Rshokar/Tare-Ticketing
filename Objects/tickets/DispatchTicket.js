@@ -81,6 +81,28 @@ class DispatchTicket extends Ticket {
             dispatcher: this.userId,
         })
     }
+
+    static getNonCompleteDispatches(userId) {
+        return new Promise((res, rej) => {
+            Dispatch.find({
+                $and: [{ dispatcher: userId },
+                    // {
+                    //     $or: [
+                    //         { "status.empty": { $gt: 0 } },
+                    //         { "status.sent": { $gt: 0 } },
+                    //         { "status.active": { $gt: 0 } },
+                    //         { "status.confirmed": { $gt: 0 } }]
+
+                    // }
+                ]
+            }).then(dispatches => {
+                res(dispatches);
+            }).catch(e => {
+                console.log(e);
+                rej();
+            })
+        })
+    }
 }
 
 module.exports = DispatchTicket;
