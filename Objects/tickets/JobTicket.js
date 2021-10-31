@@ -53,6 +53,24 @@ class JobTicket extends Ticket {
             rates: this.rates,
         })
     }
+
+    static getNonCompleteJobTickets(userId) {
+        return new Promise((res, rej) => {
+            Job.find({
+                $and: [{
+                        operator: userId
+                    },
+                    // { $or: [{ status: "sent" }, { status: "confirmed" }, { status: "active" }] }
+                ]
+            }).then((jobs) => {
+                if (jobs) {
+                    res(jobs);
+                } else {
+                    rej();
+                }
+            })
+        })
+    }
 }
 
 module.exports = JobTicket;

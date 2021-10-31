@@ -96,10 +96,11 @@ class DispatchTicket extends Ticket {
                     // }
                 ]
             }).then(dispatches => {
-                res(dispatches);
-            }).catch(e => {
-                console.log(e);
-                rej();
+                if (dispatches) {
+                    res(dispatches);
+                } else {
+                    rej();
+                }
             })
         })
     }

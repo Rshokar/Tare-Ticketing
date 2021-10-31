@@ -50,6 +50,7 @@ const DispatcherObject = require("./Objects/users/Dispatcher");
 const EmployeObject = require("./Objects/users/Employee");
 
 const DispatchTicket = require("./Objects/tickets/DispatchTicket");
+const JobTicket = require("./Objects/tickets/JobTicket");
 
 const Authorizer = require("./Objects/Authorizer");
 
@@ -86,11 +87,12 @@ app.get("/dashboard", authenticate, async (req, res) => {
       console.log(dispatches);
       // res.render("dashboard", { page: pageName, dispatches, user: decodedToken })
     } else {
-
+      let jobTickets = await JobTicket.getNonCompleteJobTickets(decodedToken.id);
+      console.log(jobTickets);
     }
   } catch (e) {
     console.log(e);
-    res.send({ staus: "error", err: { code: e.code, message: e.message } });
+    res.send({ status: "error", err: { code: e.code, message: e.message } });
   }
 
   // jwt.verify(token, "butternut", (err, decodedToken) => {
