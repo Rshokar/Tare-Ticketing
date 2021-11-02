@@ -1,6 +1,7 @@
 
 const mongoose = require("mongoose");
 const subModels = require("../models/subModels");
+const { ObjectId } = require("mongodb");
 const Schema = mongoose.Schema;
 
 const operatorRates = new Schema({
@@ -51,9 +52,7 @@ const userSchema = new Schema({
     type: {
         type: String
     },
-    employees: {
-        type: Array
-    },
+    employer: ObjectId,
     contractors: { contractor },
     address: subModels.billingAdress,
 }, { timestamps: true })

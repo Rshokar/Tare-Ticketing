@@ -27,15 +27,15 @@ class TicketController {
       let decodedToken = await Authorizer.verifyJWTToken(token);
       let dispatch = new DispatchTicket(req.body);
       dispatch.userId = decodedToken.id;
-      console.log("Dispatch Ticket", dispatch);
       await dispatch.verifyTicket();
       dispatch.status = TicketController.#generateStatusObjectFromOperators(operators);
       let dispatchId = await dispatch.saveTicket();
-      console.log("Dispatch Id", dispatchId);
       await TicketController.#createJobTickets(operators, dispatchId);
+      // await dispatch.deleteTicket(dispatchId);
       next();
     } catch (e) {
       console.log(e);
+      res.send({ status: "error", code: { message: e.message, code: e.code } })
     }
   }
 
@@ -68,7 +68,13 @@ class TicketController {
     return statusObject;
   }
 
-
+  /**
+   * Cretes many job tickets. 
+   * @param {JSON} operators 
+   * @param {String} dispatchId 
+   * @returns { Promise } on res returns list of jobId
+   * on rej throws SavingTicketError
+   */
   static #createJobTickets(operators, dispatchId) {
     return new Promise((res, rej) => {
       let job;

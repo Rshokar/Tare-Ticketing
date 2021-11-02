@@ -80,8 +80,7 @@ const registerEmp = async (req, res, next) => {
     employee.employer = decodedToken.id;
     employee.validateUser();
     Authorizer.validatePassword(password);
-    employee.id = await Authorizer.registerUser(employee, password);
-    await DispatcherObject.addEmployee(decodedToken.id, employee);
+    employee.id = await Authorizer.registerUser(employee, password); a
     res.send({ status: "success" })
     next();
   } catch (e) {

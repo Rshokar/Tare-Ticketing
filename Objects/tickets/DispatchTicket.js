@@ -57,6 +57,7 @@ class DispatchTicket extends Ticket {
             let dispatch = this.#getTicketModel();
             dispatch.save()
                 .then(() => {
+                    console.log(dispatch);
                     this.id = dispatch._id;
                     res(dispatch._id)
                 })
@@ -79,6 +80,7 @@ class DispatchTicket extends Ticket {
             supplier: this.supplier,
             reciever: this.reciever,
             dispatcher: this.userId,
+            status: this.status,
         })
     }
 
@@ -100,6 +102,29 @@ class DispatchTicket extends Ticket {
             }).catch(e => {
                 console.log(e);
                 rej();
+            })
+        })
+    }
+
+    static deleteAllDispatches() {
+        return new Promise(async res => {
+            Dispatch.deleteMany({}, function (err) {
+                if (err) {
+                    rej(new Error("Error deleting many dispatch tickets"));
+                }
+                console.log('Deleted All dispatch tickets');
+                res();
+            })
+        })
+    }
+
+    deleteTicket(dispatchId) {
+        return new Promise((res, rej) => {
+            Dispatch.deleteOne({ _id: dispatchId }, function (err) {
+                if (err) {
+                    rej(new Error("Error deleting dispatch ticket."));
+                }
+                res()
             })
         })
     }

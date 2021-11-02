@@ -96,8 +96,6 @@ class JWTVerificationError extends Error {
     }
 }
 
-
-
 class InvalidInputError extends Error { }
 
 class SavingTicketsError extends Error {
@@ -107,8 +105,6 @@ class SavingTicketsError extends Error {
         this.ids = ids;
     }
 }
-
-
 module.exports = {
     NumTrucksError,
     PasswordError,

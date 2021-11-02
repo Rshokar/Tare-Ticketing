@@ -1,4 +1,5 @@
 const UserObject = require("../users/User");
+const ValidationErrors = require("../ValidationErrors");
 const User = require("../../models/user");
 
 class EmployeeObject extends UserObject {

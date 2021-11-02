@@ -23,7 +23,6 @@ class JobTicket extends Ticket {
     saveTicket() {
         return new Promise((res, rej) => {
             let job = this.#newJobModel();
-            console.log(job);
             job.save()
                 .then(() => {
                     res(job._id);
@@ -51,6 +50,19 @@ class JobTicket extends Ticket {
             reciever: this.reciever,
             billingTickets: this.billingTickets,
             rates: this.rates,
+            status: this.status
+        })
+    }
+
+    static deleteAllJobs() {
+        return new Promise(async res => {
+            Job.deleteMany({}, function (err) {
+                if (err) {
+                    rej(new Error("Error deleting many job tickets"));
+                }
+                console.log('Deleted All job tickets');
+                res();
+            })
         })
     }
 }

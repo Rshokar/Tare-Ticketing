@@ -50,6 +50,7 @@ const DispatcherObject = require("./Objects/users/Dispatcher");
 const EmployeObject = require("./Objects/users/Employee");
 
 const DispatchTicket = require("./Objects/tickets/DispatchTicket");
+const JobTicket = require("./Objects/tickets/JobTicket");
 
 const Authorizer = require("./Objects/Authorizer");
 
@@ -92,32 +93,18 @@ app.get("/dashboard", authenticate, async (req, res) => {
     console.log(e);
     res.send({ staus: "error", err: { code: e.code, message: e.message } });
   }
+})
 
-  // jwt.verify(token, "butternut", (err, decodedToken) => {
+app.get("/clear_all_tickets_from_Db_dont_do_this", async (req, res) => {
+  const token = req.cookies.jwt;
 
-  //   if (decodedToken.type == 'dispatcher') {
-  //     Dispatch.find({
-  //       $and: [
-  //         { "dispatcher.id": decodedToken.id },
-  //         {
-  //           $or: [{ "status.empty": { $gt: 0 } }, { "status.sent": { $gt: 0 } }, { "status.active": { $gt: 0 } }, { "status.confirmed": { $gt: 0 } }]
-  //         }
-  //       ]
-  //     }).then((result) => {
-  //       res.render("dashboard", { page: pageName, dispatches: result, user: decodedToken })
-  //     })
-  //   } else {
-  //     Job.find({
-  //       $and: [
-  //         { "operator.id": decodedToken.id },
-  //         { $or: [{ status: "sent" }, { status: "confirmed" }, { status: "active" }] }
-  //       ]
-  //     }).then((jobs) => {
-  //       ejsLint("dashboard")
-  //       res.render("dashboard", { page: pageName, jobs: jobs, user: decodedToken })
-  //     })
-  //   }
-  // })
+  try {
+    await DispatchTicket.deleteAllDispatches();
+    await JobTicket.deleteAllJobs()
+    res.redirect("/account");
+  } catch (e) {
+    console.log(e);
+  }
 })
 
 /**
@@ -936,7 +923,7 @@ app.get("/employees", authenticate, async (req, res) => {
 
   try {
     let decodedToken = await Authorizer.verifyJWTToken(token);
-    let employees = await DispatcherObject.getEmployees(decodedToken.id)
+    let employees = await DispatcherObject.getEmployees(decodedToken.id);
     res.render("employees", { page: pageName, user: decodedToken, employees })
   } catch (e) {
     console.log(e);
