@@ -87,11 +87,12 @@ app.get("/dashboard", authenticate, async (req, res) => {
       console.log(dispatches);
       // res.render("dashboard", { page: pageName, dispatches, user: decodedToken })
     } else {
-
+      let jobTickets = await JobTicket.getNonCompleteJobTickets(decodedToken.id);
+      console.log(jobTickets);
     }
   } catch (e) {
     console.log(e);
-    res.send({ staus: "error", err: { code: e.code, message: e.message } });
+    res.send({ status: "error", err: { code: e.code, message: e.message } });
   }
 })
 
