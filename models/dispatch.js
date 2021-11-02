@@ -15,7 +15,7 @@ const statusSchema = new Schema({
 
 
 const dispatchSchema = new Schema({
-    dispatcher: ObjectId,
+    dispatcher: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     date: Date,
     dumpLocation: String,
     startLocation: String,

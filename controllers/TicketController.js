@@ -31,7 +31,6 @@ class TicketController {
       dispatch.status = TicketController.#generateStatusObjectFromOperators(operators);
       let dispatchId = await dispatch.saveTicket();
       await TicketController.#createJobTickets(operators, dispatchId);
-      // await dispatch.deleteTicket(dispatchId);
       next();
     } catch (e) {
       console.log(e);

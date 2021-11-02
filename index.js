@@ -84,11 +84,11 @@ app.get("/dashboard", authenticate, async (req, res) => {
     console.log(decodedToken);
     if (decodedToken.type == 'dispatcher') {
       let dispatches = await DispatchTicket.getNonCompleteDispatches(decodedToken.id);
-      console.log(dispatches);
-      // res.render("dashboard", { page: pageName, dispatches, user: decodedToken })
+      res.render("dashboard", { page: pageName, dispatches, user: decodedToken })
     } else {
-      let jobTickets = await JobTicket.getNonCompleteJobTickets(decodedToken.id);
-      console.log(jobTickets);
+      let jobs = await JobTicket.getNonCompleteJobTicketsWithDispatch(decodedToken.id);
+      console.log(jobs);
+      res.render("dashboard", { page: pageName, jobs, user: decodedToken })
     }
   } catch (e) {
     console.log(e);

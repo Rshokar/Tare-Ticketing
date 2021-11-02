@@ -101,10 +101,10 @@
           <div class="job <%= jobs[i].status %>">
             <a href="/job?id=<%=jobs[i]._id %>">
               <h2>
-                <%= jobs[i].contractor %>
+                <%= jobs[i].dispatch.contractor %>
               </h2>
               <h5>
-                <%= jobs[i].dispatcher.company %>
+                <%= jobs[i].dispatch.dispatcher.company %>
               </h5>
             </a>
             <div class="equipment">
@@ -123,7 +123,7 @@
             </div>
             <div class="start_time">
               <span>
-                <% let d=new Date(jobs[i].start) %>
+                <% let d=new Date(jobs[i].startTime) %>
                 <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12: false
                                         }) %>
               </span>

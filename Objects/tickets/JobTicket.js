@@ -36,7 +36,7 @@ class JobTicket extends Ticket {
 
     #newJobModel() {
         return new Job({
-            dispatchId: this.dispatchId,
+            dispatch: this.dispatchId,
             operator: this.userId,
             data: this.date,
             startTime: this.startTime,
@@ -70,8 +70,8 @@ class JobTicket extends Ticket {
         return new Promise((res, rej) => {
             Job.find({
                 $and: [{
-                        operator: userId
-                    },
+                    operator: userId
+                },
                     // { $or: [{ status: "sent" }, { status: "confirmed" }, { status: "active" }] }
                 ]
             }).then((jobs) => {
@@ -83,6 +83,34 @@ class JobTicket extends Ticket {
             })
         })
     }
+
+    static getNonCompleteJobTicketsWithDispatch(userId) {
+        return new Promise((res, rej) => {
+            Job.find({
+                $and: [{
+                    operator: userId
+                },
+                { $or: [{ status: "sent" }, { status: "confirmed" }, { status: "active" }] }
+                ]
+            })
+                .populate({
+                    path: 'dispatch',
+                    model: "Dispatch",
+                    populate: { path: "dispatcher", model: "User" },
+                })
+                .then((jobs) => {
+                    if (jobs) {
+                        res(jobs);
+                    } else {
+                        rej();
+                    }
+                })
+        })
+    }
+
+
+
+
 }
 
 module.exports = JobTicket;

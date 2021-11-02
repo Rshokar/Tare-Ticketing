@@ -16,19 +16,19 @@ const loadSchema = new Schema({
 
 
 const jobSchema = new Schema({
-    dispatchId: ObjectId,
-    operator: ObjectId,
+    dispatch: { type: mongoose.Schema.Types.ObjectId, ref: "Dispatch", },
+    operator: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     date: Date,
     startTime: Date,
     finishTime: Date,
     startLocation: String,
     finishLocation: String,
     contractor: String,
-    equipment: subModels.equipmentSchema,
+    equipment: { type: subModels.equipmentSchema, required: true },
     material: String,
     supplier: String,
     reciever: String,
-    status: String,
+    status: { type: String, required: true },
     billingTickets: [loadSchema],
     rates: subModels.ratesSchema,
 }, { timestamps: true })
