@@ -54,6 +54,8 @@ const JobTicket = require("./Objects/tickets/JobTicket");
 
 const Authorizer = require("./Objects/Authorizer");
 
+const ValidationErrors = require("./Objects/ValidationErrors");
+
 
 /**
  * This is the route that returns index.html. 
@@ -77,17 +79,13 @@ app.get("/dashboard", authenticate, async (req, res) => {
   const pageName = "Dashboard";
   const token = req.cookies.jwt;
 
-  res.url = "/account";
-
   try {
     const decodedToken = await Authorizer.verifyJWTToken(token);
-    console.log(decodedToken);
     if (decodedToken.type == 'dispatcher') {
       let dispatches = await DispatchTicket.getNonCompleteDispatches(decodedToken.id);
       res.render("dashboard", { page: pageName, dispatches, user: decodedToken })
     } else {
       let jobs = await JobTicket.getNonCompleteJobTicketsWithDispatch(decodedToken.id);
-      console.log(jobs);
       res.render("dashboard", { page: pageName, jobs, user: decodedToken })
     }
   } catch (e) {
@@ -539,20 +537,22 @@ app.get("/get_recent_tickets", authenticate, (req, res) => {
  * @version 1.0
  * @date May 22 2021
  */
-app.get("/dispatch", authenticate, (req, res) => {
+app.get("/dispatch", authenticate, async (req, res) => {
   const token = req.cookies.jwt;
   const dispatchId = req.query.id;
   const pageName = "Dispatch Ticket";
-
-  jwt.verify(token, "butternut", (err, decodedToken) => {
-    Dispatch.findOne({ _id: dispatchId })
-      .then((result) => {
-        console.log(result.rates);
-        res.render("dispatch", { page: pageName, dispatch: result, user: decodedToken });
-      })
-  })
-
-
+  try {
+    let decodedToken = await Authorizer.verifyJWTToken(token);
+    res.render("dispatch", {
+      page: pageName,
+      dispatch: await DispatchTicket.getDispatch(dispatchId),
+      jobs: await JobTicket.getJobTicketAndOperator(dispatchId, "dispatch"),
+      user: decodedToken
+    });
+  } catch (e) {
+    console.log(e);
+    res.send({ status: "error", err: { message: e.message, code: e.code } });
+  }
 })
 
 /**
@@ -561,27 +561,31 @@ app.get("/dispatch", authenticate, (req, res) => {
  * @version 1.0
  * @date May 22 2021
  */
-app.get("/job", authenticate, (req, res) => {
+app.get("/job", authenticate, async (req, res) => {
 
-  const jobTicket = req.query.id;
-  const token = req.cookies.jwt;
+  const jobId = req.query.id;
   let pageName = "Job Ticket";
 
-  jwt.verify(token, "butternut", (err, decodedToken) => {
-    Job.findOne({
-      _id: new ObjectId(jobTicket)
-    })
-      .then((job) => {
-        if (job == null) {
-          res.send("Job ticket not found");
-        } else {
-          const [perLoadLocations, tonLoadLocations] = getLoadLocations(job);
-          res.render("job", { page: pageName, job, user: decodedToken, perLoadLocations, tonLoadLocations });
-        }
-      })
-  })
+  try {
+    let job = await JobTicket.getJobTicketWithDispatch(jobId)
+    if (!job) {
+      throw new ValidationError.invalidinputError("No job found")
+    }
+    console.log(job._id);
+    let dispatch = new DispatchTicket(job._doc.dispatch);
+    console.log(dispatch);
+    res.render("job", {
+      page: pageName,
+      user: decodedToken,
+      perLoadLocations: dispatch.getPerLoadLocations(),
+      tonLoadLocations: dispatch.getTonnageLocations(),
+      job,
+    });
+  } catch (e) {
+    console.log(e);
+    res.send({ status: 'error', err: { code: e.code, message: e.message } })
+  }
 })
-
 
 /**
  * This function will get all load locations for a job ticket. It will seperated 

@@ -77,9 +77,8 @@ class UserObject {
                 .then(user => {
                     if (user) {
                         res(user);
-                    } else {
-                        res(undefined);
                     }
+                    res(undefined);
                 })
         })
     }

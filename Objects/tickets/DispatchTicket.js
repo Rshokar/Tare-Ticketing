@@ -6,6 +6,7 @@ const DispatcherObject = require("../users/Dispatcher");
 class DispatchTicket extends Ticket {
 
     constructor(args) {
+        console.log(args);
         const EMPTY_STRING = ''
         super(args);
         this.contractor = args.contractor == EMPTY_STRING ? undefined : args.contractor;
@@ -81,6 +82,31 @@ class DispatchTicket extends Ticket {
             reciever: this.reciever,
             dispatcher: this.userId,
             status: this.status,
+            rates: this.rates,
+        })
+    }
+
+    static getDispatch(dispatchId) {
+        return new Promise((res, rej) => {
+            Dispatch.findOne({ _id: dispatchId })
+                .then(dispatch => {
+                    if (dispatch) {
+                        res(dispatch)
+                    }
+                    res(undefined);
+                })
+        })
+    }
+
+    static getDispatchAndJobTickets(dispatchId) {
+        return new Promise((res, rej) => {
+            Dispatch.findOne({ _id: dispatchId })
+                .then(dispatch => {
+                    if (dispatch) {
+                        res(dispatch)
+                    }
+                    res(undefined);
+                })
         })
     }
 
@@ -119,7 +145,7 @@ class DispatchTicket extends Ticket {
         })
     }
 
-    deleteTicket(dispatchId) {
+    static deleteTicket(dispatchId) {
         return new Promise((res, rej) => {
             Dispatch.deleteOne({ _id: dispatchId }, function (err) {
                 if (err) {

@@ -122,38 +122,42 @@
 
 <!-- All Job Tickets will be rendered in here -->
 <div id="operators">
-  <% for (let i=0; i < dispatch.operators.length; i++) { %>
-  <% if (dispatch.operators[i].jobId) { %>
+  <% for (let i=0; i < jobs.length; i++) { %>
+  <% if (jobs[i].jobId) { %>
 
   <% } %>
-  <div class="job <%= dispatch.operators[i].status %>">
-    <a href="/job?id=<%=dispatch.operators[i].jobId %>">
+  <div class="job <%= jobs[i].status %>">
+    <a href="/job?id=<%=jobs[i].jobId %>">
       <h2>
-        <%= dispatch.operators[i].name %>
+        <% if (jobs[i].operator.employer == user.id) { %>
+        <%= jobs[i].operator.fName + " " + jobs[i].operator.lName %>
+        <% } else { %>
+        <%= jobs[i].operator.company %>
+        <% } %>
       </h2>
     </a>
     <div class="equipment">
       <div id="truck">
         <span>
-          <%= dispatch.operators[i].equipment.truck %>
+          <%= jobs[i].equipment.truck %>
         </span>
       </div>
       <div id="trailer">
-        <% if (dispatch.operators[i].equipment.trailer !="default" ) { %>
+        <% if (jobs[i].equipment.trailer !="default" ) { %>
         <span>
-          <%= dispatch.operators[i].equipment.trailer %>
+          <%= jobs[i].equipment.trailer %>
         </span>
         <% } %>
       </div>
     </div>
     <div class="start_time">
       <span>
-        <% let d=new Date(dispatch.operators[i].start) %>
+        <% let d=new Date(jobs[i].startTime) %>
         <%= d.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12: false }) %>
       </span>
     </div>
   </div>
-  <% if (dispatch.operators[i].jobId) { %>
+  <% if (jobs[i].jobId) { %>
 
   <% } %>
   <% } %>

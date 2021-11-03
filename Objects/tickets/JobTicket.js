@@ -1,5 +1,7 @@
 const Ticket = require("../tickets/Ticket");
 const Job = require("../../models/job");
+const ValidationErrors = require("../ValidationErrors");
+
 
 class JobTicket extends Ticket {
     constructor(args) {
@@ -66,6 +68,40 @@ class JobTicket extends Ticket {
         })
     }
 
+    /**
+     * @param { String } queryType dispatch or job
+     * @param { String } dispatchId
+     * @return { Promies } res jobs if a job tikcets are found otherwise 
+     * undefined 
+     */
+    static getJobTicketAndOperator(id, type) {
+        return new Promise((res, rej) => {
+            const JOB = "job";
+            const DISPATCH = "dispatch";
+            if (type == DISPATCH) {
+                Job.find({ dispatch: id })
+                    .populate('operator')
+                    .then(jobs => {
+                        if (jobs) {
+                            res(jobs)
+                        }
+                        res(undefined)
+                    })
+            } else if (type == JOB) {
+                Job.find({ _id: id })
+                    .populate('operator')
+                    .then(jobs => {
+                        if (jobs) {
+                            res(jobs)
+                        }
+                        res(undefined)
+                    })
+            } else {
+                rej(new ValidationErrors.InvalidInputError("Invalid type passed into getJobTicketAndOperator"));
+            }
+        })
+    }
+
     static getNonCompleteJobTickets(userId) {
         return new Promise((res, rej) => {
             Job.find({
@@ -84,6 +120,11 @@ class JobTicket extends Ticket {
         })
     }
 
+    /**
+    * Geta non complete job tickets with dispatch, and dispatcher joined.
+    * @param { String } userId 
+    * @returns jobs if any exist, otherwise undefined
+    */
     static getNonCompleteJobTicketsWithDispatch(userId) {
         return new Promise((res, rej) => {
             Job.find({
@@ -93,6 +134,52 @@ class JobTicket extends Ticket {
                 { $or: [{ status: "sent" }, { status: "confirmed" }, { status: "active" }] }
                 ]
             })
+                .populate({
+                    path: 'dispatch',
+                    model: "Dispatch",
+                    populate: { path: "dispatcher", model: "User" },
+                })
+                .then((jobs) => {
+                    if (jobs) {
+                        res(jobs);
+                    } else {
+                        rej();
+                    }
+                })
+        })
+    }
+
+    /**
+     * Gets job tickets with dispatch, and dispatcher joined.
+     * @param { String } userId 
+     * @returns jobs if any exist, otherwise undefined
+     */
+    static getJobTicketsWithDispatch(userId) {
+        return new Promise((res, rej) => {
+            Job.find({ operator: userId })
+                .populate({
+                    path: 'dispatch',
+                    model: "Dispatch",
+                    populate: { path: "dispatcher", model: "User" },
+                })
+                .then((jobs) => {
+                    if (jobs) {
+                        res(jobs);
+                    } else {
+                        rej();
+                    }
+                })
+        })
+    }
+
+    /**
+     * Gets a single job ticket with dispatch, and dispatcher joined.
+     * @param { String } jobId jobId 
+     * @returns jobs if any exist, otherwise undefined
+     */
+    static getJobTicketWithDispatch(jobId) {
+        return new Promise((res, rej) => {
+            Job.findOne({ _id: jobId })
                 .populate({
                     path: 'dispatch',
                     model: "Dispatch",
