@@ -26,7 +26,7 @@ const dispatchSchema = new Schema({
     supplier: String,
     reciever: String,
     status: statusSchema,
-    rates: subModels.ratesSchema,
+    rates: Object,
 }, { timestamps: true })
 
 const Dispatch = mongoose.model("Dispatch", dispatchSchema);

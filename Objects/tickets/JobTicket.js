@@ -36,6 +36,30 @@ class JobTicket extends Ticket {
         })
     }
 
+    getPerLoadLocations() {
+        let loadLoc = []
+        if (this.rates.hourly) {
+            loadLoc[0] = this.startLocation;
+        } else {
+            for (let i = 0; i < this.rates.perLoad.length; i++) {
+                loadLoc[i] = this.rates.perLoad[i].l;
+            }
+        }
+        return loadLoc;
+    }
+
+    getTonnageLoadLocations() {
+        let loadLoc = []
+        if (this.rates.hourly) {
+            loadLoc[0] = this.dumpLocation;
+        } else {
+            for (let i = 0; i < this.rates.tonnage.length; i++) {
+                loadLoc[i] = this.rates.tonnage[i].l;
+            }
+        }
+        return loadLoc;
+    }
+
     #newJobModel() {
         return new Job({
             dispatch: this.dispatchId,

@@ -26,6 +26,7 @@ class TicketController {
     try {
       let decodedToken = await Authorizer.verifyJWTToken(token);
       let dispatch = new DispatchTicket(req.body);
+      console.log(dispatch)
       dispatch.userId = decodedToken.id;
       await dispatch.verifyTicket();
       dispatch.status = TicketController.#generateStatusObjectFromOperators(operators);

@@ -6,7 +6,6 @@ const DispatcherObject = require("../users/Dispatcher");
 class DispatchTicket extends Ticket {
 
     constructor(args) {
-        console.log(args);
         const EMPTY_STRING = ''
         super(args);
         this.contractor = args.contractor == EMPTY_STRING ? undefined : args.contractor;
@@ -19,6 +18,30 @@ class DispatchTicket extends Ticket {
         this.numTrucks = args.numTrucks;
         this.rates = args.rates;
         this.status = args.status;
+    }
+
+    getPerLoadLocations() {
+        let loadLoc = []
+        if (this.rates.hourly) {
+            loadLoc[0] = this.startLocation;
+        } else {
+            for (let i = 0; i < this.rates.perLoad.length; i++) {
+                loadLoc[i] = this.rates.perLoad[i].l;
+            }
+        }
+        return loadLoc;
+    }
+
+    getTonnageLoadLocations() {
+        let loadLoc = []
+        if (this.rates.hourly) {
+            loadLoc[0] = this.dumpLocation;
+        } else {
+            for (let i = 0; i < this.rates.tonnage.length; i++) {
+                loadLoc[i] = this.rates.tonnage[i].l;
+            }
+        }
+        return loadLoc;
     }
 
     async verifyTicket() {
@@ -82,7 +105,11 @@ class DispatchTicket extends Ticket {
             reciever: this.reciever,
             dispatcher: this.userId,
             status: this.status,
-            rates: this.rates,
+            rates: {
+                hourly: this.rates.hourly,
+                tonnage: this.rates.tonnage,
+                perLoad: this.rates.perLoad,
+            }
         })
     }
 
@@ -114,14 +141,13 @@ class DispatchTicket extends Ticket {
         return new Promise((res, rej) => {
             Dispatch.find({
                 $and: [{ dispatcher: userId },
-                    // {
-                    //     $or: [
-                    //         { "status.empty": { $gt: 0 } },
-                    //         { "status.sent": { $gt: 0 } },
-                    //         { "status.active": { $gt: 0 } },
-                    //         { "status.confirmed": { $gt: 0 } }]
-
-                    // }
+                {
+                    $or: [
+                        { "status.empty": { $gt: 0 } },
+                        { "status.sent": { $gt: 0 } },
+                        { "status.active": { $gt: 0 } },
+                        { "status.confirmed": { $gt: 0 } }]
+                }
                 ]
             }).then(dispatches => {
                 if (dispatches) {

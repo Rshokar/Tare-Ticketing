@@ -565,26 +565,39 @@ app.get("/job", authenticate, async (req, res) => {
 
   const jobId = req.query.id;
   let pageName = "Job Ticket";
+  let decodedToken, rates, ticket, job;
 
   try {
-    let job = await JobTicket.getJobTicketWithDispatch(jobId)
+    decodedToken = await Authorizer.verifyJWTToken(req.cookies.jwt);
+    job = await JobTicket.getJobTicketWithDispatch(jobId)
     if (!job) {
-      throw new ValidationError.invalidinputError("No job found")
+      throw new ValidationErrors.InvalidInputError("No job found");
     }
-    console.log(job._id);
-    let dispatch = new DispatchTicket(job._doc.dispatch);
-    console.log(dispatch);
-    res.render("job", {
-      page: pageName,
-      user: decodedToken,
-      perLoadLocations: dispatch.getPerLoadLocations(),
-      tonLoadLocations: dispatch.getTonnageLocations(),
-      job,
-    });
   } catch (e) {
     console.log(e);
     res.send({ status: 'error', err: { code: e.code, message: e.message } })
   }
+
+  if (job.dispatch) {
+    ticket = new DispatchTicket(job._doc.dispatch);
+    rates = ticket.rates;
+  } else {
+    ticket = new JobTicket(job._doc);
+    rates = job.rates;
+  }
+  res.render("job", {
+    page: pageName,
+    user: decodedToken,
+    perLoadLocations: ticket.getPerLoadLocations(),
+    tonLoadLocations: ticket.getTonnageLoadLocations(),
+    rates: ticket.rates,
+    date: ticket.date,
+    dumpLocation: ticket.dumpLocation,
+    startLocation: ticket.startLocation,
+    ticket,
+    job,
+
+  });
 })
 
 /**

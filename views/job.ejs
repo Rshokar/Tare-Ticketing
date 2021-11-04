@@ -27,56 +27,56 @@
 
 <!-- All Dispatches will be rendered in here -->
 <div id="ticket_preview_container">
-  <div id="ticket_preview" class="<%= job.status %>">
+  <div id="ticket_preview" class="<%=job.status %>">
     <h2>
-      <%= job.contractor %>
+      <%= ticket.contractor %>
     </h2>
     <span id="date">
-      <%= job.start.toLocaleDateString({ weekday: 'numeric', year: 'numeric', day: 'numeric'})  %>
+      <%= job.startTime.toLocaleDateString({ weekday: 'numeric', year: 'numeric', day: 'numeric'})  %>
     </span>
     <div id="load">
       <div>
-        <%= job.loadLocation %>
+        <%= ticket.loadLocation %>
       </div>
       <p class="ticket_text">Load</p>
     </div>
     <div id="dump">
       <div>
-        <%= job.dumpLocation %>
+        <%= ticket.dumpLocation %>
       </div>
       <p class="ticket_text">Dump</p>
     </div>
 
     <div id="details">
-      <% if (job.supplier !="" ) { %>
+      <% if (ticket.supplier !="" ) { %>
       <div>
-        <span id="supplier">Supplier: <%= job.supplier %></span>
+        <span id="supplier">Supplier: <%= ticket.supplier %></span>
       </div>
       <% } %>
 
-      <% if (job.reciever !="" ) { %>
+      <% if (ticket.reciever !="" ) { %>
       <div>
-        <span id="reciever">Reciever: <%= job.reciever %></span>
+        <span id="reciever">Reciever: <%= ticket.reciever %></span>
       </div>
       <% } %>
 
-      <% if (job.material !="" ) { %>
+      <% if (ticket.material !="" ) { %>
       <div>
         <span id="material">Material:
           <span>
-            <%= job.material %>
+            <%= ticket.material %>
           </span>
         </span>
       </div>
       <% } %>
       <div id='notes'>
-        Notes: <%= job.notes %>
+        Notes: <%= ticket.notes %>
       </div>
     </div>
 
 
     <div id="num-trucks">
-      <%= job.start.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12: false }) %>
+      <%= job.startTime.toLocaleTimeString([], { hour: '2-digit' , minute: '2-digit' , hour12: false }) %>
     </div>
     <div id="toggles">
       <i class="down fas fa-angle-down" onclick="toggleDown()"></i>
@@ -125,6 +125,7 @@
 
 <!-- All load tickets will be rendered here-->
 <div id="load_tickets">
+  <% if (job.loadTickets) { %>
   <% for ( let i=0; i < job.loadTickets.length; i++) { %>
   <div id="<%= i %>" class="load_ticket <%= job.loadTickets[i].status %>">
     <div class="times">
@@ -166,13 +167,14 @@
     <% } %>
   </div>
   <% } %>
+  <% } %>
 </div>
 
 <% if (user.type !="employee" ) { %>
 
 <!-- All rates will be rendered here -->
 <div id="rates" style="display: none;">
-  <% if (job.rates.hourly !=undefined) { %>
+  <% if (rates.hourly !=undefined) { %>
   <div id="hourly">
     <div class=" contractor">
       <h3>
@@ -183,91 +185,91 @@
       <div class="hourly_rate tandem">
         <span>Tandem</span>
         <span class="rate">
-          <%= job.rates.hourly.oper.t %>
+          <%= rates.hourly.t %>
         </span>
       </div>
 
       <div class="hourly_rate tandem_2_pup">
         <span>Tandem 2-axle Pony</span>
         <span class="rate">
-          <%= job.rates.hourly.oper.t2p %>
+          <%= rates.hourly.t2p %>
         </span>
       </div>
 
       <div class="hourly_rate tandem_3_pup">
         <span>Tandem 3-axle Pony</span>
         <span class="rate">
-          <%= job.rates.hourly.oper.t3p %>
+          <%= rates.hourly.t3p %>
         </span>
       </div>
 
       <div class="hourly_rate tandem_3_transfer">
         <span>Tandem 3-axle Transfer</span>
         <span class="rate">
-          <%= job.rates.hourly.oper.t3tf %>
+          <%= rates.hourly.t3tf %>
         </span>
       </div>
 
       <div class="hourly_rate tandem_4_transfer">
         <label>Tandem 4-axle Transfer</label>
         <span class="rate">
-          <%= job.rates.hourly.oper.t4tf %>
+          <%= rates.hourly.t4tf %>
         </span>
       </div>
 
       <div class="hourly_rate tandem_4_end_dump">
         <label>Tandem 4-axle End Dump</label>
         <span class="rate">
-          <%= job.rates.hourly.oper.t4ed %>
+          <%= rates.hourly.t4ed %>
         </span>
       </div>
 
       <div class="hourly_rate tri">
         <label>3-axle</label>
         <span class="rate">
-          <%= job.rates.hourly.oper.tri %>
+          <%= rates.hourly.tri %>
         </span>
       </div>
 
       <div class="hourly_rate tri_2_pony">
         <label>3-axle 2-axle Pony</label>
         <span class="rate">
-          <%= job.rates.hourly.oper.tri2p %>
+          <%= rates.hourly.tri2p %>
         </span>
       </div>
 
       <div class="hourly_rate tri_3_pony">
         <label>3-axle 3-axle Pony</label>
         <span class="rate">
-          <%= job.rates.hourly.oper.tri3p %>
+          <%= rates.hourly.tri3p %>
         </span>
       </div>
 
       <div class="hourly_rate tri_3_transfer">
         <label>3-axle 4-axle Transfer</label>
         <span class="rate">
-          <%= job.rates.hourly.oper.tri3tf %>
+          <%= rates.hourly.tri3tf %>
         </span>
       </div>
 
       <div class="hourly_rate tri_4_transfer">
         <label>3-axle 4-axle Transfer</label>
         <span class="rate">
-          <%= job.rates.hourly.oper.tri4tf %>
+          <%= rates.hourly.tri4tf %>
         </span>
       </div>
 
       <div class="hourly_rate tri_4_end_dumo">
         <label>3-axle 4-axle End Dump</label>
         <span class="rate">
-          <%= job.rates.hourly.oper.tri4ed %>
+          <%= rates.hourly.tri4ed %>
         </span>
       </div>
     </div>
   </div>
   <% } %>
 
-  <% if (job.rates.perLoad !=undefined) { %>
+  <% if (rates.perLoad !=undefined) { %>
   <div id="per_load">
     <div class="contractor">
       <h3>
@@ -275,7 +277,7 @@
       </h3>
     </div>
     <div id="per_load_rates" style="display: block;">
-      <% let fee=(parseFloat((job.rates.perLoad.fee * 100) / 100.00).toFixed(2)); %>
+      <% let fee=(parseFloat((rates.perLoad.fee * 100) / 100.00).toFixed(2)); %>
       <% if (user.type ==="dispatcher" ) { %>
       <div class="per_load_rate operator_rate mb-2">
         <span>Fee (%)</span>
@@ -284,29 +286,29 @@
         </span>
       </div>
       <% } %>
-      <% for (let i=0; job.rates.perLoad.rates !=undefined && i <  job.rates.perLoad.rates.length; i++) { %>
+      <% for (let i=0; rates.perLoad.rates !=undefined && i <  rates.perLoad.rates.length; i++) { %>
       <div class="per_load_rate input_rate mb-2">
         <div class="form-control mb-2 rate">
           <span class="mb-2">Rate: </span>
           <% if (user.type ==="dispatcher" ) { %>
           <span>
-            <%= job.rates.perLoad.rates[i].r %>
+            <%= rates.perLoad.rates[i].r %>
           </span>
           <% } else { %>
-          <% let rate=job.rates.perLoad.rates[i].r %>
+          <% let rate=rates.perLoad.rates[i].r %>
           <%= parseFloat(rate) - (parseFloat(rate * fee) / 100.00).toFixed(2) %>
           <% } %>
         </div>
         <div class="form-control mb-2 load">
           <span class="mb-2">Load: </span>
           <span>
-            <%= job.rates.perLoad.rates[i].l %>
+            <%= rates.perLoad.rates[i].l %>
           </span>
         </div>
         <div class="form-control mb-2 dump">
           <span class="mb-2">Dump: </span>
           <span>
-            <%= job.rates.perLoad.rates[i].d %>
+            <%= rates.perLoad.rates[i].d %>
           </span>
         </div>
       </div>
@@ -316,7 +318,7 @@
   <% } %>
 
 
-  <% if (job.rates.tonnage !=undefined) { %>
+  <% if (rates.tonnage !=undefined) { %>
   <div id="tonnage">
     <div class="contractor">
       <h3>
@@ -324,7 +326,7 @@
       </h3>
     </div>
     <div id="tonnage_rates" style="display: block;">
-      <% let fee=(parseFloat(job.rates.tonnage.fee)).toFixed(2); %>
+      <% let fee=(parseFloat(rates.tonnage.fee)).toFixed(2); %>
       <% if (user.type === "dispatcher" ) { %>
       <div class="tonnage_rate operator_rate mb-2">
         <span>Fee (%)</span>
@@ -333,17 +335,17 @@
         </span>
       </div>
       <% } %>
-      <% for (let i=0; job.rates.tonnage.rates !=undefined && i < job.rates.tonnage.rates.length; i++) { %>
+      <% for (let i=0; rates.tonnage.rates !=undefined && i < rates.tonnage.rates.length; i++) { %>
       <div class="tonnage_rate input_rate mb-2">
         <div class="form-control mb-2 rate">
           <span class="mb-2">Rate: </span>
           <% if (user.type === "dispatcher" ) { %>
           <span>
-            <%= job.rates.tonnage.rates[i].r %>
+            <%= rates.tonnage.rates[i].r %>
           </span>
           <% } else { %>
           <span>
-            <% let rate=job.rates.tonnage.rates[i].r %>
+            <% let rate=rates.tonnage.rates[i].r %>
             <%= parseFloat(rate) - (parseFloat(rate * fee) / 100.00).toFixed(2) %>
           </span>
           <% } %>
@@ -351,13 +353,13 @@
         <div class="form-control mb-2 load">
           <span class="mb-2">Load: </span>
           <span>
-            <%= job.rates.tonnage.rates[i].l %>
+            <%= rates.tonnage.rates[i].l %>
           </span>
         </div>
         <div class="form-control mb-2 dump">
           <span class="mb-2">Dump: </span>
           <span>
-            <%= job.rates.tonnage.rates[i].d %>
+            <%= rates.tonnage.rates[i].d %>
           </span>
         </div>
       </div>
@@ -394,8 +396,8 @@
     <h3>Add Load Ticket</h3>
     <div class="mb-3 date_time">
       <input type="date" class="form-control" id="load_date"
-        min="<%= job.date.toLocaleDateString({ weekday: 'numeric', year: 'numeric', day: 'numeric'})  %>"
-        value="<%= job.date.toLocaleDateString({ weekday: 'numeric', year: 'numeric', day: 'numeric'})  %>">
+        min="<%= date.toLocaleDateString({ weekday: 'numeric', year: 'numeric', day: 'numeric'})  %>"
+        value="<%= date.toLocaleDateString({ weekday: 'numeric', year: 'numeric', day: 'numeric'})  %>">
       <input type="time" class="form-control" id="load_time">
       <span class="error" id="load_time_error"></span>
       <label for="load_date" class="form-label">Load
@@ -403,7 +405,7 @@
     </div>
 
     <div class="mb-3">
-      <% if (job.rates.perLoad !== undefined && job.rates.tonnage !== undefined) { %>
+      <% if (rates.perLoad !== undefined && rates.tonnage !== undefined) { %>
       <select class="form-select" aria-label="Default select example" id="per_load_locations">
         <% for (let i=0; i < perLoadLocations.length; i++) { %>
         <option value="<%=  perLoadLocations[i].l %>">
@@ -420,13 +422,13 @@
         </option>
         <% } %>
       </select>
-      <% } else if (job.rates.hourly) { %>
+      <% } else if (rates.hourly) { %>
       <select class="form-select" aria-label="Default select example" id="load_locations">
-        <option value=" <%= job.loadLocation %>" selected>
-          <%= job.loadLocation %>
+        <option value=" <%= startLocation %>" selected>
+          <%= startLocation %>
         </option>
       </select>
-      <% } else if (job.rates.tonnage) { %>
+      <% } else if (rates.tonnage) { %>
       <select class="form-select" aria-label="Default select example" id="load_locations">
         <% for (let i=0; i < tonLoadLocations.length; i++) { %>
         <option value="<%=  tonLoadLocations[i].l %>">
@@ -434,7 +436,7 @@
         </option>
       </select>
       <% } %>
-      <% } else if (job.rates.perLoad) { %>
+      <% } else if (rates.perLoad) { %>
       <select class="form-select" aria-label="Default select example" id="load_locations">
         <% for (let i=0; i < perLoadLocations.length; i++) { %>
         <option value="<%=  perLoadLocations[i].l %>">
@@ -450,9 +452,9 @@
     </div>
 
 
-    <% if ((job.rates.hourly && !job.rates.perLoad && !job.rates.tonnage) || (job.rates.tonnage && !job.rates.hourly && job.rates.perLoad)) { %>
+    <% if ((rates.hourly && !rates.perLoad && !rates.tonnage) || (rates.tonnage && !rates.hourly && rates.perLoad)) { %>
     <div id="checkboxs">
-      <% let bool = (job.rates.hourly ? false : true) %>
+      <% let bool = (rates.hourly ? false : true) %>
       <div class="form-check">
         <input class="form-check-input" type="checkbox" id="load_check" onclick="disableTonnageInput(<%= bool %>)"
           checked>
@@ -475,7 +477,7 @@
     </div>
 
     <div class="mb-3">
-      <% if (job.rates.tonnage !== undefined && job.rates.perLoad === undefined) { %>
+      <% if (rates.tonnage !== undefined && rates.perLoad === undefined) { %>
       <input type="number" class="form-control" id="tonnage_input">
       <% } else { %>
       <input type="number" class="form-control" id="tonnage_input" disabled>
@@ -486,7 +488,7 @@
     <span class="error" id="form_error"></span>
     <button type="button" class="btn btn-secondary mb-3"
       onclick="createLoadTicket(
-      <%= (job.rates.hourly ? true : false) %>, <%= (job.rates.perLoad ? true : false) %>, <%= (job.rates.tonnage ? true : false) %>)">Submit</button>
+      <%= (rates.hourly ? true : false) %>, <%= (rates.perLoad ? true : false) %>, <%= (rates.tonnage ? true : false) %>)">Submit</button>
 
     <button type="button" class="btn btn-danger mb-3" onclick="closeModals()">Cancel</button>
   </div>
@@ -498,14 +500,14 @@
 
     <div class="mb-3">
       <select class="form-select" aria-label="Default select example" id="dump_locations">
-        <% if (job.rates.hourly) { %>
-        <option value="<%= job.dumpLocation %>" selected>
-          <%= job.dumpLocation %>
+        <% if (rates) { %>
+        <option value="<%= dumpLocation %>" selected>
+          <%= dumpLocation %>
         </option>
-        <% } else if(job.loadTickets[job.loadTickets.length-1]!==undefined && job.loadTickets[job.loadTickets.length -1].status==="active" ) { %>
+        <% } else if(job.loadTickets && job.loadTickets[job.loadTickets.length - 1].status==="active") { %>
         <% let load=job.loadTickets[job.loadTickets.length-1] %>
         <% if (load.type=="ton") { %>
-        <% let tonRates=job.rates.tonnage.rates %>
+        <% let tonRates=rates.tonnage.rates %>
         <% for (let i=0; i < tonRates.length; i++) { %>
         <% if (tonRates[i].l==load.loadLocation) { %>
         <option value="<%= tonRates[i].d %>">
@@ -513,7 +515,7 @@
         </option>
         <% } } %>
         <% } else if( load.type=="load") { %>
-        <% let perRates=job.rates.perLoad.rates %>
+        <% let perRates=rates.perLoad.rates %>
         <% for (let i=0; i < perRates.length ; i++) { %>
         <% if (perRates[i].l==load.loadLocation) { %>
         <option value="<%= perRates[i].d %>">
@@ -530,7 +532,7 @@
     <div class="mb-3 date_time">
 
       <input type="date" class="form-control" id="dump_date"
-        min="<%= job.start.toLocaleDateString({ weekday: 'numeric', year: 'numeric', day: 'numeric'}) %>">
+        min="<%= job.startTime.toLocaleDateString({ weekday: 'numeric', year: 'numeric', day: 'numeric'}) %>">
       <input type="time" class="form-control" id="dump_time">
       <span class="error" id="dump_time_error"></span>
       <label for="dump_date" class="form-label">Dump
@@ -548,7 +550,7 @@
     <h3>Sign Off</h3>
     <div class="mb-3">
       <input type="date" class="form-control" id="sign_off_date"
-        min="<%= job.start.toLocaleDateString({ weekday: 'numeric', year: 'numeric', day: 'numeric'}) %>">
+        min="<%= job.startTime.toLocaleDateString({ weekday: 'numeric', year: 'numeric', day: 'numeric'}) %>">
       <input type="time" class="form-control" id="sign_off_time">
       <span class="error" id="sign_off_error"></span>
       <label for="sign_off_time" class="form-label">Sign
