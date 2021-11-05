@@ -342,7 +342,7 @@ app.get("/logout", (req, res) => {
  * @date May 23 2021
  */
 app.post("/login_user", AuthController.login, (req, res) => {
-  res.redirect("/dashboard")
+  res.redirect("/dashboard");
 })
 
 // /**
@@ -361,7 +361,7 @@ app.post("/login_user", AuthController.login, (req, res) => {
 // })
 
 /**
- * This route is repsonsible for regustering a new user and then redirecting to the login
+ * This route is repsonsible for registering a new user and then redirecting to the login
  * page.
  * @author Ravinder Shokar 
  * @version 1.0 

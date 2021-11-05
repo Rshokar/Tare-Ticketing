@@ -111,6 +111,20 @@ class UserObject {
 
         })
     }
+
+    static deleteUserUsingModel(model) {
+        return new Promise((res, rej) => {
+            User.deleteOne({
+                _id: model.id
+            })
+                .then(() => {
+                    res();
+                })
+                .catch(() => {
+                    rej();
+                })
+        })
+    }
 }
 
 

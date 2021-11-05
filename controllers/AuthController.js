@@ -6,6 +6,8 @@ const UserObject = require("../Objects/users/User");
 const EmployeObject = require("../Objects/users/Employee");
 const DispatcherObject = require("../Objects/users/Dispatcher");
 const Authorizer = require("../Objects/Authorizer");
+const EmployeeObject = require("../Objects/users/Employee");
+const ValidationErrors = require("../Objects/ValidationErrors");
 
 /**
  * This function is responsible for registering users. 
@@ -98,54 +100,77 @@ const registerEmp = async (req, res, next) => {
  * @date Jun 7 2021 
  */
 const deleteEmp = async (req, res, next) => {
+
+  console.log(req);
   const empId = req.body.empID;
   const token = req.cookies.jwt;
-  let employees;
+  let employee;
 
-  jwt.verify(token, 'butternut', async (err, decodedToken) => {
-    if (err) {
-      console.log("failure to verify JWT");
-      res.send({
-        status: "error",
-        message: "Error finding current user ID."
-      })
+
+  try {
+    let decodedToken = await Authorizer.verifyJWTToken(token);
+    employee = await UserObject.getUserWithId(empId);
+    if (employee.employer != ObjectId(decodedToken.id)) {
+      throw new ValidationErrors.InvalidInputError("User and Employee do not match!");
     }
-    User.findOne({ _id: decodedToken.id })
-      .then(user => {
-        if (user) {
-          for (let emp in user.employees) {
-            if (user.employees[emp].id == empId) {
-              user.employees.splice(emp, 1);
-            }
-          }
+    await EmployeeObject.deleteUserUsingModel(employee);
+    // next(); 
+  } catch (e) {
+    console.log(e);
+    res.send({
+      status: "error", err: {
+        message: e.message,
+        code: e.code,
+      }
+    });
+  };
 
-          User.deleteOne({ _id: empId }, (err, res) => {
-            if (err) {
-              res.send({
-                message: "Error finding employee",
-                status: "error"
-              })
-            }
-            console.log(res);
-            user.save();
-            next();
-          })
-        } else {
-          console.log("Error finding dispatcher");
-          res.send({
-            status: "error",
-            message: "Error finding dispatcher"
-          })
-        }
-      })
-      .catch(err => {
-        console.log(err);
-        res.send({
-          status: "error",
-          message: "Error finding dispatcher"
-        })
-      })
-  })
+
+
+  // jwt.verify(token, 'butternut', async (err, decodedToken) => {
+  //   if (err) {
+  //     console.log("failure to verify JWT");
+  //     res.send({
+  //       status: "error",
+  //       message: "Error finding current user ID."
+  //     })
+  //   }
+  //   User.findOne({ _id: decodedToken.id })
+  //     .then(user => {
+  //       if (user) {
+  //         for (let emp in user.employees) {
+  //           if (user.employees[emp].id == empId) {
+  //             user.employees.splice(emp, 1);
+  //           }
+  //         }
+
+  //         User.deleteOne({ _id: empId }, (err, res) => {
+  //           if (err) {
+  //             res.send({
+  //               message: "Error finding employee",
+  //               status: "error"
+  //             })
+  //           }
+  //           console.log(res);
+  //           user.save();
+  //           next();
+  //         })
+  //       } else {
+  //         console.log("Error finding dispatcher");
+  //         res.send({
+  //           status: "error",
+  //           message: "Error finding dispatcher"
+  //         })
+  //       }
+  //     })
+  //     .catch(err => {
+  //       console.log(err);
+  //       res.send({
+  //         status: "error",
+  //         message: "Error finding dispatcher"
+  //       })
+  //     })
+  // })
 
 }
 
