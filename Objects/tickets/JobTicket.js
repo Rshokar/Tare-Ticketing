@@ -36,26 +36,45 @@ class JobTicket extends Ticket {
         })
     }
 
+    /**
+     * Returns the valid tonnage load locations.
+     * If the rates are per load or tonnage it goes through
+     * the array of rates and gets the unique load locations. 
+     * @returns and array of loadLocations
+     */
     getPerLoadLocations() {
         let loadLoc = []
+        let obj = {}
         if (this.rates.hourly) {
             loadLoc[0] = this.startLocation;
         } else {
             for (let i = 0; i < this.rates.perLoad.length; i++) {
-                loadLoc[i] = this.rates.perLoad[i].l;
+                if (!obj[this.rates.perLoad[i].l]) {
+                    obj[this.rates.perLoad[i].l] = 0;
+                }
             }
+            return Object.keys(keys);
         }
         return loadLoc;
     }
 
+    /**
+     * Returns the valid perLoad load locations.
+     * If the rates are per load or tonnage it goes through
+     * the array of rates and gets the unique load locations. 
+     * @returns and array of loadLocations
+     */
     getTonnageLoadLocations() {
         let loadLoc = []
         if (this.rates.hourly) {
             loadLoc[0] = this.dumpLocation;
         } else {
             for (let i = 0; i < this.rates.tonnage.length; i++) {
-                loadLoc[i] = this.rates.tonnage[i].l;
+                if (!obj[this.rates.tonnage[i].d]) {
+                    obj[this.rates.tonnage[i].d] = 0;
+                }
             }
+            return Object.keys(keys);
         }
         return loadLoc;
     }
@@ -112,7 +131,7 @@ class JobTicket extends Ticket {
                         res(undefined)
                     })
             } else if (type == JOB) {
-                Job.find({ _id: id })
+                Job.findOne({ _id: id })
                     .populate('operator')
                     .then(jobs => {
                         if (jobs) {
@@ -125,6 +144,7 @@ class JobTicket extends Ticket {
             }
         })
     }
+
 
     static getNonCompleteJobTickets(userId) {
         return new Promise((res, rej) => {
@@ -218,10 +238,6 @@ class JobTicket extends Ticket {
                 })
         })
     }
-
-
-
-
 }
 
 module.exports = JobTicket;

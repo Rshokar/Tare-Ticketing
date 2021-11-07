@@ -86,6 +86,7 @@ app.get("/dashboard", authenticate, async (req, res) => {
       res.render("dashboard", { page: pageName, dispatches, user: decodedToken })
     } else {
       let jobs = await JobTicket.getNonCompleteJobTicketsWithDispatch(decodedToken.id);
+      console.log(jobs);
       res.render("dashboard", { page: pageName, jobs, user: decodedToken })
     }
   } catch (e) {
@@ -165,6 +166,8 @@ app.get("/contractors", authenticate, (req, res) => {
  */
 app.post("/add_contractor", UserController.addRates, (req, res) => {
 })
+
+
 
 /**
  * This route gets the contractor data and renders the appropriate HTML 

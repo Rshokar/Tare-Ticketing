@@ -673,6 +673,7 @@ const confirmJobTicket = (req, res, next) => {
           message: "Error finding job"
         })
       }
+
       const prevStatus = ticket.status;
 
       ticket.status = newStatus;
