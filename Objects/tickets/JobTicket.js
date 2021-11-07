@@ -121,8 +121,10 @@ class JobTicket extends Ticket {
         return new Promise((res, rej) => {
             const JOB = "job";
             const DISPATCH = "dispatch";
-            if (type == DISPATCH) {
-                Job.find({ dispatch: id })
+            if (type === DISPATCH) {
+                Job.find({
+                        dispatch: id
+                    })
                     .populate('operator')
                     .then(jobs => {
                         if (jobs) {
@@ -130,8 +132,10 @@ class JobTicket extends Ticket {
                         }
                         res(undefined)
                     })
-            } else if (type == JOB) {
-                Job.findOne({ _id: id })
+            } else if (type === JOB) {
+                Job.findOne({
+                        _id: id
+                    })
                     .populate('operator')
                     .then(jobs => {
                         if (jobs) {
@@ -150,8 +154,8 @@ class JobTicket extends Ticket {
         return new Promise((res, rej) => {
             Job.find({
                 $and: [{
-                    operator: userId
-                },
+                        operator: userId
+                    },
                     // { $or: [{ status: "sent" }, { status: "confirmed" }, { status: "active" }] }
                 ]
             }).then((jobs) => {
@@ -165,23 +169,34 @@ class JobTicket extends Ticket {
     }
 
     /**
-    * Geta non complete job tickets with dispatch, and dispatcher joined.
-    * @param { String } userId 
-    * @returns jobs if any exist, otherwise undefined
-    */
+     * Geta non complete job tickets with dispatch, and dispatcher joined.
+     * @param { String } userId 
+     * @returns jobs if any exist, otherwise undefined
+     */
     static getNonCompleteJobTicketsWithDispatch(userId) {
         return new Promise((res, rej) => {
             Job.find({
-                $and: [{
-                    operator: userId
-                },
-                { $or: [{ status: "sent" }, { status: "confirmed" }, { status: "active" }] }
-                ]
-            })
+                    $and: [{
+                            operator: userId
+                        },
+                        {
+                            $or: [{
+                                status: "sent"
+                            }, {
+                                status: "confirmed"
+                            }, {
+                                status: "active"
+                            }]
+                        }
+                    ]
+                })
                 .populate({
                     path: 'dispatch',
                     model: "Dispatch",
-                    populate: { path: "dispatcher", model: "User" },
+                    populate: {
+                        path: "dispatcher",
+                        model: "User"
+                    },
                 })
                 .then((jobs) => {
                     if (jobs) {
@@ -195,20 +210,23 @@ class JobTicket extends Ticket {
 
     /**
      * Gets job tickets with dispatch, and dispatcher joined.
-     * @param { String } userId 
+     * @param { String } jobId 
      * @returns jobs if any exist, otherwise undefined
      */
-    static getJobTicketsWithDispatch(userId) {
+    static getJobTicketWithDispatch(jobId) {
         return new Promise((res, rej) => {
-            Job.find({ operator: userId })
+            Job.findOne({
+                    _id: jobId
+                })
                 .populate({
                     path: 'dispatch',
                     model: "Dispatch",
-                    populate: { path: "dispatcher", model: "User" },
                 })
-                .then((jobs) => {
-                    if (jobs) {
-                        res(jobs);
+                .then((jobModel) => {
+                    if (jobModel) {
+                        let job = new JobTicket(jobModel);
+                        job.id = jobModel._doc._id
+                        res(job);
                     } else {
                         rej();
                     }
@@ -223,11 +241,16 @@ class JobTicket extends Ticket {
      */
     static getJobTicketWithDispatch(jobId) {
         return new Promise((res, rej) => {
-            Job.findOne({ _id: jobId })
+            Job.findOne({
+                    _id: jobId
+                })
                 .populate({
                     path: 'dispatch',
                     model: "Dispatch",
-                    populate: { path: "dispatcher", model: "User" },
+                    populate: {
+                        path: "dispatcher",
+                        model: "User"
+                    },
                 })
                 .then((jobs) => {
                     if (jobs) {

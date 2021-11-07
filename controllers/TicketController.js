@@ -661,36 +661,52 @@ const deleteJobTicket = (jobId) => {
  * @vesrion 1.0 
  * @date June 26 2021
  */
-const confirmJobTicket = (req, res, next) => {
+const confirmJobTicket = async (req, res, next) => {
   const jobId = req.body.jobId;
   const newStatus = 'confirmed';
+  const increment = true;
+  const decrement = false;
 
-  Job.findOne({ _id: jobId })
-    .then((ticket) => {
-      if (ticket == null) {
-        res.send({
-          status: "error",
-          message: "Error finding job"
-        })
-      }
+  try {
+    let jobTicket = await JobTicket.getJobTicketWithDispatch(jobId);
+    console.log(jobTicket);
+    jobTicket.status = newStatus;
+    console.log(jobTicket);
+    let dispatchTicket = new DispatchTicket(jobTicket.dispatch);
+    dispatchTicket.changeDispatchStatus('sent', decrement);
+    dispatchTicket.changeDispatchStatus('confirmed', increment);
+    console.log(dispatchTicket.status);
 
-      const prevStatus = ticket.status;
+  } catch (e) {
+    console.log(e);
+  }
 
-      ticket.status = newStatus;
-      updateDispatchStatus(prevStatus, newStatus, ticket)
-        .then((dispatch) => {
-          dispatch.save();
-          ticket.save();
-          next();
-        })
-        .catch((err) => {
-          console.log(err);
-          res.send({
-            status: 'error',
-            message: "Error finding dispatch",
-          })
-        })
-    })
+  // Job.findOne({ _id: jobId })
+  //   .then((ticket) => {
+  //     if (ticket == null) {
+  //       res.send({
+  //         status: "error",
+  //         message: "Error finding job"
+  //       })
+  //     }
+
+  //     const prevStatus = ticket.status;
+
+  //     ticket.status = newStatus;
+  //     updateDispatchStatus(prevStatus, newStatus, ticket)
+  //       .then((dispatch) => {
+  //         dispatch.save();
+  //         ticket.save();
+  //         next();
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //         res.send({
+  //           status: 'error',
+  //           message: "Error finding dispatch",
+  //         })
+  //       })
+  //   })
 }
 
 /**

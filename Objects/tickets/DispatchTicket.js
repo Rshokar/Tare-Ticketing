@@ -201,6 +201,54 @@ class DispatchTicket extends Ticket {
             })
         })
     }
+
+    /**
+     * @Author Jacob Seol
+     */
+    #decrementSent() {
+        this.status.sent--;
+    }
+
+    /**
+     * @Author Jacob Seol
+     */
+    #incrementConfirmed() {
+        this.status.confirmed++;
+    }
+
+    /**
+     * @Author Jacob Seol
+     */
+    changeDispatchStatus(typeOfStatus, incDec) {
+        const EMPTY = 'empty';
+        const SENT = 'sent';
+        const CONFIRMED = 'confirmed';
+        const ACTIVE = 'active';
+        const COMPLETE = 'complete';
+
+        switch (typeOfStatus) {
+            case EMPTY:
+                break;
+            case SENT:
+                if (incDec) {
+                    //If true, increment sent
+                } else {
+                    this.#decrementSent();
+                }
+                break;
+            case CONFIRMED:
+                if (incDec) {
+                    this.#incrementConfirmed();
+                } else {
+                    //Else, decrement confirmed
+                }
+                break;
+            case ACTIVE:
+                break;
+            case COMPLETE:
+                break;
+        }
+    }
 }
 
 module.exports = DispatchTicket;
