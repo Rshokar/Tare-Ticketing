@@ -8,36 +8,17 @@ class DispatcherObject extends UserObject {
         this.employer = args.employer;
     }
 
-    /**
-     * Adds a employee to a dispatcher document
-     * @param { String } id Dispatcher id
-     * @param { EmployeeObject } employee  
-     */
-    static addEmployee(id, employee) {
-        return new Promise(async (res, rej) => {
-            let dispatcher;
-            const EMPLOYEE = "employee";
-            if (employee.type != EMPLOYEE) {
-                rej(new ValidationErrors.InvalidInputError());
-            } else {
-                dispatcher = await UserObject.getUserWithId(id);
-                // console.log(dispatcher);
-                console.log(employee);
-                if (!dispatcher) {
-                    rej(new ValidationErrors.InvalidInputError());
-                }
-                dispatcher.employees.push(employee.id);
-                dispatcher.markModified("employees");
-                dispatcher.save();
-                res();
-            }
-        })
-    }
-
     static async getEmployees(id) {
-        let dispatcher = await UserObject.getUserWithId(id);
-        let employees = await DispatcherObject.#getEmpsFromlistOfIds(dispatcher.employees);
-        return employees;
+        return new Promise(res => {
+            User.find({ employer: id })
+                .then(employees => {
+                    if (employees) {
+                        res(employees);
+                    } else {
+                        res(undefined);
+                    }
+                })
+        })
     }
 
 

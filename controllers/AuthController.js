@@ -83,7 +83,6 @@ const registerEmp = async (req, res, next) => {
     employee.validateUser();
     Authorizer.validatePassword(password);
     employee.id = await Authorizer.registerUser(employee, password);
-    await DispatcherObject.addEmployee(decodedToken.id, employee);
     res.send({ status: "success" })
     next();
   } catch (e) {
@@ -100,8 +99,6 @@ const registerEmp = async (req, res, next) => {
  * @date Jun 7 2021 
  */
 const deleteEmp = async (req, res, next) => {
-
-  console.log(req);
   const empId = req.body.empID;
   const token = req.cookies.jwt;
   let employee;
@@ -109,12 +106,15 @@ const deleteEmp = async (req, res, next) => {
 
   try {
     let decodedToken = await Authorizer.verifyJWTToken(token);
-    employee = await UserObject.getUserWithId(empId);
-    if (employee.employer != ObjectId(decodedToken.id)) {
+    employee = await EmployeeObject.getUserWithId(empId, decodedToken.id);
+    console.log(employee);
+    if (employee.employer != decodedToken.id) {
+      console.log("Made it inside of if check");
       throw new ValidationErrors.InvalidInputError("User and Employee do not match!");
     }
-    await EmployeeObject.deleteUserUsingModel(employee);
-    // next(); 
+    console.log("Avoided if check");
+    await employee.delete()
+    next();
   } catch (e) {
     console.log(e);
     res.send({

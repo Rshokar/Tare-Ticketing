@@ -42,6 +42,14 @@ class EmployeeObject extends UserObject {
             throw new ValidationErrors.PhoneError("Phone number is to short.");
         }
     }
+
+    static getUserWithId(userId, employerId) {
+        return new Promise(async res => {
+            let employee = await super.getUserWithId(userId);
+            employee.employer = employerId
+            res(employee);
+        })
+    }
 }
 
 module.exports = EmployeeObject;

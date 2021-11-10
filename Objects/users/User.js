@@ -93,8 +93,11 @@ class UserObject {
         return new Promise((res) => {
             User.findOne({ _id: id })
                 .then(user => {
+                    console.log(user);
                     if (user) {
-                        res(user);
+                        let userObject = new UserObject(user._doc);
+                        userObject.id = user._doc._id
+                        res(userObject);
                     } else {
                         res(undefined);
                     }
@@ -109,6 +112,25 @@ class UserObject {
     static saveUser(user) {
         return new Promise((res, rej) => {
 
+        })
+    }
+
+    /**
+     * 
+     * @param { UserObject } user 
+     * @returns 
+     */
+    async delete() {
+        return new Promise((res, rej) => {
+            User.deleteOne({ _id: this.id })
+                .then(err => {
+                    if (err.deleteCount == 0) {
+                        rej();
+                    } else {
+                        console.log("User successfully deleted!");
+                        res();
+                    }
+                })
         })
     }
 

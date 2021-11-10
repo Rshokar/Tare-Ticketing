@@ -917,6 +917,7 @@ app.get("/employees", authenticate, async (req, res) => {
   try {
     let decodedToken = await Authorizer.verifyJWTToken(token);
     let employees = await DispatcherObject.getEmployees(decodedToken.id)
+    console.log("Employees! :", employees);
     res.render("employees", { page: pageName, user: decodedToken, employees })
   } catch (e) {
     console.log(e);
