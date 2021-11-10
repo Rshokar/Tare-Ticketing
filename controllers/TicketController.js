@@ -4,7 +4,9 @@ const Job = require("../models/job");
 const User = require("../models/user");
 const DispatchTicket = require("../Objects/tickets/DispatchTicket");
 const JobTicket = require("../Objects/tickets/JobTicket");
-const { ObjectId } = require("mongodb");
+const {
+  ObjectId
+} = require("mongodb");
 const UserController = require("../controllers/UserController");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
@@ -35,7 +37,13 @@ class TicketController {
       next();
     } catch (e) {
       console.log(e);
-      res.send({ status: "error", code: { message: e.message, code: e.code } })
+      res.send({
+        status: "error",
+        code: {
+          message: e.message,
+          code: e.code
+        }
+      })
     }
   }
 
@@ -46,7 +54,13 @@ class TicketController {
    * @return { JSON } 
    */
   static #generateStatusObjectFromOperators(operators) {
-    let statusObject = { empty: 0, sent: 0, confirmed: 0, active: 0, complete: 0 }
+    let statusObject = {
+      empty: 0,
+      sent: 0,
+      confirmed: 0,
+      active: 0,
+      complete: 0
+    }
     for (let i = 0; i < operators.length; i++) {
       switch (operators[i].status) {
         case 'sent':
@@ -94,6 +108,37 @@ class TicketController {
       res();
     })
   }
+
+
+  /**
+   * This function is responsible for changing the status of a job ticket to confirmed.
+   * @author Jacob Seol 
+   * @version 1.1 
+   * @date Nov 9, 2021
+   */
+  static confirmJobTicket = async (req, res, next) => {
+    const jobId = req.body.jobId;
+    const newStatus = 'confirmed';
+    const increment = true;
+    const decrement = false;
+
+    try {
+      let jobTicket = await JobTicket.getJobTicketWithDispatch(jobId);
+      let dispatchTicket = jobTicket.dispatch;
+      jobTicket.status = newStatus;
+      dispatchTicket.status.sent--;
+      dispatchTicket.status.confirmed++;
+      console.log(dispatchTicket);
+      jobTicket.save();
+      dispatchTicket.save();
+      dispatchTicket.markModified("status");
+      next();
+
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   // jwt.verify(token, "butternut", async (err, decodedToken) => {
   //   if (err) {
   //     res.send({
@@ -154,10 +199,16 @@ const editDispatch = async (req, res, next) => {
     dispatch = await updateRates(DATA, dispatch);
     dispatch = await updateOperators(DATA, dispatch);
     dispatch.save();
-    res.send({ status: "success", message: "Succesfully updated dispatch" })
+    res.send({
+      status: "success",
+      message: "Succesfully updated dispatch"
+    })
   } catch (e) {
     console.log(e);
-    res.send({ status: "error", err: e });
+    res.send({
+      status: "error",
+      err: e
+    });
     next();
   }
 }
@@ -210,42 +261,63 @@ function updateDspatchDetails(data, disp) {
 function validateDispatchDetails(data) {
   let isValid = true;
   return new Promise((res, rej) => {
-    if (data.contractor == ""
-      || data.date == ""
-      || data.dumpLocation == ""
-      || data.loadLocation == ""
+    if (data.contractor == "" ||
+      data.date == "" ||
+      data.dumpLocation == "" ||
+      data.loadLocation == ""
     ) {
-      rej({ code: "form", message: "Rerquired Fields must not be left empty" })
+      rej({
+        code: "form",
+        message: "Rerquired Fields must not be left empty"
+      })
       return false;
     }
 
     if (data.numTrucks < 0) {
-      rej({ code: "num_trucks", message: "Number of trucks must be greater or equal than zero" });
+      rej({
+        code: "num_trucks",
+        message: "Number of trucks must be greater or equal than zero"
+      });
       isValid = false;
     }
 
     if (data.loadLocation.length < 2) {
-      rej({ code: "load", message: "Load Location must be longer than two characters" });
+      rej({
+        code: "load",
+        message: "Load Location must be longer than two characters"
+      });
       isValid = false;
     }
 
     if (data.dumpLocation.length < 2) {
-      rej({ code: "dump", message: "Dump Location must be longer than two characters" });
+      rej({
+        code: "dump",
+        message: "Dump Location must be longer than two characters"
+      });
       isValid = false;
     }
 
     if (data.reciever.length > 0 && data.reciever.length < 2) {
-      rej({ code: "reciever", message: "Reciever must be longer than two characters" });
+      rej({
+        code: "reciever",
+        message: "Reciever must be longer than two characters"
+      });
       isValid = false;
     }
 
     if (data.supplier.length > 0 && data.supplier.length < 2) {
-      rej({ code: "supplier", message: "Supplier must be longer than two characters" });
+      rej({
+        code: "supplier",
+        message: "Supplier must be longer than two characters"
+      });
       isValid = false;
     }
 
     if (data.material.length > 0 && data.material.length < 2) {
-      rej({ code: "material", message: "Material must be longer than two characters" });
+      rej({
+        code: "material",
+        message: "Material must be longer than two characters"
+      });
       isValid = false;
     }
 
@@ -275,7 +347,11 @@ function updateOperators(data, disp) {
     for (let i = 0; i < dispOps.length; i++) {
       if (dispOps[i].status === ACTIVE || dispOps[i].status === COMPLETE) {
         if (!isOpInDispatch(dispOps[i], data)) {
-          rej({ code: "operators", message: "Active or Complete operator has been removed from dispaatch.", result: dispOps[i] })
+          rej({
+            code: "operators",
+            message: "Active or Complete operator has been removed from dispaatch.",
+            result: dispOps[i]
+          })
         }
       }
     }
@@ -283,7 +359,11 @@ function updateOperators(data, disp) {
     //Make sure operator data is valid. 
     for (let i = 0; i < dataOps.length; i++) {
       if (!validateOperator(dataOps[i], data)) {
-        rej({ code: "operators", message: "Operator could not be validated.", result: dataOps[j] })
+        rej({
+          code: "operators",
+          message: "Operator could not be validated.",
+          result: dataOps[j]
+        })
       }
     }
 
@@ -291,7 +371,11 @@ function updateOperators(data, disp) {
     for (let i = 0; i < data.numTrucks; i++) {
       for (let j = i + 1; j < data.numTrucks; j++) {
         if (dataOps[i].id === dataOps[j]) {
-          rej({ code: "operators", message: "Duplicate operators found", result: dataOps[j] })
+          rej({
+            code: "operators",
+            message: "Duplicate operators found",
+            result: dataOps[j]
+          })
         }
       }
     }
@@ -316,7 +400,9 @@ function updateOperators(data, disp) {
 
       //Convert all data.operator ID's from Strings to to Object Id
       data.operators.forEach((op, i) => {
-        if (op.id) { data.operators[i].id = ObjectId(op.id); }
+        if (op.id) {
+          data.operators[i].id = ObjectId(op.id);
+        }
         console.log(op)
       })
 
@@ -347,31 +433,53 @@ function updateRates(data, disp) {
     let areRoutesValid;
 
     if (DATAR.hourly && (DATAR.perLoad || DATAR.tonnage)) {
-      rej({ code: "rates", message: "Invalid Rate fomat. Cannot have hourly and perload or tonnage rate." })
+      rej({
+        code: "rates",
+        message: "Invalid Rate fomat. Cannot have hourly and perload or tonnage rate."
+      })
     }
 
     if (disp.status.active > 0 || disp.status.complete > 0) {
       if (!DATAR.hourly && DISPR.hourly) {
-        rej({ code: "rates", message: "Dispatch is active or complete, cannot change rate type. Must be hourly." });
+        rej({
+          code: "rates",
+          message: "Dispatch is active or complete, cannot change rate type. Must be hourly."
+        });
       } else if (!DATAR.perLoad && DISPR.perload) {
-        rej({ code: "rates", message: "Dispatch is active or complete, cannot change rate type. Must include per load." });
+        rej({
+          code: "rates",
+          message: "Dispatch is active or complete, cannot change rate type. Must include per load."
+        });
       } else if (!DATAR.tonnage && DISPR.tonnage) {
-        rej({ code: "rates", message: "Dispatch is active or complete, cannot change rate type. Must include tonnage." });
+        rej({
+          code: "rates",
+          message: "Dispatch is active or complete, cannot change rate type. Must include tonnage."
+        });
       }
 
       if (DATAR.tonnage && DISPR.tonnage && !hasRoutes(DATAR.tonnage.rates, DISPR.tonnage.rates)) {
-        rej({ code: "rates", message: "Missing tonnage route. Active or Complete dispatch cannot have routes removed." });
+        rej({
+          code: "rates",
+          message: "Missing tonnage route. Active or Complete dispatch cannot have routes removed."
+        });
       };
 
       if (DATAR.perLoad && DISPR.perLoad && !hasRoutes(DATAR.perLoad.rates, DISPR.perLoad.rates)) {
-        rej({ code: "rates", message: "Missing per load route. Active or Complete dispatch cannot have routes removed." });
+        rej({
+          code: "rates",
+          message: "Missing per load route. Active or Complete dispatch cannot have routes removed."
+        });
       };
     }
 
     if (!DATAR.hourly) {
-      if (DATAR.perLoad && DATAR.tonnage) { areRoutesValid = validateRoutes([...DATAR.perLoad.rates, ...DATAR.tonnage.rates]) }
-      else if (DATAR.perload) { areRoutesValid = validateRoutes(DATAR.perLoad.rates) }
-      else if (DATAR.tonnage) { areRoutesValid = validateRoutes(DATAR.tonnage.rates) }
+      if (DATAR.perLoad && DATAR.tonnage) {
+        areRoutesValid = validateRoutes([...DATAR.perLoad.rates, ...DATAR.tonnage.rates])
+      } else if (DATAR.perload) {
+        areRoutesValid = validateRoutes(DATAR.perLoad.rates)
+      } else if (DATAR.tonnage) {
+        areRoutesValid = validateRoutes(DATAR.tonnage.rates)
+      }
     }
 
     if (DATAR.hourly || areRoutesValid) {
@@ -394,7 +502,9 @@ function validateRoutes(routes) {
   let isValid = true;
   for (let i = 0; i < routes.length; i++) {
     isValid = validateRoute(routes[i]);
-    if (!isValid) { return isValid }
+    if (!isValid) {
+      return isValid
+    }
   }
   return isValid
 }
@@ -475,7 +585,7 @@ function validateOperator(op, disp) {
 
   if (Object.prototype.toString.call(START) === "[object Date]") {
     // it is a date
-    if (isNaN(START.getTime())) {  // d.valueOf() could also work
+    if (isNaN(START.getTime())) { // d.valueOf() could also work
       console.log(" Must select a start date and time.");
       return false;
     }
@@ -516,17 +626,31 @@ const createJobTickets = (ops, data) => {
   let job;
 
   return new Promise((res, rej) => {
-    const dispatchStatus = { empty, sent, confirmed, active, complete }
+    const dispatchStatus = {
+      empty,
+      sent,
+      confirmed,
+      active,
+      complete
+    }
     ops.forEach(async (spot, index) => {
       if (data instanceof Dispatch) {
-        if (spot.status === EMPTY) { dispatchStatus.empty += 1; }
-        else if (spot.status === SENT) { dispatchStatus.sent += 1 }
-        else if (spot.status === CONFIRMED) { dispatchStatus.confirmed += 1 }
-        else if (spot.status === ACTIVE) { dispatchStatus.active += 1 }
-        else if (spot.status === COMPLETE) { dispatchStatus.complete += 1 }
+        if (spot.status === EMPTY) {
+          dispatchStatus.empty += 1;
+        } else if (spot.status === SENT) {
+          dispatchStatus.sent += 1
+        } else if (spot.status === CONFIRMED) {
+          dispatchStatus.confirmed += 1
+        } else if (spot.status === ACTIVE) {
+          dispatchStatus.active += 1
+        } else if (spot.status === COMPLETE) {
+          dispatchStatus.complete += 1
+        }
         data.status = dispatchStatus
       }
-      if ((spot.id === undefined || spot.id === "") || spot.jobId !== undefined) { return }
+      if ((spot.id === undefined || spot.id === "") || spot.jobId !== undefined) {
+        return
+      }
 
       try {
         job = await createJobTicket(spot, data);
@@ -535,7 +659,9 @@ const createJobTickets = (ops, data) => {
         rej(e)
       }
 
-      if (data instanceof Dispatch) { data.operators[index].jobId = job._id; }
+      if (data instanceof Dispatch) {
+        data.operators[index].jobId = job._id;
+      }
       job.save();
     })
     res(data);
@@ -558,7 +684,10 @@ const createJobTicket = (op, data) => {
   return new Promise(res => {
     let dispatcher, dispatchTicket;
     if (data instanceof Dispatch) {
-      dispatcher = { id: data.dispatcher.id, company: data.dispatcher.company };
+      dispatcher = {
+        id: data.dispatcher.id,
+        company: data.dispatcher.company
+      };
       dispatchTicket = data._id;
     } else {
       dispatcher = {};
@@ -566,13 +695,19 @@ const createJobTicket = (op, data) => {
     res(new Job({
       dispatcher,
       dispatchTicket,
-      operator: { id: op.id, name: op.name },
+      operator: {
+        id: op.id,
+        name: op.name
+      },
       date: data.date,
       start: op.start,
       dumpLocation: data.dumpLocation,
       loadLocation: data.loadLocation,
       contractor: data.contractor,
-      equipment: { truck: op.equipment.truck, trailer: op.equipment.trailer },
+      equipment: {
+        truck: op.equipment.truck,
+        trailer: op.equipment.trailer
+      },
       notes: data.notes,
       material: data.material,
       supplier: data.supplier,
@@ -601,13 +736,19 @@ const updateJobTicket = (jobId, jobData, op) => {
 
     try {
       job = await getJob(jobId);
-      job.operator = { id: op.id, name: op.name };
+      job.operator = {
+        id: op.id,
+        name: op.name
+      };
       job.date = jobData.date;
       job.start = op.start;
       job.dumpLocation = jobData.dumpLocation;
       job.loadLocation = jobData.loadLocation;
       job.contractor = jobData.contractor;
-      job.equipment = { truck: op.equipment.truck, trailer: op.equipment.trailer };
+      job.equipment = {
+        truck: op.equipment.truck,
+        trailer: op.equipment.trailer
+      };
       job.notes = jobData.notes;
       job.material = jobData.material;
       job.supplier = jobData.supplier;
@@ -620,10 +761,21 @@ const updateJobTicket = (jobId, jobData, op) => {
           res()
         })
         .catch((e) => {
-          res({ status: "error", e: { code: "operators", message: "error saving job ticket" }, result: job })
+          res({
+            status: "error",
+            e: {
+              code: "operators",
+              message: "error saving job ticket"
+            },
+            result: job
+          })
         })
     } catch (e) {
-      rej({ code: "operators", message: "error updating job ticket", result: job })
+      rej({
+        code: "operators",
+        message: "error updating job ticket",
+        result: job
+      })
     }
   })
 }
@@ -638,75 +790,27 @@ const updateJobTicket = (jobId, jobData, op) => {
  */
 const deleteJobTicket = (jobId) => {
   return new Promise((res, rej) => {
-    Job.deleteOne({ _id: ObjectId(jobId) })
+    Job.deleteOne({
+        _id: ObjectId(jobId)
+      })
       .then(data => {
         if (data.deletedCount < 1) {
-          rej({ code: "operators", message: "Error deleting job ticket" })
+          rej({
+            code: "operators",
+            message: "Error deleting job ticket"
+          })
         } else {
           res();
         }
       })
       .catch(e => {
         console.log(e);
-        rej({ code: "operators", message: "Error deleting job ticket" })
+        rej({
+          code: "operators",
+          message: "Error deleting job ticket"
+        })
       })
   })
-}
-
-
-/**
- * This function is responsible for changing the status of a job ticket to confirmed.
- * This function also utilizes updateDispatchStatus() to update the status of the dispatch
- * @author Ravinder Shoakr 
- * @vesrion 1.0 
- * @date June 26 2021
- */
-const confirmJobTicket = async (req, res, next) => {
-  const jobId = req.body.jobId;
-  const newStatus = 'confirmed';
-  const increment = true;
-  const decrement = false;
-
-  try {
-    let jobTicket = await JobTicket.getJobTicketWithDispatch(jobId);
-    console.log(jobTicket);
-    jobTicket.status = newStatus;
-    console.log(jobTicket);
-    let dispatchTicket = new DispatchTicket(jobTicket.dispatch);
-    dispatchTicket.changeDispatchStatus('sent', decrement);
-    dispatchTicket.changeDispatchStatus('confirmed', increment);
-    console.log(dispatchTicket.status);
-
-  } catch (e) {
-    console.log(e);
-  }
-
-  // Job.findOne({ _id: jobId })
-  //   .then((ticket) => {
-  //     if (ticket == null) {
-  //       res.send({
-  //         status: "error",
-  //         message: "Error finding job"
-  //       })
-  //     }
-
-  //     const prevStatus = ticket.status;
-
-  //     ticket.status = newStatus;
-  //     updateDispatchStatus(prevStatus, newStatus, ticket)
-  //       .then((dispatch) => {
-  //         dispatch.save();
-  //         ticket.save();
-  //         next();
-  //       })
-  //       .catch((err) => {
-  //         console.log(err);
-  //         res.send({
-  //           status: 'error',
-  //           message: "Error finding dispatch",
-  //         })
-  //       })
-  //   })
 }
 
 /**
@@ -720,7 +824,9 @@ const activateJobTicket = (req, res, next) => {
   const jobId = req.body.jobId;
   const newStatus = 'active';
 
-  Job.findOne({ _id: jobId })
+  Job.findOne({
+      _id: jobId
+    })
     .then((ticket) => {
       if (ticket == null) {
         res.send({
@@ -762,19 +868,30 @@ const completeJobTicket = (req, res, next) => {
   let finish;
   let prevStatus
 
-  Job.findOne({ _id: jobId })
+  Job.findOne({
+      _id: jobId
+    })
     .then((ticket) => {
       start = new Date(ticket.startTime);
       finish = new Date(req.body.time);
 
       if (ticket == null) {
-        res.send({ status: "error", message: "Error finding job" })
+        res.send({
+          status: "error",
+          message: "Error finding job"
+        })
         next()
       } else if (ticket.loadTickets.length != 0 && ticket.loadTickets[ticket.loadTickets.length - 1].status == "active") {
-        res.send({ status: "error", message: "Finish Load Ticket Before Signing Off" })
+        res.send({
+          status: "error",
+          message: "Finish Load Ticket Before Signing Off"
+        })
         next();
       } else if (finish < start) {
-        res.send({ status: "error", message: "Finish Time cannot be before start time" })
+        res.send({
+          status: "error",
+          message: "Finish Time cannot be before start time"
+        })
         next()
       } else {
         prevStatus = ticket.status;
@@ -784,12 +901,18 @@ const completeJobTicket = (req, res, next) => {
           .then((dispatch) => {
             dispatch.save();
             ticket.save();
-            res.send({ status: "success", message: "Job status updated" })
+            res.send({
+              status: "success",
+              message: "Job status updated"
+            })
             next();
           })
           .catch((err) => {
             console.log(err)
-            res.send({ status: "error", message: "Error finding dispatch" })
+            res.send({
+              status: "error",
+              message: "Error finding dispatch"
+            })
             next();
           })
       }
@@ -810,7 +933,9 @@ const completeJobTicket = (req, res, next) => {
  */
 const updateDispatchStatus = (prevStatus, newStatus, job) => {
   return new Promise((resolve, reject) => {
-    Dispatch.findOne({ _id: job.dispatchTicket })
+    Dispatch.findOne({
+        _id: job.dispatchTicket
+      })
       .then((dispatch) => {
         if (dispatch == null) {
           reject("No dispatch found");
@@ -846,13 +971,18 @@ const submitLoadTicket = async (req, res, next) => {
     x = await verifyActiveLoadTicket(req.body, job);
     y = await isApprovedLoadLocation(req.body.loadLocation, job, req.body.type);
   } catch (err) {
-    res.send({ status: "error", err });
+    res.send({
+      status: "error",
+      err
+    });
     next();
   }
 
   if (x && y) {
     tonnage = (req.body.type == "ton" ? req.body.tonnage : getBoxes(job.equipment))
-    if (job.loadTickets == undefined) { job.loadTickets = []; }
+    if (job.loadTickets == undefined) {
+      job.loadTickets = [];
+    }
 
     job.loadTickets.push({
       loadLocation: req.body.loadLocation,
@@ -920,7 +1050,10 @@ const finishLoadTicket = async (req, res, next) => {
     x = await verifyFinishLoadTicket(load, req.body);
     y = await isApprovedDumpLocation(job, load, req.body.dumpLocation);
   } catch (e) {
-    res.send({ status: "error", err: e });
+    res.send({
+      status: "error",
+      err: e
+    });
     next();
   }
   if (x && y) {
@@ -966,11 +1099,20 @@ const verifyFinishLoadTicket = (l, data) => {
     let [date, time] = data.dumpTime.split("T");
     dateTime = new Date(data.dumpTime);
     if (time === "" || date === "" || (data.dumpLocation === "default" || data.dumpLocation === "")) {
-      rej({ code: "form", message: "Required fields can not be left empty or on default state" })
+      rej({
+        code: "form",
+        message: "Required fields can not be left empty or on default state"
+      })
     } else if (data.dumpLocation.length < 2) {
-      rej({ code: "dump", message: "Must be larger than 2 characters" })
+      rej({
+        code: "dump",
+        message: "Must be larger than 2 characters"
+      })
     } else if (l.loadTime > dateTime) {
-      rej({ code: "dump_dateTime", message: "Dump time cannnot be before Load time" });
+      rej({
+        code: "dump_dateTime",
+        message: "Dump time cannnot be before Load time"
+      });
     }
     res(true);
   })
@@ -991,13 +1133,25 @@ const verifyActiveLoadTicket = async (t, j) => {
   return new Promise((res, rej) => {
     if (t.loadLocation == "default" || t.material == "" || date === "" || time === "" ||
       (t.type !== "load" && (t.tonnage === 0 || t.tonnage === "NaN"))) {
-      rej({ code: "form", message: "Required fields can not be left empty or on default state." });
+      rej({
+        code: "form",
+        message: "Required fields can not be left empty or on default state."
+      });
     } else if (t.loadLocation.length < 2) {
-      rej({ code: "load", message: "Load Location must be greater than two characters." });
+      rej({
+        code: "load",
+        message: "Load Location must be greater than two characters."
+      });
     } else if (j.start > d) {
-      rej({ code: "load_dateTime", message: "Load time cannot be before start time." });
+      rej({
+        code: "load_dateTime",
+        message: "Load time cannot be before start time."
+      });
     } else if (t.tonnage <= 0 && t.type === "ton") {
-      rej({ code: "tonnage", message: "Must be greater than or equal to 0." });
+      rej({
+        code: "tonnage",
+        message: "Must be greater than or equal to 0."
+      });
     }
 
     res(true);
@@ -1017,7 +1171,10 @@ const getActiveLoadTicket = (j) => {
         res([j.loadTickets[i], i])
       }
     }
-    rej({ code: "job", message: "No active load ticket" });
+    rej({
+      code: "job",
+      message: "No active load ticket"
+    });
   })
 }
 
@@ -1039,8 +1196,16 @@ const isApprovedLoadLocation = async (l, j, t) => {
     if (j.rates.hourly) {
       isValid = (j.loadLocation === l ? true : false);
     } else {
-      if (t === "load") { j.rates.perLoad.rates.forEach((rate) => { load.push(rate.l) }) }
-      if (t === "ton") { j.rates.tonnage.rates.forEach((rate) => { load.push(rate.l) }) }
+      if (t === "load") {
+        j.rates.perLoad.rates.forEach((rate) => {
+          load.push(rate.l)
+        })
+      }
+      if (t === "ton") {
+        j.rates.tonnage.rates.forEach((rate) => {
+          load.push(rate.l)
+        })
+      }
     }
 
     for (let i = 0; i < load.length; i++) {
@@ -1052,7 +1217,10 @@ const isApprovedLoadLocation = async (l, j, t) => {
     if (isValid) {
       res(isValid);
     } else {
-      rej({ code: "load", message: "Invalid load location." });
+      rej({
+        code: "load",
+        message: "Invalid load location."
+      });
     }
   })
 }
@@ -1074,8 +1242,16 @@ const isApprovedDumpLocation = (j, l, location) => {
     if (j.rates.hourly) {
       isValid = (j.dumpLocation === location ? true : false);
     } else {
-      if (l.type === "load") { j.rates.perLoad.rates.forEach(route => { routes.push(route) }) };
-      if (l.type === "ton") { j.rates.tonnage.rates.forEach(route => { routes.push(route) }) };
+      if (l.type === "load") {
+        j.rates.perLoad.rates.forEach(route => {
+          routes.push(route)
+        })
+      };
+      if (l.type === "ton") {
+        j.rates.tonnage.rates.forEach(route => {
+          routes.push(route)
+        })
+      };
     }
 
     for (let i = 0; i < routes.length; i++) {
@@ -1087,7 +1263,10 @@ const isApprovedDumpLocation = (j, l, location) => {
     if (isValid) {
       res(isValid)
     } else {
-      rej({ code: "dump", message: "Invalid dump location" });
+      rej({
+        code: "dump",
+        message: "Invalid dump location"
+      });
     }
   })
 }
@@ -1116,7 +1295,10 @@ const updateLoadTicket = async (req, res, next) => {
     }
   } catch (err) {
     console.log("The Error", err);
-    res.send({ status: "error", err })
+    res.send({
+      status: "error",
+      err
+    })
     next()
   }
 
@@ -1166,8 +1348,8 @@ const updateLoadTicket = async (req, res, next) => {
  */
 const deleteLoadTicket = (req, res, next) => {
   Job.findOne({
-    _id: req.body.jobId
-  })
+      _id: req.body.jobId
+    })
     .then((job) => {
       if (job == null) {
         res.send({
@@ -1202,24 +1384,46 @@ const getJobTickets = (q, id, userType, status) => {
     let user;
 
     if (q.type === "contractor") {
-      customer = { contractor: q.customer }
+      customer = {
+        contractor: q.customer
+      }
     } else if (q.type === "operator" && userType === "operator") {
-      customer = { "dispatcher.company": q.customer };
+      customer = {
+        "dispatcher.company": q.customer
+      };
     } else if (q.type === "operator") {
-      customer = { "operator.name": q.customer };
+      customer = {
+        "operator.name": q.customer
+      };
     }
 
     if (userType === "dispatcher") {
-      user = { "dispatcher.id": id };
+      user = {
+        "dispatcher.id": id
+      };
     } else {
-      user = { "operator.id": id };
+      user = {
+        "operator.id": id
+      };
     }
 
     Job.find({
-      $and: [user, customer, { status: status }, { $and: [{ date: { $gte: q.start, $lte: q.finish } }] }]
+      $and: [user, customer, {
+        status: status
+      }, {
+        $and: [{
+          date: {
+            $gte: q.start,
+            $lte: q.finish
+          }
+        }]
+      }]
     }).then((jobs) => {
       if (jobs.length === 0) {
-        rej({ code: "form", message: "No jobs found." });
+        rej({
+          code: "form",
+          message: "No jobs found."
+        });
       } else {
         res(jobs);
       }
@@ -1237,10 +1441,15 @@ const getJobTickets = (q, id, userType, status) => {
  */
 const getJob = async (id) => {
   return new Promise((res, rej) => {
-    Job.findOne({ _id: ObjectId(id) })
+    Job.findOne({
+        _id: ObjectId(id)
+      })
       .then(job => {
         if (job == null) {
-          rej({ code: "form", message: "Error finding job ticket." })
+          rej({
+            code: "form",
+            message: "Error finding job ticket."
+          })
         } else {
           res(job)
         }
@@ -1260,12 +1469,15 @@ const getJob = async (id) => {
 const getDispatch = (id) => {
   return new Promise((res, rej) => {
     Dispatch.findOne({
-      _id: ObjectId(id)
-    })
+        _id: ObjectId(id)
+      })
       .then(ticket => {
         console.log(ticket)
         if (ticket === null) {
-          rej({ code: "form", message: "Error finding dispatch ticket" })
+          rej({
+            code: "form",
+            message: "Error finding dispatch ticket"
+          })
         } else {
           res(ticket);
         }
@@ -1283,17 +1495,33 @@ const getDispatch = (id) => {
 const getNumCopmletedDispatch = (id, num) => {
   return new Promise((res, rej) => {
     Dispatch.find({
-      $and: [{ "dispatcher.id": id },
-      { "status.complete": { $gt: 0 } },
-      { "status.sent": 0 },
-      { "status.confirmed": 0 },
-      { "status.active": 0 }]
-    }).limit(num)
+        $and: [{
+            "dispatcher.id": id
+          },
+          {
+            "status.complete": {
+              $gt: 0
+            }
+          },
+          {
+            "status.sent": 0
+          },
+          {
+            "status.confirmed": 0
+          },
+          {
+            "status.active": 0
+          }
+        ]
+      }).limit(num)
       .then(disp => {
         console.log("Hello")
         console.log(disp)
         if (disp.length === 0) {
-          rej({ code: "no_tickets", message: "No dispatch tickets found" })
+          rej({
+            code: "no_tickets",
+            message: "No dispatch tickets found"
+          })
         } else {
           res(disp)
         }
@@ -1313,22 +1541,36 @@ const getNumCopmletedJobs = (id, num, userType) => {
     const DISPATCHER = "dispatcher";
     if (userType === DISPATCHER) {
       Job.find({
-        $and: [{ "dispatcher.id": id }, { status: "complete" }]
-      }).limit(num)
+          $and: [{
+            "dispatcher.id": id
+          }, {
+            status: "complete"
+          }]
+        }).limit(num)
         .then(jobs => {
           if (jobs.length === 0) {
-            rej({ code: "no_tickets", message: "No Job tickets found" })
+            rej({
+              code: "no_tickets",
+              message: "No Job tickets found"
+            })
           } else {
             res(jobs)
           }
         })
     } else {
       Job.find({
-        $and: [{ "operator.id": id }, { status: "complete" }]
-      }).limit(num)
+          $and: [{
+            "operator.id": id
+          }, {
+            status: "complete"
+          }]
+        }).limit(num)
         .then(jobs => {
           if (jobs.length === 0) {
-            rej({ status: "error", message: "No tickets found" })
+            rej({
+              status: "error",
+              message: "No tickets found"
+            })
           } else {
             res(jobs)
           }
@@ -1344,7 +1586,6 @@ const getNumCopmletedJobs = (id, num, userType) => {
 
 module.exports = {
   TicketController,
-  confirmJobTicket,
   activateJobTicket,
   submitLoadTicket,
   finishLoadTicket,

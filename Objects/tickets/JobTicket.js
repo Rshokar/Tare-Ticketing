@@ -209,32 +209,6 @@ class JobTicket extends Ticket {
     }
 
     /**
-     * Gets job tickets with dispatch, and dispatcher joined.
-     * @param { String } jobId 
-     * @returns jobs if any exist, otherwise undefined
-     */
-    static getJobTicketWithDispatch(jobId) {
-        return new Promise((res, rej) => {
-            Job.findOne({
-                    _id: jobId
-                })
-                .populate({
-                    path: 'dispatch',
-                    model: "Dispatch",
-                })
-                .then((jobModel) => {
-                    if (jobModel) {
-                        let job = new JobTicket(jobModel);
-                        job.id = jobModel._doc._id
-                        res(job);
-                    } else {
-                        rej();
-                    }
-                })
-        })
-    }
-
-    /**
      * Gets a single job ticket with dispatch, and dispatcher joined.
      * @param { String } jobId jobId 
      * @returns jobs if any exist, otherwise undefined

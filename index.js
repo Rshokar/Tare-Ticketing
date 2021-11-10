@@ -704,7 +704,7 @@ function getDumpLocations(job, id) {
  * @version 1.0 
  * @date June 26 2021
  */
-app.post("/confirm_job_ticket", TicketController.confirmJobTicket, (req, res) => {
+app.post("/confirm_job_ticket", TicketController.TicketController.confirmJobTicket, (req, res) => {
   res.send({
     status: "success",
     message: "Stauts has been updated"
