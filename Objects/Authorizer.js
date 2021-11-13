@@ -16,7 +16,7 @@ class Authorizer {
      */
     static validatePassword(password) {
         const PASSWORD_REGEX = /^(?=.*\d{1,})(?=.*[a-z]{1,})(?=.*[A-Z]{1,})(?=.*[a-zA-Z]{1,}).{8,}$/;
-        if (password !== undefined && !PASSWORD_REGEX.test(password)) {
+        if (password === undefined || !PASSWORD_REGEX.test(password)) {
             throw new ValidationErrors.PasswordError("Invalid Password");
         }
     }

@@ -19,7 +19,7 @@ class UserObject {
     * @date Oct 11 2021
     */
     validateUser() {
-        const NAME_REGEX = /^[a-zA-Z]+$/;
+        const NAME_REGEX = /^[a-zA-Z]+(([',.-][a-zA-Z ])?[a-zA-Z]*)*$/;
         const COMPANY_REGEX = /^[a-zA-Z]+$/;
 
         if (this.fName == "" || !this.fName) {
@@ -32,7 +32,7 @@ class UserObject {
 
         if (this.lName == "" || !this.lName) {
             throw new ValidationErrors.LastNameError("Last name cannot be left empty");
-        } else if (this.lName.length < 3 || this.lName.length > 20) {
+        } else if (!(this.lName.length > 2 && this.lName.length < 20)) {
             throw new ValidationErrors.LastNameError("Last Name must be between 3 - 20 characters");
         } else if (!NAME_REGEX.test(this.lName)) {
             throw new ValidationErrors.LastNameError("Last Name cannot container numbers or special characters.");
@@ -45,16 +45,24 @@ class UserObject {
             throw new ValidationErrors.PhoneError("Phone number must only contain digits.");
         } else if (this.phone.length < 10) {
             throw new ValidationErrors.PhoneError("Phone number is to short.");
+        } else if (this.phone == "" || !this.phone) {
+            throw new ValidationErrors.PhoneError("Phone number cannot be left empty");
+        } else if (this.phone.length > 10) {
+            throw new ValidationErrors.PhoneError("Phone number is too long");
         }
 
-        if (this.company == "" || !this.company) {
+        if (this.company === "" || !this.company) {
             throw new ValidationErrors.CompanyNameError("Company Name cannot be left empty");
-        } else if (this.company.length < 3 || this.company.length > 20) {
+        } else if (!(this.company.length > 2 && this.company.length < 20)) {
             throw new ValidationErrors.CompanyNameError("Company Name must be between 3 - 20 characters");
         }
         // else if (!NAME_REGEX.test(this.company)) {
         //     throw new ValidationErrors.CompanyNameError("Company Name cannot containe numbers or special characters.");
         // }
+
+        if (this.type !== "dispatcher" && this.type !== "operators" && this.type !== "employees") {
+            throw new ValidationErrors.UserTypeError("Invalid user type passed in.");
+        }
     }
 
 
@@ -100,16 +108,22 @@ class UserObject {
                 })
         })
     }
-    /**
-     * Saves a user to DB
-     * @param { UserObject } user 
-     * @returns 
-     */
-    static saveUser(user) {
-        return new Promise((res, rej) => {
 
+    static deleteUser(id) {
+        return new Promise((res, rej) => {
+            User.deleteOne({
+                _id: id
+            })
+                .then(() => {
+                    res();
+                })
+                .catch(() => {
+                    rej();
+                })
         })
     }
+
+
 }
 
 

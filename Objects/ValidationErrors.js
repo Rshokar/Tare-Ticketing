@@ -12,6 +12,13 @@ class LastNameError extends Error {
     }
 }
 
+class UserTypeError extends Error {
+    constructor(message) {
+        super(message);
+        this.code = "type";
+    }
+}
+
 class EmailError extends Error {
     constructor(message) {
         super(message);
@@ -122,4 +129,5 @@ module.exports = {
     SupplierError,
     MaterialError,
     SavingTicketsError,
+    UserTypeError,
 };

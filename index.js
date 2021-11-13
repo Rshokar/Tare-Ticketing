@@ -317,6 +317,16 @@ app.get("/login", (req, res) => {
 });
 
 /**
+ * Checks the status of the Tare API. If server is 
+ * on, returns status 200
+ * @author Ravinder Shokar 
+ * @date Nov 12 2021
+ */
+app.get("/status", (req, res) => {
+  res.status(200).send();
+})
+
+/**
  * This route will return the appropriate HTML for the Register page. 
  * @author Nolan Nordwall 
  * @version 1.0
@@ -352,20 +362,6 @@ app.post("/login_user", AuthController.login, (req, res) => {
   res.redirect("/dashboard")
 })
 
-// /**
-//  * This route will return the appropriate HTML for the register page. 
-//  * @author Ravinder Shokar 
-//  * @version 1.0
-//  * @date May 19 2021
-//  */
-// app.get("/register", (req, res) => {
-//   readFile("static/html/register.html", "utf-8", (err, html) => {
-//     if (err) {
-//       throw err;
-//     }
-//     res.send(html);
-//   })
-// })
 
 /**
  * This route is repsonsible for regustering a new user and then redirecting to the login
@@ -375,6 +371,17 @@ app.post("/login_user", AuthController.login, (req, res) => {
  * @date May 23 2021 
  */
 app.post("/register_user", AuthController.register, (req, res) => {
+  res.redirect("/login");
+})
+
+/**
+ * This route is repsonsible for regustering a new user and then redirecting to the login
+ * page.
+ * @author Ravinder Shokar 
+ * @version 1.0 
+ * @date May 23 2021 
+ */
+app.delete("/delete_user", AuthController.deleteUser, (req, res) => {
   res.redirect("/login");
 })
 
