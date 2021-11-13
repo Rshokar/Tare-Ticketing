@@ -124,54 +124,6 @@ const deleteEmp = async (req, res, next) => {
       }
     });
   };
-
-
-
-  // jwt.verify(token, 'butternut', async (err, decodedToken) => {
-  //   if (err) {
-  //     console.log("failure to verify JWT");
-  //     res.send({
-  //       status: "error",
-  //       message: "Error finding current user ID."
-  //     })
-  //   }
-  //   User.findOne({ _id: decodedToken.id })
-  //     .then(user => {
-  //       if (user) {
-  //         for (let emp in user.employees) {
-  //           if (user.employees[emp].id == empId) {
-  //             user.employees.splice(emp, 1);
-  //           }
-  //         }
-
-  //         User.deleteOne({ _id: empId }, (err, res) => {
-  //           if (err) {
-  //             res.send({
-  //               message: "Error finding employee",
-  //               status: "error"
-  //             })
-  //           }
-  //           console.log(res);
-  //           user.save();
-  //           next();
-  //         })
-  //       } else {
-  //         console.log("Error finding dispatcher");
-  //         res.send({
-  //           status: "error",
-  //           message: "Error finding dispatcher"
-  //         })
-  //       }
-  //     })
-  //     .catch(err => {
-  //       console.log(err);
-  //       res.send({
-  //         status: "error",
-  //         message: "Error finding dispatcher"
-  //       })
-  //     })
-  // })
-
 }
 
 
