@@ -16,8 +16,6 @@ class EmployeeObject extends UserObject {
     */
     validateUser() {
         const NAME_REGEX = /^[a-zA-Z]+$/;
-
-
         if (this.fName == "" || !this.fName) {
             throw new ValidationErrors.FirstNameError("First name cannot be left empty");
         } else if (this.fName.length < 3 || this.fName.length > 20) {
@@ -35,13 +33,7 @@ class EmployeeObject extends UserObject {
         }
 
         UserObject.validateEmail(this.email);
-
-
-        if (!Number(this.phone)) {
-            throw new ValidationErrors.PhoneError("Phone number must only contain digits.");
-        } else if (this.phone.length < 10) {
-            throw new ValidationErrors.PhoneError("Phone number is to short.");
-        }
+        this.validatePhone();
     }
 }
 

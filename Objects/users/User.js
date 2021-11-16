@@ -40,27 +40,11 @@ class UserObject {
 
         UserObject.validateEmail(this.email);
 
+        this.validatePhone();
 
-        if (!Number(this.phone)) {
-            throw new ValidationErrors.PhoneError("Phone number must only contain digits.");
-        } else if (this.phone.length < 10) {
-            throw new ValidationErrors.PhoneError("Phone number is to short.");
-        } else if (this.phone == "" || !this.phone) {
-            throw new ValidationErrors.PhoneError("Phone number cannot be left empty");
-        } else if (this.phone.length > 10) {
-            throw new ValidationErrors.PhoneError("Phone number is too long");
-        }
+        this.validateCompany();
 
-        if (this.company === "" || !this.company) {
-            throw new ValidationErrors.CompanyNameError("Company Name cannot be left empty");
-        } else if (!(this.company.length > 2 && this.company.length < 20)) {
-            throw new ValidationErrors.CompanyNameError("Company Name must be between 3 - 20 characters");
-        }
-        // else if (!NAME_REGEX.test(this.company)) {
-        //     throw new ValidationErrors.CompanyNameError("Company Name cannot containe numbers or special characters.");
-        // }
-
-        if (this.type !== "dispatcher" && this.type !== "operators" && this.type !== "employees") {
+        if (this.type !== "dispatcher" && this.type !== "operator" && this.type !== "employee") {
             throw new ValidationErrors.UserTypeError("Invalid user type passed in.");
         }
     }
@@ -73,6 +57,25 @@ class UserObject {
         }
     }
 
+    validateCompany() {
+        if (this.company === "" || !this.company) {
+            throw new ValidationErrors.CompanyNameError("Company Name cannot be left empty");
+        } else if (!(this.company.length > 2 && this.company.length < 20)) {
+            throw new ValidationErrors.CompanyNameError("Company Name must be between 3 - 20 characters");
+        }
+    }
+
+    validatePhone() {
+        if (!Number(this.phone)) {
+            throw new ValidationErrors.PhoneError("Phone number must only contain digits.");
+        } else if (this.phone.length < 10) {
+            throw new ValidationErrors.PhoneError("Phone number is to short.");
+        } else if (this.phone == "" || !this.phone) {
+            throw new ValidationErrors.PhoneError("Phone number cannot be left empty");
+        } else if (this.phone.length > 10) {
+            throw new ValidationErrors.PhoneError("Phone number is too long");
+        }
+    }
 
     /**
      * Get a user with a specific email
@@ -100,6 +103,7 @@ class UserObject {
         return new Promise((res) => {
             User.findOne({ _id: id })
                 .then(user => {
+                    console.log(user);
                     if (user) {
                         res(user);
                     } else {
@@ -123,7 +127,38 @@ class UserObject {
         })
     }
 
+    /**
+     *
+     * @param { UserObject } user
+     * @returns
+     */
+    async delete() {
+        return new Promise((res, rej) => {
+            User.deleteOne({ _id: this.id })
+                .then(err => {
+                    if (err.deleteCount == 0) {
+                        rej();
+                    } else {
+                        console.log("User successfully deleted!");
+                        res();
+                    }
+                })
+        })
+    }
 
+    static deleteUserUsingModel(model) {
+        return new Promise((res, rej) => {
+            User.deleteOne({
+                _id: model.id
+            })
+                .then(() => {
+                    res();
+                })
+                .catch(() => {
+                    rej();
+                })
+        })
+    }
 }
 
 

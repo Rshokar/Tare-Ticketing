@@ -359,12 +359,12 @@ app.get("/logout", (req, res) => {
  * @date May 23 2021
  */
 app.post("/login_user", AuthController.login, (req, res) => {
-  res.redirect("/dashboard")
+  res.redirect("/dashboard");
 })
 
 
 /**
- * This route is repsonsible for regustering a new user and then redirecting to the login
+ * This route is repsonsible for registering a new user and then redirecting to the login
  * page.
  * @author Ravinder Shokar 
  * @version 1.0 
@@ -992,7 +992,7 @@ app.get("/employee", authenticate, async (req, res) => {
   try {
     let decodedToken = await Authorizer.verifyJWTToken(token);
     let employee = await UserObject.getUserWithId(id);
-    res.render("employee", { page: pageName, user: decodedToken, employee })
+    res.render("employee", { page: pageName, user: decodedToken, employee: employee._doc })
   } catch (e) {
     console.log(e);
     res.send({ status: "error", err: { code: e.code, message: e.message } });
@@ -1023,7 +1023,7 @@ app.post("/register_employee", AuthController.registerEmp, (req, res) => {
  * @version 1.0
  * @date Jun 7 2021
  */
-app.post("/delete_employee", AuthController.deleteEmp, (req, res) => {
+app.delete("/delete_employee", AuthController.deleteEmp, (req, res) => {
   res.send({ message: "Succesfully Deleted Employee", status: "success" });
 })
 

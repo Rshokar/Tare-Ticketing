@@ -109,7 +109,7 @@ function getFormData() {
 function deleteEmp(empID) {
 	$.ajax({
 		url: "delete_employee",
-		type: "POST",
+		type: "DELETE",
 		dataType: "JSON",
 		data: { empID },
 		success: (data) => {
