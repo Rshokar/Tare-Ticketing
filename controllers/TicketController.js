@@ -119,8 +119,6 @@ class TicketController {
   static confirmJobTicket = async (req, res, next) => {
     const jobId = req.body.jobId;
     const newStatus = 'confirmed';
-    const increment = true;
-    const decrement = false;
 
     try {
       let jobTicket = await JobTicket.getJobTicketWithDispatch(jobId);
@@ -824,34 +822,49 @@ const activateJobTicket = (req, res, next) => {
   const jobId = req.body.jobId;
   const newStatus = 'active';
 
-  Job.findOne({
-      _id: jobId
-    })
-    .then((ticket) => {
-      if (ticket == null) {
-        res.send({
-          status: "error",
-          message: "Error finding job"
-        })
-      }
-      const prevStatus = ticket.status;
+  try {
+    let jobTicket = await JobTicket.getJobTicketWithDispatch(jobId);
+    let dispatchTicket = jobTicket.dispatch;
+    jobTicket.status = newStatus;
+    dispatchTicket.status.confirmed--;
+    dispatchTicket.status.active++;
+    console.log(dispatchTicket);
+    jobTicket.save();
+    dispatchTicket.save();
+    dispatchTicket.markModified("status");
+    next();
+  } catch (e) {
+    console.log(e);
+  }
 
-      ticket.status = newStatus;
+  // Job.findOne({
+  //     _id: jobId
+  //   })
+  //   .then((ticket) => {
+  //     if (ticket == null) {
+  //       res.send({
+  //         status: "error",
+  //         message: "Error finding job"
+  //       })
+  //     }
+  //     const prevStatus = ticket.status;
 
-      updateDispatchStatus(prevStatus, newStatus, ticket)
-        .then((dispatch) => {
-          dispatch.save();
-          ticket.save();
-          next();
-        })
-        .catch((err) => {
-          console.log(err)
-          res.send({
-            status: "error",
-            message: "Error finding dispatch"
-          })
-        })
-    })
+  //     ticket.status = newStatus;
+
+  //     updateDispatchStatus(prevStatus, newStatus, ticket)
+  //       .then((dispatch) => {
+  //         dispatch.save();
+  //         ticket.save();
+  //         next();
+  //       })
+  //       .catch((err) => {
+  //         console.log(err)
+  //         res.send({
+  //           status: "error",
+  //           message: "Error finding dispatch"
+  //         })
+  //       })
+  //   })
 }
 
 /**
