@@ -10,6 +10,7 @@ const {
 const UserController = require("../controllers/UserController");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const ValidationErrors = require("../Objects/ValidationErrors");
 'use strict';
 
 
@@ -109,7 +110,6 @@ class TicketController {
     })
   }
 
-
   /**
    * This function is responsible for changing the status of a job ticket to confirmed.
    * @author Jacob Seol 
@@ -137,52 +137,42 @@ class TicketController {
     }
   }
 
-  // jwt.verify(token, "butternut", async (err, decodedToken) => {
-  //   if (err) {
-  //     res.send({
-  //       status: "error",
-  //       message: "Error decoding JWT token."
-  //     })
-  //     next();
-  //   }
+/**
+ * This function is responsible for changing the status of a job ticket to active. 
+ * This function also utilizes updateDispatchStatus() to update the status of the dispatch
+ * @author Jacob Seol 
+ * @version 1.1 
+ * @date November 19, 2021
+ */
+  static activateJobTicket = async (req, res, next) => {
+  const jobId = req.body.jobId;
+  const ERROR_MESSAGE = "Must activate job ticket within 15 minutes of job start time.";
+  const NEW_STATUS = 'active';
+  const FIFTEEN_MINUTES_IN_MILLISECONDS = 900000;
 
-  //   try {
-  //     if (rates.hourly) {
-  //       user = await UserController.getUser(decodedToken.id);
-  //       rates["hourly"] = { cont: rates.hourly, oper: user._doc.contractors[req.body.contractor].operatorRates }
-  //     }
-  //     let dispatch = new Dispatch({
-  //       dispatcher: {
-  //         id: ObjectId(decodedToken.id),
-  //         company: decodedToken.company,
-  //       },
-  //       operators: req.body.operators,
-  //       date: req.body.date + "T00:00",
-  //       dumpLocation: req.body.dumpLocation,
-  //       loadLocation: req.body.loadLocation,
-  //       contractor: req.body.contractor,
-  //       numTrucks: req.body.numTrucks,
-  //       notes: req.body.notes,
-  //       material: req.body.material,
-  //       supplier: req.body.supplier,
-  //       reciever: req.body.reciever,
-  //       status: {},
-  //       rates,
-  //     })
-
-  //     dispatch = await createJobTickets(dispatch.operators, dispatch);
-  //     dispatch.save();
-  //     res.send({ status: "success", message: "Succesfull Ajax call" })
-  //     next();
-  // } catch (e) {
-  //   console.log(e);
-  //   res.send({ status: "error", err: e })
-  //   next()
-  // }
-  //   })
+  try {
+    let jobTicket = await JobTicket.getJobTicketWithDispatch(jobId);
+    let dispatchTicket = jobTicket.dispatch;
+    const currentDate = new Date();
+    const difference = jobTicket.startTime - currentDate;
+    if (difference >= FIFTEEN_MINUTES_IN_MILLISECONDS) {
+      throw new ValidationErrors.TimeError(ERROR_MESSAGE, jobId);
+    }
+    jobTicket.status = NEW_STATUS;
+    dispatchTicket.status.confirmed--;
+    dispatchTicket.status.active++;
+    console.log(jobTicket);
+    console.log(dispatchTicket);
+    jobTicket.save();
+    dispatchTicket.save();
+    dispatchTicket.markModified("status");
+    next();
+  } catch (e) {
+    console.log(e);
+    res.status(400).send({status: "error", err: {code: e.code, message: e.message, jobId: e.id}});
+  }
 }
-
-
+}
 
 /**
  * Updates a dispatch ticket and job tickets. 
@@ -809,62 +799,6 @@ const deleteJobTicket = (jobId) => {
         })
       })
   })
-}
-
-/**
- * This function is responsible for changing the status of a job ticket to active. 
- * This function also utilizes updateDispatchStatus() to update the status of the dispatch
- * @author Ravinder Shokar 
- * @version 1.0 
- * @date June 26 2021
- */
-const activateJobTicket = (req, res, next) => {
-  const jobId = req.body.jobId;
-  const newStatus = 'active';
-
-  try {
-    let jobTicket = await JobTicket.getJobTicketWithDispatch(jobId);
-    let dispatchTicket = jobTicket.dispatch;
-    jobTicket.status = newStatus;
-    dispatchTicket.status.confirmed--;
-    dispatchTicket.status.active++;
-    console.log(dispatchTicket);
-    jobTicket.save();
-    dispatchTicket.save();
-    dispatchTicket.markModified("status");
-    next();
-  } catch (e) {
-    console.log(e);
-  }
-
-  // Job.findOne({
-  //     _id: jobId
-  //   })
-  //   .then((ticket) => {
-  //     if (ticket == null) {
-  //       res.send({
-  //         status: "error",
-  //         message: "Error finding job"
-  //       })
-  //     }
-  //     const prevStatus = ticket.status;
-
-  //     ticket.status = newStatus;
-
-  //     updateDispatchStatus(prevStatus, newStatus, ticket)
-  //       .then((dispatch) => {
-  //         dispatch.save();
-  //         ticket.save();
-  //         next();
-  //       })
-  //       .catch((err) => {
-  //         console.log(err)
-  //         res.send({
-  //           status: "error",
-  //           message: "Error finding dispatch"
-  //         })
-  //       })
-  //   })
 }
 
 /**
@@ -1599,7 +1533,6 @@ const getNumCopmletedJobs = (id, num, userType) => {
 
 module.exports = {
   TicketController,
-  activateJobTicket,
   submitLoadTicket,
   finishLoadTicket,
   updateLoadTicket,

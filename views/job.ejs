@@ -111,8 +111,7 @@
 
 <% if ( job.status=="active" ) { %>
 <div id="positive_button_container">
-  <% if (job.loadTickets[job.loadTickets.length - 1]!==undefined &&
-                    job.loadTickets[job.loadTickets.length - 1].status==="active" ) { %>
+  <% if (job.loadTickets && job.loadTickets[job.loadTickets.length - 1].status==="active" ) { %>
   <button class="new_load_ticket" onclick="openFinishLoadModal()">Finish Load
     Ticket</button>
   <% } else { %>

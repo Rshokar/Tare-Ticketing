@@ -105,6 +105,15 @@ class SavingTicketsError extends Error {
         this.ids = ids;
     }
 }
+
+class TimeError extends Error {
+    constructor(message, id) {
+        super(message);
+        this.code = "invalid_time_error";
+        this.id = id;
+    }
+}
+
 module.exports = {
     NumTrucksError,
     PasswordError,
@@ -122,4 +131,5 @@ module.exports = {
     SupplierError,
     MaterialError,
     SavingTicketsError,
+    TimeError,
 };

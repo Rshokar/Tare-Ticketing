@@ -718,7 +718,7 @@ app.post("/confirm_job_ticket", TicketController.TicketController.confirmJobTick
  * @version 1.0 
  * @date June 26 2021
  */
-app.post("/activate_job_ticket", TicketController.activateJobTicket, (req, res) => {
+app.post("/activate_job_ticket", TicketController.TicketController.activateJobTicket, (req, res) => {
   res.send({
     status: "success",
     message: "Job status updated"
