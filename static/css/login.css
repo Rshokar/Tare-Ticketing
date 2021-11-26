@@ -3,23 +3,79 @@ html, body{
   height: 100%;
 }
 
-main{
-  margin: 0 auto;
-  text-align: center;
-  width: 60%;
-  height: 60%;
+body{
+  display: grid;
+  grid-template-columns: 10% 1fr 10%;
+  grid-template-rows: 10% 5% 20% 1fr 10%;
+  background-color: #004065;
 }
 
-#login_top{
-  background-color: blanchedalmond;
+nav{
+ grid-column: 1/4;
+ grid-row: 1;
+ background-color: #0277bd;
+}
+
+#content_section{
+  grid-row: 3/5;
+  grid-column: 2 / 3;
+  background-color: white;
   border-radius: 10px;
 }
 
+main{
+  grid-row: 2/3;
+  grid-column: 2 / 3;
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+}
+
+#login_logo{
+  margin-top: 5px;
+  background-color: #0277bd;
+  border-radius: 10px;
+  color: white;
+}
+
 img{
-  width: 20%;
+  width: 100%;
+  border-radius: 10px;
 }
 
 #login_submit{
+  width: 30%;
   margin: 8px;
+  background-color: #8BC34A;
+  border-radius: 4px;
 }
 
+#password {
+  margin-top: 5px;
+ display: grid;
+ grid-template-columns: 30% 60% 5%;
+}
+#email {
+  display: grid;
+  grid-template-columns: 30% 60% 5%;
+ }
+
+#email input{
+  grid-column: 2;
+}
+#password input{
+  grid-column: 2;
+}
+
+#login_bottom a{
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  width: 30%;
+  background-color: #FFEB38;
+  text-decoration: none;
+  border: 1px solid black;
+  border-radius: 4px;
+}

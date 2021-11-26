@@ -1,48 +1,51 @@
 <link rel="stylesheet" href="css/register.css">
 
-<div id="content_section">
-  <div id="register">
-    <form action="/register_user" method="POST">
-      <div id="register_header">
-        <img src="images/truck.png">
-        <p>Register here!</p>
-      </div>
-      <div id="email">
-        <label>Email</label>
-        <input type='text' name="email" required placeholder="Email">
-      </div>
-      <div id="fName">
-        <label>First Name</label>
-        <input type='text' name="fName" required placeholder="First Name">
-      </div>
-      <div id="lName">
-        <label>Last Name</label>
-        <input type='text' name="lName" required placeholder="Last Name">
-      </div>
-      <div id="phone">
-        <label>Phone</label>
-        <input type='phone' name="phone" required placeholder="">
-      </div>
-      <div id="company">
-        <label>Company</label>
-        <input type='text' name="company" required placeholder="Company">
-      </div>
-      <div id="type">
-        <label>Account Type</label>
-        <select name="type" required id="type">
-          <option value="dispatcher">Dispatcher</option>
-          <option value="operator">Operator</option>
-        </select>
-      </div>
-      <div id="password">
-        <label>Password</label>
-        <input type='password' name="password" required placeholder="Password">
-      </div>
-      <input id="register_submit" type="submit">
-    </form>
-    <span id="switch">Do you have an account? <a href="/login">Login</a></span>
+<div id="register">
+  <form action="/register_user" method="POST">
+
+    <img src="images/Tare.png">
+    <legend>Register here!</legend>
+    <div id="email">
+      <label>Email</label>
+      <input type='text' name="email" required placeholder="Email">
+    </div>
+    <div id="fName">
+      <label>First Name</label>
+      <input type='text' name="fName" required placeholder="First Name">
+    </div>
+    <div id="lName">
+      <label>Last Name</label>
+      <input type='text' name="lName" required placeholder="Last Name">
+    </div>
+    <div id="phone">
+      <label>Phone</label>
+      <input type='phone' name="phone" required placeholder="">
+    </div>
+    <div id="company">
+      <label>Company</label>
+      <input type='text' name="company" required placeholder="Company">
+    </div>
+    <div id="type">
+      <label>Account Type</label>
+      <select name="type" required id="type">
+        <option value="dispatcher">Dispatcher</option>
+        <option value="operator">Operator</option>
+      </select>
+    </div>
+    <div id="password">
+      <label>Password</label>
+      <input type='password' name="password" required placeholder="Password">
+    </div>
+    <input id="register_submit" type="submit">
+  </form>
+  <div id="register_Bottom">
+    <span id="switch">Do you have an account?
+      <br>
+      <br>
+      <a href="/login">Login</a></span>
   </div>
 </div>
+
 
 
 <!-- Font Awsome -->

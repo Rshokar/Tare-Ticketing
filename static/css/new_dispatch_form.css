@@ -1,3 +1,8 @@
+body{
+    background-color:#004065;
+    color: white;
+}
+
 form {
     padding-left: .25em;
     padding-right: .25em;

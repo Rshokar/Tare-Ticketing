@@ -1,3 +1,8 @@
+body{
+    background-color:#004065;
+    color: white;
+}
+
 .dispatch {
     margin-top: 1em;
     padding: .5em .5em .5em .5em;

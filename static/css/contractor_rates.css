@@ -1,5 +1,5 @@
 .contractor {
-    background-color: #CFCFCF;
+    background-color: #ffffff;
     height: 8vh;
     display: grid;
     align-content: center;
@@ -60,4 +60,29 @@
     width: 100%;
 }
 
+.hourly_rate{
+    display: grid;grid-template-columns: 60% 40%;
+    text-align: center;
+    border: 1px solid black;
 
+}
+.tonnage_rate{
+    display: grid;grid-template-columns: 60% 40%;
+    text-align: center;
+    border: 1px solid black;
+
+}
+.per_load_rate{
+    display: grid;grid-template-columns: 60% 40%;
+    text-align: center;
+    border: 1px solid black;
+
+}
+
+button{
+  width: 40%;
+  margin: 0 auto;
+  text-align: center;
+  background-color: #8BC34A;
+  border-radius: 4px;
+}

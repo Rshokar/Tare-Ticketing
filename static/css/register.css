@@ -3,28 +3,106 @@ html, body{
   height: 100%;
 }
 
+nav{
+  grid-column: 1/4;
+  grid-row: 1;
+  background-color: #0277bd;
+ }
+
+body{
+  display: grid;
+  grid-template-columns: 10% 1fr 10%;
+  grid-template-rows: 10% 5% 20% 1fr 10%;
+  background-color: #004065;
+}
+
+#content_section{
+  grid-row: 3/5;
+  grid-column: 2 / 3;
+  background-color: white;
+  border-radius: 10px;
+}
+
 #register{
   text-align: center;
 }
+#fName {
+  margin-top: 5px;
+ display: grid;
+ grid-template-columns: 30% 60% 5%;
+}
+#lName {
+  display: grid;
+  grid-template-columns: 30% 60% 5%;
+ }
 
-label{
-  width: 25%;
+#fName input{
+  grid-column: 2;
+}
+#lName input{
+  grid-column: 2;
+}
+#password {
+  margin-top: 5px;
+ display: grid;
+ grid-template-columns: 30% 60% 5%;
+}
+#email {
+  display: grid;
+  grid-template-columns: 30% 60% 5%;
+ }
+
+#email input{
+  grid-column: 2;
+}
+#password input{
+  grid-column: 2;
+}
+#type input{
+  grid-column: 2;
+}
+#type{
+  margin-top: 5px;
+ display: grid;
+ grid-template-columns: 30% 60% 5%;
+}
+#company {
+  margin-top: 5px;
+ display: grid;
+ grid-template-columns: 30% 60% 5%;
+}
+#phone {
+  display: grid;
+  grid-template-columns: 30% 60% 5%;
+ }
+
+#company input{
+  grid-column: 2;
+}
+#phone input{
+  grid-column: 2;
 }
 
 #register_submit{
-  margin: 10px;
-}
-
-#register_header{
-  background-color: blanchedalmond;
-  border-radius: 10px;
+  width: 30%;
+  margin: 8px;
+  background-color: #8BC34A;
+  border-radius: 4px;
 }
 
 img{
-  width:20%;
+  width: 100%;
+  border-radius: 10px;
 }
 
-form{
-  border: 2px solid black;
-  border-radius: 10px;
+#register_Bottom a{
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  width: 30%;
+  background-color: #FFEB38;
+  text-decoration: none;
+  border: 1px solid black;
+  border-radius: 4px;
 }

@@ -1,3 +1,8 @@
+body{
+    background-color:#004065;
+    color: white;
+}
+
 #user-info {
     text-align: center;
     height: 20vh;
