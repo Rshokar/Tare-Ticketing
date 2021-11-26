@@ -17,7 +17,7 @@ const loadSchema = new Schema({
 
 const jobSchema = new Schema({
     dispatch: { type: mongoose.Schema.Types.ObjectId, ref: "Dispatch", },
-    operator: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    operator: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: false },
     date: Date,
     startTime: Date,
     finishTime: Date,

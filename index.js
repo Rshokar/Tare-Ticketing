@@ -655,9 +655,6 @@ var remLoadLocationDuplicates = (lst) => {
   return lst
 }
 
-
-
-
 /**
  * This fuction will gather the possible dump locations dependent on which loadId passed in 
  * job ticket
@@ -733,6 +730,13 @@ app.post("/activate_job_ticket", TicketController.TicketController.activateJobTi
  * @date July 3 2021
  */
 app.post("/complete_job_ticket", TicketController.completeJobTicket, (req, res) => {
+})
+
+app.post("/decline_job_ticket", TicketController.TicketController.declineJobTicket, (req, res) => {
+  res.send({
+    status: "success",
+    message: "Job successfully declined"
+  });
 })
 
 /**

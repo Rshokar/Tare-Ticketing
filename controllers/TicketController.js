@@ -137,42 +137,71 @@ class TicketController {
     }
   }
 
-/**
- * This function is responsible for changing the status of a job ticket to active. 
- * This function also utilizes updateDispatchStatus() to update the status of the dispatch
- * @author Jacob Seol 
- * @version 1.1 
- * @date November 19, 2021
- */
-  static activateJobTicket = async (req, res, next) => {
-  const jobId = req.body.jobId;
-  const ERROR_MESSAGE = "Must activate job ticket within 15 minutes of job start time.";
-  const NEW_STATUS = 'active';
-  const FIFTEEN_MINUTES_IN_MILLISECONDS = 900000;
+  /**
+   * This function is responsible for changing the status of a job ticket to active. 
+   * This function also utilizes updateDispatchStatus() to update the status of the dispatch
+   * @author Jacob Seol 
+   * @version 1.1 
+   * @date November 19, 2021
+   */
+    static activateJobTicket = async (req, res, next) => {
+    const jobId = req.body.jobId;
+    const ERROR_MESSAGE = 'Must activate job ticket within 15 minutes of job start time.';
+    const NEW_STATUS = 'active';
+    const FIFTEEN_MINUTES_IN_MILLISECONDS = 900000;
 
-  try {
-    let jobTicket = await JobTicket.getJobTicketWithDispatch(jobId);
-    let dispatchTicket = jobTicket.dispatch;
-    const currentDate = new Date();
-    const difference = jobTicket.startTime - currentDate;
-    if (difference >= FIFTEEN_MINUTES_IN_MILLISECONDS) {
-      throw new ValidationErrors.TimeError(ERROR_MESSAGE, jobId);
+    try {
+      let jobTicket = await JobTicket.getJobTicketWithDispatch(jobId);
+      let dispatchTicket = jobTicket.dispatch;
+      const currentDate = new Date();
+      const difference = jobTicket.startTime - currentDate;
+      if (difference >= FIFTEEN_MINUTES_IN_MILLISECONDS) {
+        throw new ValidationErrors.TimeError(ERROR_MESSAGE, jobId);
+      }
+      jobTicket.status = NEW_STATUS;
+      dispatchTicket.status.confirmed--;
+      dispatchTicket.status.active++;
+      console.log(jobTicket);
+      console.log(dispatchTicket);
+      dispatchTicket.markModified("status");
+      jobTicket.save();
+      dispatchTicket.save();
+      next();
+    } catch (e) {
+      console.log(e);
+      res.status(400).send({status: "error", err: {code: e.code, message: e.message, jobId: e.id}});
     }
-    jobTicket.status = NEW_STATUS;
-    dispatchTicket.status.confirmed--;
-    dispatchTicket.status.active++;
-    console.log(jobTicket);
-    console.log(dispatchTicket);
-    jobTicket.save();
-    dispatchTicket.save();
-    dispatchTicket.markModified("status");
-    next();
-  } catch (e) {
-    console.log(e);
-    res.status(400).send({status: "error", err: {code: e.code, message: e.message, jobId: e.id}});
+  }
+
+  /**
+   * @Author Jacob Seol
+   * @Version 1.0
+   * @date November 26, 2021
+   */
+  static declineJobTicket = async (req, res, next) => {
+    const jobId = req.body.jobId;
+    const NEW_STATUS = 'empty';
+
+    try {
+      let jobTicket = await JobTicket.getJobTicketWithDispatch(jobId);
+      let dispatchTicket = jobTicket.dispatch;
+      let currentStatus = jobTicket.status;
+      jobTicket.operator = null;
+      jobTicket.status = NEW_STATUS;
+      dispatchTicket.status[currentStatus]--;
+      console.log(jobTicket);
+      console.log(dispatchTicket);
+      dispatchTicket.markModified("status");
+      jobTicket.save();
+      dispatchTicket.save();
+      next();
+    } catch (e) {
+      console.log(e);
+      res.status(400).send({status: "error", err:{message: e.message}});
+    }
   }
 }
-}
+
 
 /**
  * Updates a dispatch ticket and job tickets. 

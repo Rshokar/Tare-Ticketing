@@ -230,7 +230,7 @@ class JobTicket extends Ticket {
                     if (jobs) {
                         res(jobs);
                     } else {
-                        rej();
+                        rej(new ValidationErrors.InvalidInputError("Operator is undefined"));
                     }
                 })
         })
