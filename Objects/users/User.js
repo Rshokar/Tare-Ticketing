@@ -19,7 +19,7 @@ class UserObject {
     * @date Oct 11 2021
     */
     validateUser() {
-        const NAME_REGEX = /^[a-zA-Z]+$/;
+        const NAME_REGEX = /^[a-zA-Z]+(([',.-][a-zA-Z ])?[a-zA-Z]*)*$/;
         const COMPANY_REGEX = /^[a-zA-Z]+$/;
 
         if (this.fName == "" || !this.fName) {
@@ -32,7 +32,7 @@ class UserObject {
 
         if (this.lName == "" || !this.lName) {
             throw new ValidationErrors.LastNameError("Last name cannot be left empty");
-        } else if (this.lName.length < 3 || this.lName.length > 20) {
+        } else if (!(this.lName.length > 2 && this.lName.length < 20)) {
             throw new ValidationErrors.LastNameError("Last Name must be between 3 - 20 characters");
         } else if (!NAME_REGEX.test(this.lName)) {
             throw new ValidationErrors.LastNameError("Last Name cannot container numbers or special characters.");
@@ -40,21 +40,13 @@ class UserObject {
 
         UserObject.validateEmail(this.email);
 
+        this.validatePhone();
 
-        if (!Number(this.phone)) {
-            throw new ValidationErrors.PhoneError("Phone number must only contain digits.");
-        } else if (this.phone.length < 10) {
-            throw new ValidationErrors.PhoneError("Phone number is to short.");
-        }
+        this.validateCompany();
 
-        if (this.company == "" || !this.company) {
-            throw new ValidationErrors.CompanyNameError("Company Name cannot be left empty");
-        } else if (this.company.length < 3 || this.company.length > 20) {
-            throw new ValidationErrors.CompanyNameError("Company Name must be between 3 - 20 characters");
+        if (this.type !== "dispatcher" && this.type !== "operator" && this.type !== "employee") {
+            throw new ValidationErrors.UserTypeError("Invalid user type passed in.");
         }
-        // else if (!NAME_REGEX.test(this.company)) {
-        //     throw new ValidationErrors.CompanyNameError("Company Name cannot containe numbers or special characters.");
-        // }
     }
 
 
@@ -65,6 +57,25 @@ class UserObject {
         }
     }
 
+    validateCompany() {
+        if (this.company === "" || !this.company) {
+            throw new ValidationErrors.CompanyNameError("Company Name cannot be left empty");
+        } else if (!(this.company.length > 2 && this.company.length < 20)) {
+            throw new ValidationErrors.CompanyNameError("Company Name must be between 3 - 20 characters");
+        }
+    }
+
+    validatePhone() {
+        if (!Number(this.phone)) {
+            throw new ValidationErrors.PhoneError("Phone number must only contain digits.");
+        } else if (this.phone.length < 10) {
+            throw new ValidationErrors.PhoneError("Phone number is to short.");
+        } else if (this.phone == "" || !this.phone) {
+            throw new ValidationErrors.PhoneError("Phone number cannot be left empty");
+        } else if (this.phone.length > 10) {
+            throw new ValidationErrors.PhoneError("Phone number is too long");
+        }
+    }
 
     /**
      * Get a user with a specific email
@@ -92,6 +103,7 @@ class UserObject {
         return new Promise((res) => {
             User.findOne({ _id: id })
                 .then(user => {
+                    console.log(user);
                     if (user) {
                         res(user);
                     } else {
@@ -100,14 +112,51 @@ class UserObject {
                 })
         })
     }
-    /**
-     * Saves a user to DB
-     * @param { UserObject } user 
-     * @returns 
-     */
-    static saveUser(user) {
-        return new Promise((res, rej) => {
 
+    static deleteUser(id) {
+        return new Promise((res, rej) => {
+            User.deleteOne({
+                _id: id
+            })
+                .then(() => {
+                    res();
+                })
+                .catch(() => {
+                    rej();
+                })
+        })
+    }
+
+    /**
+     *
+     * @param { UserObject } user
+     * @returns
+     */
+    async delete() {
+        return new Promise((res, rej) => {
+            User.deleteOne({ _id: this.id })
+                .then(err => {
+                    if (err.deleteCount == 0) {
+                        rej();
+                    } else {
+                        console.log("User successfully deleted!");
+                        res();
+                    }
+                })
+        })
+    }
+
+    static deleteUserUsingModel(model) {
+        return new Promise((res, rej) => {
+            User.deleteOne({
+                _id: model.id
+            })
+                .then(() => {
+                    res();
+                })
+                .catch(() => {
+                    rej();
+                })
         })
     }
 }

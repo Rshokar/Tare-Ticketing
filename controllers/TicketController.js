@@ -128,10 +128,9 @@ class TicketController {
       dispatchTicket.status.confirmed++;
       console.log(dispatchTicket);
       jobTicket.save();
-      dispatchTicket.save();
       dispatchTicket.markModified("status");
+      dispatchTicket.save();
       next();
-
     } catch (e) {
       console.log(e);
     }
@@ -808,8 +807,8 @@ const updateJobTicket = (jobId, jobData, op) => {
 const deleteJobTicket = (jobId) => {
   return new Promise((res, rej) => {
     Job.deleteOne({
-        _id: ObjectId(jobId)
-      })
+      _id: ObjectId(jobId)
+    })
       .then(data => {
         if (data.deletedCount < 1) {
           rej({
@@ -845,8 +844,8 @@ const completeJobTicket = (req, res, next) => {
   let prevStatus
 
   Job.findOne({
-      _id: jobId
-    })
+    _id: jobId
+  })
     .then((ticket) => {
       start = new Date(ticket.startTime);
       finish = new Date(req.body.time);
@@ -910,8 +909,8 @@ const completeJobTicket = (req, res, next) => {
 const updateDispatchStatus = (prevStatus, newStatus, job) => {
   return new Promise((resolve, reject) => {
     Dispatch.findOne({
-        _id: job.dispatchTicket
-      })
+      _id: job.dispatchTicket
+    })
       .then((dispatch) => {
         if (dispatch == null) {
           reject("No dispatch found");
@@ -1324,8 +1323,8 @@ const updateLoadTicket = async (req, res, next) => {
  */
 const deleteLoadTicket = (req, res, next) => {
   Job.findOne({
-      _id: req.body.jobId
-    })
+    _id: req.body.jobId
+  })
     .then((job) => {
       if (job == null) {
         res.send({
@@ -1387,13 +1386,13 @@ const getJobTickets = (q, id, userType, status) => {
       $and: [user, customer, {
         status: status
       }, {
-        $and: [{
-          date: {
-            $gte: q.start,
-            $lte: q.finish
-          }
+          $and: [{
+            date: {
+              $gte: q.start,
+              $lte: q.finish
+            }
+          }]
         }]
-      }]
     }).then((jobs) => {
       if (jobs.length === 0) {
         rej({
@@ -1418,8 +1417,8 @@ const getJobTickets = (q, id, userType, status) => {
 const getJob = async (id) => {
   return new Promise((res, rej) => {
     Job.findOne({
-        _id: ObjectId(id)
-      })
+      _id: ObjectId(id)
+    })
       .then(job => {
         if (job == null) {
           rej({
@@ -1445,8 +1444,8 @@ const getJob = async (id) => {
 const getDispatch = (id) => {
   return new Promise((res, rej) => {
     Dispatch.findOne({
-        _id: ObjectId(id)
-      })
+      _id: ObjectId(id)
+    })
       .then(ticket => {
         console.log(ticket)
         if (ticket === null) {
@@ -1471,25 +1470,25 @@ const getDispatch = (id) => {
 const getNumCopmletedDispatch = (id, num) => {
   return new Promise((res, rej) => {
     Dispatch.find({
-        $and: [{
-            "dispatcher.id": id
-          },
-          {
-            "status.complete": {
-              $gt: 0
-            }
-          },
-          {
-            "status.sent": 0
-          },
-          {
-            "status.confirmed": 0
-          },
-          {
-            "status.active": 0
-          }
-        ]
-      }).limit(num)
+      $and: [{
+        "dispatcher.id": id
+      },
+      {
+        "status.complete": {
+          $gt: 0
+        }
+      },
+      {
+        "status.sent": 0
+      },
+      {
+        "status.confirmed": 0
+      },
+      {
+        "status.active": 0
+      }
+      ]
+    }).limit(num)
       .then(disp => {
         console.log("Hello")
         console.log(disp)
@@ -1517,12 +1516,12 @@ const getNumCopmletedJobs = (id, num, userType) => {
     const DISPATCHER = "dispatcher";
     if (userType === DISPATCHER) {
       Job.find({
-          $and: [{
-            "dispatcher.id": id
-          }, {
-            status: "complete"
-          }]
-        }).limit(num)
+        $and: [{
+          "dispatcher.id": id
+        }, {
+          status: "complete"
+        }]
+      }).limit(num)
         .then(jobs => {
           if (jobs.length === 0) {
             rej({
@@ -1535,12 +1534,12 @@ const getNumCopmletedJobs = (id, num, userType) => {
         })
     } else {
       Job.find({
-          $and: [{
-            "operator.id": id
-          }, {
-            status: "complete"
-          }]
-        }).limit(num)
+        $and: [{
+          "operator.id": id
+        }, {
+          status: "complete"
+        }]
+      }).limit(num)
         .then(jobs => {
           if (jobs.length === 0) {
             rej({
